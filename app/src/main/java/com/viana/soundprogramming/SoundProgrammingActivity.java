@@ -27,8 +27,9 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.Toast;
 
-import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,8 +43,8 @@ public class SoundProgrammingActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_CAMERA_PERMISSION = 100;
     private static final String TAG = "SoundActivity";
-    private SurfaceView cameraSurfaceView;
-    private Buffer buffer;
+    private SurfaceView textureView;
+    private ByteBuffer buffer;
     private CameraManager cameraManager;
     private Scanner scanner;
 
@@ -56,7 +57,7 @@ public class SoundProgrammingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sound_programming);
-        this.cameraSurfaceView = (SurfaceView) findViewById(R.id.cameraSurfaceView);
+        this.textureView = (SurfaceView) findViewById(R.id.textureView);
         scanner = new Scanner();
     }
 
@@ -65,10 +66,10 @@ public class SoundProgrammingActivity extends AppCompatActivity {
     }
 
     private Bitmap bitmap;
+    Image image;
 
     private ImageReader.OnImageAvailableListener imageAvailableListener = new ImageReader.OnImageAvailableListener() {
 
-        Image image;
 
         @Override
         public void onImageAvailable(final ImageReader reader) {
@@ -109,9 +110,9 @@ public class SoundProgrammingActivity extends AppCompatActivity {
 
                     private void configureAndStart(@NonNull CameraDevice camera) {
                         try {
-                            Surface surface = cameraSurfaceView.getHolder().getSurface();
+                            Surface surface = textureView.getHolder().getSurface();
 
-                            final ImageReader imageReader = ImageReader.newInstance(cameraSurfaceView.getWidth(), cameraSurfaceView.getHeight(), YUV_420_888, 2);
+                            final ImageReader imageReader = ImageReader.newInstance(textureView.getWidth(), textureView.getHeight(), YUV_420_888, 2);
                             Surface imageReaderSurface = imageReader.getSurface();
 
                             final CaptureRequest.Builder captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
@@ -144,7 +145,6 @@ public class SoundProgrammingActivity extends AppCompatActivity {
 
                                             @Override
                                             public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                                                Log.i("session", "onCaptureCompleted");
                                                 super.onCaptureCompleted(session, request, result);
                                             }
 
@@ -229,74 +229,20 @@ public class SoundProgrammingActivity extends AppCompatActivity {
     }
 
     private void readTopcodes() {
+        Log.i(TAG, String.valueOf(textureView.isHardwareAccelerated()));
         if (bitmap != null) {
             List<TopCode> topCodes = scanner.scan(bitmap);
-             Log.i("TopCodes", String.valueOf(topCodes.size()));
-        }
-    }
-
-    public Bitmap getBitmap() {
-        Bitmap bitmap = null;
-        try {
-            //URL url = new URL("https://fivedots.coe.psu.ac.th/~ad/jg/nui065/codes.jpg");
-            //HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            //InputStream inputStream = connection.getInputStream();
-            //return BitmapFactory.decodeByteArray(inputStream, 0, inputStream.length);
-            if (buffer != null) {
-                bitmap = Bitmap.createBitmap(cameraSurfaceView.getWidth(), cameraSurfaceView.getHeight(), Bitmap.Config.RGB_565);
-                bitmap.copyPixelsFromBuffer(buffer);
-                return bitmap;
+            if (!topCodes.isEmpty()) {
+                Log.i("TopCodes", String.valueOf(topCodes.size()));
+                Toast.makeText(this, String.valueOf("Read topcodes: " + topCodes.size()), Toast.LENGTH_LONG).show();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
-        return bitmap;
     }
 
     void readBitmap(ImageReader reader) {
-        Log.i(TAG, "in OnImageAvailable");
-        bitmap = null;
-        Image img = null;
-        try {
-            img = reader.acquireLatestImage();
-            if (img != null) {
-                Image.Plane[] planes = img.getPlanes();
-                if (planes[0].getBuffer() == null) {
-                    return;
-                }
-                int width = img.getWidth();
-                int height = img.getHeight();
-                int pixelStride = planes[0].getPixelStride();
-                int rowStride = planes[0].getRowStride();
-                int rowPadding = rowStride - pixelStride * width;
-
-                int offset = 0;
-
-                bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-
-                //bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565);
-                bitmap.copyPixelsFromBuffer(buffer);
-
-//                ByteBuffer buffer = planes[0].getBuffer();
-//                for (int i = 0; i < height; ++i) {
-//                    for (int j = 0; j < width; ++j) {
-//                        int pixel = 0;
-//                        pixel |= (buffer.get(offset) & 0xff) << 16;     // R
-//                        pixel |= (buffer.get(offset + 1) & 0xff) << 8;  // G
-//                        pixel |= (buffer.get(offset + 2) & 0xff);       // B
-//                        bitmap.setPixel(j, i, pixel);
-//                        offset += pixelStride;
-//                    }
-//                    offset += rowPadding;
-//                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (null != img) {
-                img.close();
-            }
-        }
+        image = reader.acquireLatestImage();
+        bitmap = BitmapReader.readImage(image, this);
+        image.close();
+        Log.i(TAG, String.valueOf(bitmap));
     }
 }
