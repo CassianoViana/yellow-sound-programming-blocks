@@ -2,4 +2,5 @@
     <string name="app_name">SoundProgramming</string>
     <string name="title_activity_sound_programming">SoundProgrammingActivity</string>
     <string name="start">Start!</string>
+    <string name="log">Log</string>
 </resources>
