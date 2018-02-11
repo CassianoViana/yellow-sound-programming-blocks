@@ -33,6 +33,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private var scanner: Scanner? = null
     private var bitmap: Bitmap? = null
     private var image: Image? = null
+    private var cameraDevice: CameraDevice? = null
     private var bitmapReader: BitmapReader? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,11 +49,16 @@ class SoundProgrammingActivity : AppCompatActivity() {
         openCamera()
     }
 
+    fun stop(view: View) {
+        cameraDevice?.close()
+    }
+
     private val imageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
         try {
             backgroundHandler.post {
                 readBitmap(reader)
                 readTopcodes()
+                paintTopcodes()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -93,6 +99,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
 
             cameraManager!!.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
+                    cameraDevice = camera
                     startCameraSession(camera)
                 }
 
@@ -111,12 +118,10 @@ class SoundProgrammingActivity : AppCompatActivity() {
                     val imageReaderSurface = imageReader.surface
 
                     val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
-
                     imageReader.setOnImageAvailableListener(imageAvailableListener, backgroundHandler)
-
                     captureRequestBuilder.addTarget(surface)
                     captureRequestBuilder.addTarget(imageReaderSurface)
-                    val captureRequest = captureRequestBuilder.build()
+                    var captureRequest = captureRequestBuilder.build()
 
                     val surfaces = mutableListOf<Surface>()
                     surfaces.add(surface)
@@ -125,7 +130,6 @@ class SoundProgrammingActivity : AppCompatActivity() {
                     camera.createCaptureSession(surfaces, object : CameraCaptureSession.StateCallback() {
                         override fun onConfigured(session: CameraCaptureSession) {
                             try {
-                                //session.stopRepeating()
                                 session.setRepeatingRequest(captureRequest, object : CameraCaptureSession.CaptureCallback() {
                                 }, backgroundHandler)
                             } catch (e: CameraAccessException) {
@@ -164,6 +168,10 @@ class SoundProgrammingActivity : AppCompatActivity() {
                 logText!!.text = ("Read topcodes: " + topCodes.size)
             }
         }
+    }
+
+    private fun paintTopcodes() {
+        surfaceView.teste()
     }
 
     private fun readBitmap(reader: ImageReader) {

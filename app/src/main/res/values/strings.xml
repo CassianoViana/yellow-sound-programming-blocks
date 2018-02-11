@@ -3,4 +3,5 @@
     <string name="title_activity_sound_programming">SoundProgrammingActivity</string>
     <string name="start">Start!</string>
     <string name="log">Log</string>
+    <string name="stop">Stop</string>
 </resources>

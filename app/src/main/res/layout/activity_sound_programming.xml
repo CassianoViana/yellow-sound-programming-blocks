@@ -12,6 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+    <Button
+        android:id="@+id/btnStop"
+        android:onClick="stop"
+        android:layout_toEndOf="@id/btnStart"
+        android:text="@string/stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <com.viana.soundprogramming.AutoFitSurfaceView
         android:id="@+id/surfaceView"
         android:layout_width="match_parent"
