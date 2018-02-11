@@ -1,6 +1,7 @@
 package com.viana.soundprogramming
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -20,8 +21,10 @@ import topcodes.Scanner
 class SoundProgrammingActivity : AppCompatActivity() {
 
     companion object {
-        val REQUEST_CODE_CAMERA_PERMISSION = 100
-        private val backgroundHandler = object : Handler() {
+        const val REQUEST_CODE_CAMERA_PERMISSION = 100
+
+        private val backgroundHandler = @SuppressLint("HandlerLeak")
+        object : Handler() {
 
         }
     }
@@ -30,16 +33,18 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private var scanner: Scanner? = null
     private var bitmap: Bitmap? = null
     private var image: Image? = null
-    private var bitmapReader:BitmapReader? = null
+    private var bitmapReader: BitmapReader? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_programming)
         scanner = Scanner()
+        bitmapReader = BitmapReader(this)
+        cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        surfaceView.setAspectRatio(4, 6)
     }
 
     fun start(view: View) {
-        bitmapReader = BitmapReader(this)
         openCamera()
     }
 
@@ -83,62 +88,60 @@ class SoundProgrammingActivity : AppCompatActivity() {
         }
 
         try {
-            cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
 
-            val facingBackCameraId = facingBackCameraId
-            if (facingBackCameraId != null) {
-                cameraManager!!.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
-                    override fun onOpened(camera: CameraDevice) {
-                        configureAndStart(camera)
-                    }
+            val facingBackCameraId = facingBackCameraId ?: return
 
-                    private fun configureAndStart(camera: CameraDevice) = try {
-                        val surface = textureView!!.holder.surface
+            cameraManager!!.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
+                override fun onOpened(camera: CameraDevice) {
+                    startCameraSession(camera)
+                }
 
-                        val imageReader = ImageReader.newInstance(textureView!!.width, textureView!!.height, YUV_420_888, 2)
-                        val imageReaderSurface = imageReader.surface
+                override fun onDisconnected(camera: CameraDevice) {
 
-                        val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
+                }
 
-                        imageReader.setOnImageAvailableListener(imageAvailableListener, backgroundHandler)
+                override fun onError(camera: CameraDevice, error: Int) {
 
-                        captureRequestBuilder.addTarget(surface)
-                        captureRequestBuilder.addTarget(imageReaderSurface)
-                        val captureRequest = captureRequestBuilder.build()
+                }
 
-                        val surfaces = mutableListOf<Surface>()
-                        surfaces.add(surface)
-                        surfaces.add(imageReaderSurface)
+                private fun startCameraSession(camera: CameraDevice) = try {
+                    val surface = surfaceView!!.holder.surface
 
-                        camera.createCaptureSession(surfaces, object : CameraCaptureSession.StateCallback() {
-                            override fun onConfigured(session: CameraCaptureSession) {
-                                try {
-                                    //session.stopRepeating()
-                                    session.setRepeatingRequest(captureRequest, object : CameraCaptureSession.CaptureCallback() {
-                                    }, backgroundHandler)
-                                } catch (e: CameraAccessException) {
-                                    e.printStackTrace()
-                                }
+                    val imageReader = ImageReader.newInstance(surfaceView!!.width, surfaceView!!.height, YUV_420_888, 2)
+                    val imageReaderSurface = imageReader.surface
+
+                    val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
+
+                    imageReader.setOnImageAvailableListener(imageAvailableListener, backgroundHandler)
+
+                    captureRequestBuilder.addTarget(surface)
+                    captureRequestBuilder.addTarget(imageReaderSurface)
+                    val captureRequest = captureRequestBuilder.build()
+
+                    val surfaces = mutableListOf<Surface>()
+                    surfaces.add(surface)
+                    surfaces.add(imageReaderSurface)
+
+                    camera.createCaptureSession(surfaces, object : CameraCaptureSession.StateCallback() {
+                        override fun onConfigured(session: CameraCaptureSession) {
+                            try {
+                                //session.stopRepeating()
+                                session.setRepeatingRequest(captureRequest, object : CameraCaptureSession.CaptureCallback() {
+                                }, backgroundHandler)
+                            } catch (e: CameraAccessException) {
+                                e.printStackTrace()
                             }
+                        }
 
-                            override fun onConfigureFailed(session: CameraCaptureSession) {
+                        override fun onConfigureFailed(session: CameraCaptureSession) {
 
-                            }
-                        }, backgroundHandler)
-                    } catch (e: CameraAccessException) {
-                        e.printStackTrace()
-                    }
+                        }
+                    }, backgroundHandler)
+                } catch (e: CameraAccessException) {
+                    e.printStackTrace()
+                }
 
-                    override fun onDisconnected(camera: CameraDevice) {
-
-                    }
-
-                    override fun onError(camera: CameraDevice, error: Int) {
-
-                    }
-                }, backgroundHandler)
-            }
-
+            }, backgroundHandler)
 
         } catch (e: CameraAccessException) {
             e.printStackTrace()
