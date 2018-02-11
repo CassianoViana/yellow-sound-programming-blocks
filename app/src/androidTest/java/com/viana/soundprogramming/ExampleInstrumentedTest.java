@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.viana.testetopcode", appContext.getPackageName());
+        assertEquals("com.viana.SoundProgramming", appContext.getPackageName());
     }
 }
