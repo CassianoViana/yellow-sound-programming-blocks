@@ -17,7 +17,6 @@ import android.view.Surface
 import android.view.View
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import topcodes.Scanner
-import topcodes.TopCode
 
 class SoundProgrammingActivity : AppCompatActivity() {
 
@@ -37,7 +36,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var bitmapReader: BitmapReader? = null
-    private var topCodes: MutableList<TopCode>? = null
+    private var topcodesListeners = mutableListOf<TopCodesChangedListener>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +45,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
         scanner = Scanner()
         bitmapReader = BitmapReader(this)
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-//        surfaceView.setAspectRatio(6, 3)
+        topcodesListeners.add(boardSurfaceView)
     }
 
     private fun hideSystemUI(mDecorView :View) {
@@ -74,7 +73,6 @@ class SoundProgrammingActivity : AppCompatActivity() {
             backgroundHandler.post {
                 readBitmap(reader)
                 readTopcodes()
-                paintTopcodes()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -194,20 +192,10 @@ class SoundProgrammingActivity : AppCompatActivity() {
 
     private fun readTopcodes() {
         bitmap?.let {
-            topCodes = scanner!!.scan(it)
-            topCodes?.let {
-                if (!it.isEmpty()) {
-                    logText!!.text = ("Read topcodes: " + it.size)
-                }
+            val topCodes = scanner!!.scan(it)
+            topcodesListeners.forEach{
+                it.topCodesChanged(topCodes)
             }
         }
-    }
-
-    private fun paintTopcodes() {
-        topCodes?.let {
-            boardSurfaceView.topCodes = it
-            boardSurfaceView.startPaint()
-        }
-        //topCodesView.invalidate()
     }
 }

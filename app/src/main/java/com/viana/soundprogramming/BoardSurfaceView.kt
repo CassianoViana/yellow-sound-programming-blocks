@@ -9,10 +9,10 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import topcodes.TopCode
 
-class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
+class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback, TopCodesChangedListener {
 
-    private val TAG: String = "BoardView"
-    var topCodes: MutableList<TopCode>? = null
+    private var topCodes: List<TopCode>? = null
+    var surfaceHolder: SurfaceHolder? = null
 
     @JvmOverloads
     constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
@@ -22,12 +22,13 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
         holder.addCallback(this)
     }
 
-    fun startPaint() {
-        paint(holder)
+    override fun topCodesChanged(topCodes: List<TopCode>) {
+        this.topCodes = topCodes
+        paint()
     }
 
     override fun surfaceChanged(surfaceHolder: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
-
+        this.surfaceHolder = surfaceHolder
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder?) {
@@ -35,15 +36,17 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
     }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder?) {
+        this.surfaceHolder = surfaceHolder
     }
 
-    private fun paint(surfaceHolder: SurfaceHolder) {
-        val canvas = surfaceHolder.lockCanvas()
-        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
+    private fun paint() {
+        val canvas = surfaceHolder?.lockCanvas()
+        canvas?.drawColor(0, PorterDuff.Mode.CLEAR)
         topCodes?.forEach {
             it.draw(canvas)
         }
-        surfaceHolder.unlockCanvasAndPost(canvas)
+        surfaceHolder?.unlockCanvasAndPost(canvas)
     }
 
 }
+
