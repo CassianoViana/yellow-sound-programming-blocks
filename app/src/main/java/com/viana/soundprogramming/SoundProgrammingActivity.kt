@@ -17,6 +17,7 @@ import android.view.Surface
 import android.view.View
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import topcodes.Scanner
+import topcodes.TopCode
 
 class SoundProgrammingActivity : AppCompatActivity() {
 
@@ -34,7 +35,9 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private var bitmap: Bitmap? = null
     private var image: Image? = null
     private var cameraDevice: CameraDevice? = null
+    private var cameraSession: CameraCaptureSession? = null
     private var bitmapReader: BitmapReader? = null
+    private var topCodes: MutableList<TopCode>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +53,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
     }
 
     fun stop(view: View) {
-        cameraDevice?.close()
+        closeCamera()
     }
 
     private val imageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
@@ -130,6 +133,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
                     camera.createCaptureSession(surfaces, object : CameraCaptureSession.StateCallback() {
                         override fun onConfigured(session: CameraCaptureSession) {
                             try {
+                                cameraSession = session
                                 session.setRepeatingRequest(captureRequest, object : CameraCaptureSession.CaptureCallback() {
                                 }, backgroundHandler)
                             } catch (e: CameraAccessException) {
@@ -150,7 +154,13 @@ class SoundProgrammingActivity : AppCompatActivity() {
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
+    }
 
+    private fun closeCamera() = try {
+        cameraSession?.stopRepeating()
+        cameraDevice?.close()
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -161,24 +171,30 @@ class SoundProgrammingActivity : AppCompatActivity() {
         }
     }
 
-    private fun readTopcodes() {
-        if (bitmap != null) {
-            val topCodes = scanner!!.scan(bitmap)
-            if (!topCodes.isEmpty()) {
-                logText!!.text = ("Read topcodes: " + topCodes.size)
-            }
-        }
-    }
-
-    private fun paintTopcodes() {
-        surfaceView.teste()
-    }
-
     private fun readBitmap(reader: ImageReader) {
         image = reader.acquireLatestImage()
         image?.let {
             bitmap = bitmapReader?.readImage(it)
             it.close()
+        }
+    }
+
+    private fun readTopcodes() {
+        bitmap?.let {
+            topCodes = scanner!!.scan(it)
+            topCodes?.let {
+                if (!it.isEmpty()) {
+                    logText!!.text = ("Read topcodes: " + it.size)
+                }
+            }
+        }
+    }
+
+    private fun paintTopcodes() {
+        frameLayout.removeAllViews()
+        topCodes?.forEach {
+            val topCodeView = TopCodeView(it, this)
+            frameLayout.addView(topCodeView)
         }
     }
 }
