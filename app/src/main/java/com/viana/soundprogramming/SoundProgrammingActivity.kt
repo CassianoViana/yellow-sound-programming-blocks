@@ -36,36 +36,47 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private var cameraDevice: CameraDevice? = null
     private var cameraSession: CameraCaptureSession? = null
     private var bitmapReader: BitmapReader? = null
-    private var topcodesListeners = mutableListOf<TopCodesChangedListener>()
+    private var topCodesListeners = mutableListOf<TopCodesChangedListener>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        hideSystemUI(window.decorView)
         setContentView(R.layout.activity_sound_programming)
         scanner = Scanner()
         bitmapReader = BitmapReader(this)
         cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        topcodesListeners.add(boardSurfaceView)
+        topCodesListeners.add(boardSurfaceView)
     }
 
-    private fun hideSystemUI(mDecorView :View) {
-    // Set the IMMERSIVE flag.
-    // Set the content to appear under the system bars so that the content
-    // doesn't resize when the system bars hide and show.
-        mDecorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+
+    private fun exitFullscreen() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
-                or View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
                 or View.SYSTEM_UI_FLAG_IMMERSIVE)
-}
+    }
+
+    private fun fullscreen() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                or View.SYSTEM_UI_FLAG_IMMERSIVE)
+    }
 
     fun start(view: View) {
-        openCamera()
+        Handler().postDelayed({
+            fullscreen()
+            openCamera()
+        }, 200)
     }
 
     fun stop(view: View) {
-        closeCamera()
+        Handler().postDelayed({
+            closeCamera()
+            exitFullscreen()
+        }, 200)
+
     }
 
     private val imageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
@@ -108,9 +119,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
         }
 
         try {
-
             val facingBackCameraId = facingBackCameraId ?: return
-
             cameraManager!!.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
                     cameraDevice = camera
@@ -118,11 +127,9 @@ class SoundProgrammingActivity : AppCompatActivity() {
                 }
 
                 override fun onDisconnected(camera: CameraDevice) {
-
                 }
 
                 override fun onError(camera: CameraDevice, error: Int) {
-
                 }
 
                 private fun startCameraSession(camera: CameraDevice) = try {
@@ -153,7 +160,6 @@ class SoundProgrammingActivity : AppCompatActivity() {
                         }
 
                         override fun onConfigureFailed(session: CameraCaptureSession) {
-
                         }
                     }, backgroundHandler)
                 } catch (e: CameraAccessException) {
@@ -193,7 +199,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private fun readTopcodes() {
         bitmap?.let {
             val topCodes = scanner!!.scan(it)
-            topcodesListeners.forEach{
+            topCodesListeners.forEach{
                 it.topCodesChanged(topCodes)
             }
         }
