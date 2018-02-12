@@ -5,31 +5,9 @@
     android:layout_height="match_parent"
     tools:context="com.viana.soundprogramming.SoundProgrammingActivity">
 
-    <LinearLayout
-        android:id="@+id/buttons"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/btnStart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="start"
-            android:text="@string/start" />
-
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="stop"
-            android:text="@string/stop" />
-    </LinearLayout>
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/logText"
-        android:layout_below="@id/buttons">
+        android:layout_height="match_parent">
 
         <com.viana.soundprogramming.AutoFitSurfaceView
             android:id="@+id/surfaceView"
@@ -48,9 +26,34 @@
             android:id="@+id/frameLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <com.viana.soundprogramming.TopCodesView
+                android:id="@+id/topCodesView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </FrameLayout>
 
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/buttons"
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent">
+
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="start"
+            android:text="@string/start" />
+
+        <Button
+            android:id="@+id/btnStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="stop"
+            android:text="@string/stop" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/logText"

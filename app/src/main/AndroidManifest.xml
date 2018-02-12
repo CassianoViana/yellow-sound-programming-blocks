@@ -13,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
+            android:screenOrientation="landscape"
             android:name="com.viana.soundprogramming.SoundProgrammingActivity"
             android:label="@string/title_activity_sound_programming"
             android:theme="@style/AppTheme.NoActionBar">
