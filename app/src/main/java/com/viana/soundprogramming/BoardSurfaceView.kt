@@ -1,7 +1,6 @@
 package com.viana.soundprogramming
 
 import android.content.Context
-import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -23,7 +22,7 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
         Thread(Runnable {
             while (true) {
                 paint(surfaceHolder)
-                Thread.sleep(200)
+                Thread.sleep(50)
             }
         }).start()
     }
@@ -42,14 +41,9 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
 
     private fun paint(surfaceHolder: SurfaceHolder) {
         val canvas = surfaceHolder.lockCanvas()
-        canvas.drawARGB(0,0,0,0)
-        val paint = Paint()
+        canvas.drawARGB(100,255,255,255)
         topCodes?.forEach {
-            val r = (Math.random() * 255).toInt()
-            val g = (Math.random() * 255).toInt()
-            val b = (Math.random() * 255).toInt()
-            paint.setARGB(255, r, g, b)
-            canvas.drawCircle(it.centerX, it.centerY, it.diameter, paint)
+            it.draw(canvas)
         }
         surfaceHolder.unlockCanvasAndPost(canvas)
     }

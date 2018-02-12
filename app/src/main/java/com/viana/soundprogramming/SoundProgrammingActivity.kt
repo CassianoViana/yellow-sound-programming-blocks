@@ -205,8 +205,8 @@ class SoundProgrammingActivity : AppCompatActivity() {
 
     private fun paintTopcodes() {
         topCodes?.let {
-            topCodesView.topCodes = it
+            boardSurfaceView.topCodes = it
         }
-        topCodesView.invalidate()
+        //topCodesView.invalidate()
     }
 }
