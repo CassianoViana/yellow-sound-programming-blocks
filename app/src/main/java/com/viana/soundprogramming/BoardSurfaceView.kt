@@ -1,6 +1,9 @@
 package com.viana.soundprogramming
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.PixelFormat
+import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -14,17 +17,13 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
     @JvmOverloads
     constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0)
             : super(context, attrs, defStyle) {
+        setBackgroundColor(Color.TRANSPARENT)
+        holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
     }
 
-    private fun startPaint(surfaceHolder: SurfaceHolder?) {
-        surfaceHolder ?: return
-        Thread(Runnable {
-            while (true) {
-                paint(surfaceHolder)
-                Thread.sleep(50)
-            }
-        }).start()
+    fun startPaint() {
+        paint(holder)
     }
 
     override fun surfaceChanged(surfaceHolder: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
@@ -36,12 +35,11 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback {
     }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder?) {
-        startPaint(surfaceHolder)
     }
 
     private fun paint(surfaceHolder: SurfaceHolder) {
         val canvas = surfaceHolder.lockCanvas()
-        canvas.drawARGB(100,255,255,255)
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR);
         topCodes?.forEach {
             it.draw(canvas)
         }

@@ -206,6 +206,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private fun paintTopcodes() {
         topCodes?.let {
             boardSurfaceView.topCodes = it
+            boardSurfaceView.startPaint()
         }
         //topCodesView.invalidate()
     }
