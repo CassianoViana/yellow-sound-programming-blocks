@@ -15,11 +15,15 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private val camera: Camera = Camera()
     private val topCodesScanner: Scanner = Scanner()
     private var topCodesListeners = mutableListOf<TopCodesChangedListener>()
+    private val blocksReader: BlocksReader = BlocksReader()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_programming)
+
         topCodesListeners.add(boardSurfaceView)
+        topCodesListeners.add(blocksReader)
+
         camera.prepare(context = this,
                 surfaceView = surfaceView,
                 cameraListener = object : Camera.CameraListener {
