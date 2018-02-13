@@ -32,7 +32,6 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback, TopCodesChangedLis
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder?) {
-
     }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder?) {
@@ -47,6 +46,4 @@ class BoardSurfaceView : SurfaceView, SurfaceHolder.Callback, TopCodesChangedLis
         }
         surfaceHolder?.unlockCanvasAndPost(canvas)
     }
-
 }
-
