@@ -13,15 +13,19 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Surface
 import android.view.View
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import topcodes.Scanner
 
+
+
 class SoundProgrammingActivity : AppCompatActivity() {
 
     companion object {
         const val REQUEST_CODE_CAMERA_PERMISSION = 100
+        const val TAG = "SoundProgramming"
 
         private val backgroundHandler = @SuppressLint("HandlerLeak")
         object : Handler() {
@@ -29,6 +33,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
         }
     }
 
+    private var cameraOpen = false
     private var cameraManager: CameraManager? = null
     private var scanner: Scanner? = null
     private var bitmap: Bitmap? = null
@@ -47,36 +52,17 @@ class SoundProgrammingActivity : AppCompatActivity() {
         topCodesListeners.add(boardSurfaceView)
     }
 
-
-    private fun exitFullscreen() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
-    }
-
-    private fun fullscreen() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE)
-    }
-
-    fun start(view: View) {
-        Handler().postDelayed({
-            fullscreen()
+    fun startStop(view: View) {
+        if (!cameraOpen) {
+            btnStartStop.setText(R.string.stop)
+            ScreenUtil.fullscreen(window)
             openCamera()
-        }, 200)
-    }
-
-    fun stop(view: View) {
-        Handler().postDelayed({
+        } else {
+            btnStartStop.setText(R.string.start)
+            ScreenUtil.exitFullscreen(window)
             closeCamera()
-            exitFullscreen()
-        }, 200)
-
+        }
+        cameraOpen = !cameraOpen
     }
 
     private val imageAvailableListener = ImageReader.OnImageAvailableListener { reader ->
@@ -127,15 +113,17 @@ class SoundProgrammingActivity : AppCompatActivity() {
                 }
 
                 override fun onDisconnected(camera: CameraDevice) {
+                    Log.e(TAG, "onDisconnected")
                 }
 
                 override fun onError(camera: CameraDevice, error: Int) {
+                    Log.e(TAG, "onError")
                 }
 
                 private fun startCameraSession(camera: CameraDevice) = try {
-                    val surface = surfaceView!!.holder.surface
+                    val surface = surfaceView.holder.surface
 
-                    val imageReader = ImageReader.newInstance(surfaceView!!.width, surfaceView!!.height, YUV_420_888, 2)
+                    val imageReader = ImageReader.newInstance(surfaceView!!.width, surfaceView!!.height, YUV_420_888, 1)
                     val imageReaderSurface = imageReader.surface
 
                     val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
@@ -153,6 +141,13 @@ class SoundProgrammingActivity : AppCompatActivity() {
                             try {
                                 cameraSession = session
                                 session.setRepeatingRequest(captureRequest, object : CameraCaptureSession.CaptureCallback() {
+                                    override fun onCaptureFailed(session: CameraCaptureSession?, request: CaptureRequest?, failure: CaptureFailure?) {
+                                        Log.e(TAG, "onCaptureFailed")
+                                    }
+
+                                    override fun onCaptureSequenceAborted(session: CameraCaptureSession?, sequenceId: Int) {
+                                        Log.e(TAG, "onCaptureSequenceAborted")
+                                    }
                                 }, backgroundHandler)
                             } catch (e: CameraAccessException) {
                                 e.printStackTrace()
@@ -160,6 +155,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
                         }
 
                         override fun onConfigureFailed(session: CameraCaptureSession) {
+                            Log.e(TAG, "onConfigureFailed")
                         }
                     }, backgroundHandler)
                 } catch (e: CameraAccessException) {
@@ -199,9 +195,10 @@ class SoundProgrammingActivity : AppCompatActivity() {
     private fun readTopcodes() {
         bitmap?.let {
             val topCodes = scanner!!.scan(it)
-            topCodesListeners.forEach{
+            topCodesListeners.forEach {
                 it.topCodesChanged(topCodes)
             }
         }
     }
 }
+

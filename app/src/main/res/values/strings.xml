@@ -4,4 +4,5 @@
     <string name="start">Start</string>
     <string name="log">Log</string>
     <string name="stop">Stop</string>
+    <string name="screen">Tela</string>
 </resources>

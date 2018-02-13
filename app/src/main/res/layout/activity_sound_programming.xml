@@ -28,21 +28,15 @@
         android:id="@+id/buttons"
         android:orientation="vertical"
         android:layout_width="wrap_content"
+        android:gravity="bottom"
         android:layout_height="match_parent">
 
         <Button
-            android:id="@+id/btnStart"
+            android:id="@+id/btnStartStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="start"
+            android:onClick="startStop"
             android:text="@string/start" />
-
-        <Button
-            android:id="@+id/btnStop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="stop"
-            android:text="@string/stop" />
     </LinearLayout>
 
     <TextView
