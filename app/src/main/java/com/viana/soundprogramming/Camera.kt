@@ -14,25 +14,31 @@ import android.util.Log
 import android.view.Surface
 import android.view.SurfaceView
 
-class Camera {
+class Camera(
+        private var context: Context,
+        private var cameraListener: CameraListener,
+        private var surfaceView: SurfaceView,
+        private val TAG: String = "Camera"
+) {
 
-    private val TAG: String = "Camera"
-
-    var backgroundHandler = Handler(Handler.Callback {
+    private var backgroundHandler = Handler(Handler.Callback {
         Log.i(TAG, it.toString())
         true
     })
-
-    val onImageAvailable = ImageReader.OnImageAvailableListener { readBitmap(it) }
-
     var isCameraOpen = false
-    private var cameraManager: CameraManager? = null
-    private var cameraDevice: CameraDevice? = null
-    private var cameraSession: CameraCaptureSession? = null
-    private lateinit var cameraListener: CameraListener
-    private lateinit var context: Context
-    private lateinit var surfaceView: SurfaceView
-    private lateinit var bitmapReader: BitmapReader
+
+    private lateinit var cameraDevice: CameraDevice
+    private lateinit var imageReader: ImageReader
+    private lateinit var cameraSession: CameraCaptureSession
+    private lateinit var captureRequest: CaptureRequest
+    private val cameraManager: CameraManager = context
+            .getSystemService(Context.CAMERA_SERVICE) as CameraManager
+    private val bitmapReader: BitmapReader = BitmapReader(context)
+
+    private val onImageAvailable = ImageReader
+            .OnImageAvailableListener { readBitmap(it) }
+
+    private val surfaces: MutableList<Surface> = mutableListOf()
 
     private fun readBitmap(reader: ImageReader) {
         val image = reader.acquireLatestImage()
@@ -41,14 +47,6 @@ class Camera {
             it.close()
             cameraListener.onEachFrame(bitmap)
         }
-    }
-
-    fun prepare(context: Context, cameraListener: CameraListener, surfaceView: SurfaceView) {
-        this.context = context
-        this.bitmapReader = BitmapReader(context)
-        this.cameraListener = cameraListener
-        this.surfaceView = surfaceView
-        cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
     }
 
     fun openCamera() {
@@ -63,10 +61,11 @@ class Camera {
 
         try {
             val facingBackCameraId = getFacingBackCameraId() ?: return
-            cameraManager!!.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
+            cameraManager.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
                 override fun onOpened(camera: CameraDevice) {
                     cameraDevice = camera
                     startCameraSession(camera)
+                    isCameraOpen = true
                 }
 
                 override fun onDisconnected(camera: CameraDevice) {
@@ -78,36 +77,20 @@ class Camera {
                 }
 
                 private fun startCameraSession(camera: CameraDevice) = try {
-                    val imageReader = ImageReader.newInstance(surfaceView.width, surfaceView.height,
-                            ImageFormat.YUV_420_888, 2)
-                    imageReader.setOnImageAvailableListener(onImageAvailable, backgroundHandler)
+                    prepareImageReader()
+                    createTargetSurfaces()
+                    createCaptureRequest()
+                    camera.createCaptureSession(surfaces,
+                            object : CameraCaptureSession.StateCallback() {
+                                override fun onConfigured(session: CameraCaptureSession) {
+                                    cameraSession = session
+                                    startRepeatingSessionRequestToCamera()
+                                }
 
-                    val surface = surfaceView.holder.surface
-                    val imageReaderSurface = imageReader.surface
-                    val surfaces = mutableListOf<Surface>()
-                    surfaces.add(surface)
-                    surfaces.add(imageReaderSurface)
-
-                    val captureRequestBuilder = camera.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
-                    surfaces.forEach { captureRequestBuilder.addTarget(it) }
-
-                    var captureRequest = captureRequestBuilder.build()
-
-                    camera.createCaptureSession(surfaces, object : CameraCaptureSession.StateCallback() {
-                        override fun onConfigured(session: CameraCaptureSession) {
-                            try {
-                                cameraSession = session
-                                session.setRepeatingRequest(captureRequest,
-                                        object : CameraCaptureSession.CaptureCallback() {}, backgroundHandler)
-                            } catch (e: CameraAccessException) {
-                                e.printStackTrace()
-                            }
-                        }
-
-                        override fun onConfigureFailed(session: CameraCaptureSession) {
-                            Log.e(TAG, "onConfigureFailed")
-                        }
-                    }, backgroundHandler)
+                                override fun onConfigureFailed(session: CameraCaptureSession) {
+                                    Log.e(TAG, "onConfigureFailed")
+                                }
+                            }, backgroundHandler)
                 } catch (e: CameraAccessException) {
                     e.printStackTrace()
                 }
@@ -118,9 +101,43 @@ class Camera {
         }
     }
 
+    private fun createTargetSurfaces(){
+        surfaces.clear()
+        val surface = surfaceView.holder.surface
+        val imageReaderSurface = imageReader.surface
+        surfaces.add(surface)
+        imageReaderSurface?.let { surfaces.add(it) }
+    }
+
+    private fun createCaptureRequest() {
+        cameraDevice.let {
+            val captureRequestBuilder = it.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
+            surfaces.forEach { captureRequestBuilder.addTarget(it) }
+            captureRequest = captureRequestBuilder.build()
+        }
+    }
+
+    private fun startRepeatingSessionRequestToCamera() {
+        try {
+            cameraSession.setRepeatingRequest(captureRequest,
+                    object : CameraCaptureSession.CaptureCallback() {}, backgroundHandler)
+        } catch (e: CameraAccessException) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun prepareImageReader() {
+        imageReader = ImageReader.newInstance(surfaceView.width, surfaceView.height,
+                ImageFormat.YUV_420_888, 2)
+        imageReader.setOnImageAvailableListener(onImageAvailable, backgroundHandler)
+    }
+
     fun closeCamera() = try {
-        cameraSession?.stopRepeating()
-        cameraDevice?.close()
+        imageReader.close()
+        cameraSession.abortCaptures()
+        cameraSession.stopRepeating()
+        cameraDevice.close()
+        isCameraOpen = false
     } catch (e: Exception) {
         e.printStackTrace()
     }
@@ -128,7 +145,7 @@ class Camera {
     @Throws(CameraAccessException::class)
     private fun getFacingBackCameraId(): String? {
         var facingBackCameraId: String? = null
-        cameraManager?.let {
+        cameraManager.let {
             val cameraIdList = it.cameraIdList
             if (cameraIdList.isNotEmpty()) {
                 for (id in cameraIdList) {
@@ -142,7 +159,8 @@ class Camera {
         return facingBackCameraId
     }
 
-    interface CameraListener {
-        fun onEachFrame(bitmap: Bitmap)
-    }
+}
+
+interface CameraListener {
+    fun onEachFrame(bitmap: Bitmap)
 }
