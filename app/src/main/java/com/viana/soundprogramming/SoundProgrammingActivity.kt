@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import kotlinx.android.synthetic.main.activity_sound_programming.*
+import topcodes.TopCode
 
 const val REQUEST_CODE_CAMERA_PERMISSION = 100
 
@@ -17,8 +18,17 @@ class SoundProgrammingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_programming)
+        prepareTopCodeListeners()
         prepareCamera()
+    }
+
+    private fun prepareTopCodeListeners() {
         blocksReader.topCodesListeners.add(boardSurfaceView)
+        blocksReader.topCodesListeners.add(object : TopCodesChangedListener {
+            override fun topCodesChanged(topCodes: List<TopCode>) {
+                logText.text = String.format("%d", topCodes.size)
+            }
+        })
     }
 
     private fun prepareCamera() {
@@ -44,13 +54,21 @@ class SoundProgrammingActivity : AppCompatActivity() {
 
     fun onClickStartStop(view: View) {
         if (camera.isCameraOpen) {
-            btnStartStop.setText(R.string.start)
-            ScreenUtil.exitFullscreen(window)
-            camera.closeCamera()
+            stopCamera()
         } else {
-            btnStartStop.setText(R.string.stop)
-            ScreenUtil.fullscreen(window)
-            camera.openCamera()
+            startCamera()
         }
+    }
+
+    private fun startCamera() {
+        btnStartStop.setText(R.string.stop)
+        ScreenUtil.fullscreen(window)
+        camera.openCamera()
+    }
+
+    private fun stopCamera() {
+        btnStartStop.setText(R.string.start)
+        ScreenUtil.exitFullscreen(window)
+        camera.closeCamera()
     }
 }

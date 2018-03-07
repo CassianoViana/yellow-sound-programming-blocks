@@ -10,11 +10,10 @@ class BlocksReader {
     var topCodesListeners = mutableListOf<TopCodesChangedListener>()
     private lateinit var topCodes: List<TopCode>
 
-    fun readBlocks(bitmap: Bitmap): List<Sound> {
+    fun readBlocks(bitmap: Bitmap) {
         topCodes = topCodesScanner.scan(bitmap)
         topCodesListeners.forEach {
             it.topCodesChanged(topCodes)
         }
-        return mutableListOf()
     }
 }
