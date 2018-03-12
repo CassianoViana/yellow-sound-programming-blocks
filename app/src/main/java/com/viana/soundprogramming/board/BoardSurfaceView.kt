@@ -1,44 +1,47 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.board
 
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import topcodes.TopCode
+import com.viana.soundprogramming.timeline.CollisionDetector
+import com.viana.soundprogramming.MainThread
+import com.viana.soundprogramming.timeline.Timeline
+import com.viana.soundprogramming.blocks.Block
+import com.viana.soundprogramming.blocks.BlocksManager
 
 class BoardSurfaceView
 @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyle: Int = 0
-) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, TopCodesChangedListener, Board {
+) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board {
 
     private lateinit var mainThread: MainThread
-    private var topCodes: List<TopCode>? = null
-    private val timeline: Timeline
+
     private val paint: Paint
     private var canvas: Canvas? = null
+
+    private val timeLine: Timeline
+    override fun timeline() = this.timeLine
+
+    private val collisionDetector = CollisionDetector.instance
+    val blocksManager = BlocksManager.instance
+
+    private val blocks: List<Block>
+        get() = blocksManager.blocks
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
         holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
         paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        timeline = Timeline(this)
+        timeLine = Timeline(this)
     }
 
-    override fun heightFloat(): Float {
-        return height.toFloat()
-    }
-
-    override fun widthFloat(): Float {
-        return width.toFloat()
-    }
-
-    override fun topCodesChanged(topCodes: List<TopCode>) {
-        this.topCodes = topCodes
-    }
+    override fun heightFloat(): Float = height.toFloat()
+    override fun widthFloat(): Float = width.toFloat()
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
         mainThread = MainThread(surfaceHolder, this)
@@ -55,7 +58,8 @@ class BoardSurfaceView
     }
 
     override fun update() {
-        timeline.update()
+        timeLine.update()
+        collisionDetector.detectCollision(timeLine, blocks)
     }
 
     override fun draw(canvas: Canvas?) {
@@ -63,8 +67,8 @@ class BoardSurfaceView
         this.canvas = canvas
         clear()
         if (canvas != null) {
-            drawTopCodes()
-            timeline.draw(canvas)
+            drawBlocks()
+            drawTimeline()
         }
     }
 
@@ -72,9 +76,11 @@ class BoardSurfaceView
         canvas?.drawColor(0, PorterDuff.Mode.CLEAR)
     }
 
-    private fun drawTopCodes() {
-        topCodes?.forEach {
-            it.draw(canvas)
-        }
+    private fun drawBlocks() {
+        blocks.forEach { it.draw(canvas) }
+    }
+
+    private fun drawTimeline() {
+        canvas?.let { timeLine.draw(it) }
     }
 }

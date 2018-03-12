@@ -1,6 +1,7 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.blocks
 
 import android.graphics.Bitmap
+import com.viana.soundprogramming.camera.TopCodesChangedListener
 import topcodes.Scanner
 import topcodes.TopCode
 

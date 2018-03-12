@@ -1,4 +1,4 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.camera
 
 import android.os.Handler
 import android.view.View

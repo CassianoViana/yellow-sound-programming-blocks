@@ -3,8 +3,9 @@ package com.viana.soundprogramming
 import android.graphics.Canvas
 import android.os.AsyncTask
 import android.view.SurfaceHolder
+import com.viana.soundprogramming.board.Board
 
-val MAX_FPS = 30
+const val MAX_FPS = 30
 var averageFps: Double = 0.0
 
 class MainThread(
@@ -13,12 +14,11 @@ class MainThread(
 ) : AsyncTask<Void, Void, Void>() {
 
     private var totalTime: Long = 0
-
-    var startTime: Long = 0
-    var timeMillis: Long = 0
-    var waitTime: Long = 0
-    var frameCount = 0
-    val targetTime = 1000 / MAX_FPS
+    private var startTime: Long = 0
+    private var timeMillis: Long = 0
+    private var waitTime: Long = 0
+    private var frameCount = 0
+    private val targetTime = 1000 / MAX_FPS
 
     var running = false
 

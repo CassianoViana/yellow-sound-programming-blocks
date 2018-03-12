@@ -1,4 +1,4 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.camera
 
 import android.Manifest
 import android.app.Activity
@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceView
+import com.viana.soundprogramming.REQUEST_CODE_CAMERA_PERMISSION
 
 class Camera(
         private var context: Context,

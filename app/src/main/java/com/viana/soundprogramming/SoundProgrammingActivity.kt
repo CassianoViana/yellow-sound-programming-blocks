@@ -5,6 +5,11 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.viana.soundprogramming.blocks.BlocksReader
+import com.viana.soundprogramming.camera.Camera
+import com.viana.soundprogramming.camera.CameraListener
+import com.viana.soundprogramming.camera.ScreenUtil
+import com.viana.soundprogramming.camera.TopCodesChangedListener
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import topcodes.TopCode
 
@@ -12,8 +17,20 @@ const val REQUEST_CODE_CAMERA_PERMISSION = 100
 
 class SoundProgrammingActivity : AppCompatActivity() {
 
-    private val blocksReader: BlocksReader = BlocksReader()
     private lateinit var camera: Camera
+    private val blocksReader: BlocksReader = BlocksReader()
+
+    private val cameraListener = object : CameraListener {
+        override fun onEachFrame(bitmap: Bitmap) {
+            blocksReader.readBlocks(bitmap)
+        }
+    }
+
+    private val topCodesChangedLogListener = object : TopCodesChangedListener {
+        override fun topCodesChanged(topCodes: List<TopCode>) {
+            logText.text = String.format("%d", topCodes.size)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,20 +40,12 @@ class SoundProgrammingActivity : AppCompatActivity() {
     }
 
     private fun prepareTopCodeListeners() {
-        blocksReader.topCodesListeners.add(boardSurfaceView)
-        blocksReader.topCodesListeners.add(object : TopCodesChangedListener {
-            override fun topCodesChanged(topCodes: List<TopCode>) {
-                logText.text = String.format("%d", topCodes.size)
-            }
-        })
+        blocksReader.topCodesListeners.add(boardSurfaceView.blocksManager)
+        blocksReader.topCodesListeners.add(topCodesChangedLogListener)
     }
 
     private fun prepareCamera() {
-        val cameraListener: CameraListener = object : CameraListener {
-            override fun onEachFrame(bitmap: Bitmap) {
-                blocksReader.readBlocks(bitmap)
-            }
-        }
+        val cameraListener: CameraListener = cameraListener
         camera = Camera(this, cameraListener, surfaceView)
     }
 
@@ -53,11 +62,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
     }
 
     fun onClickStartStop(view: View) {
-        if (camera.isCameraOpen) {
-            stopCamera()
-        } else {
-            startCamera()
-        }
+        if (!camera.isCameraOpen) startCamera() else stopCamera()
     }
 
     private fun startCamera() {

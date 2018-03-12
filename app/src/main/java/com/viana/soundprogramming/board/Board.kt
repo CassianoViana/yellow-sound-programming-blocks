@@ -1,6 +1,7 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.board
 
 import android.graphics.Canvas
+import com.viana.soundprogramming.timeline.Timeline
 
 interface Board {
 
@@ -8,4 +9,5 @@ interface Board {
     fun heightFloat(): Float
     fun update()
     fun draw(canvas: Canvas?)
+    fun timeline(): Timeline
 }

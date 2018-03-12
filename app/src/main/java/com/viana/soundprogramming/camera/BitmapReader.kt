@@ -1,9 +1,10 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.camera
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.Image
 import android.renderscript.*
+import com.viana.soundprogramming.ScriptC_yuv4208888
 
 
 internal class BitmapReader() {

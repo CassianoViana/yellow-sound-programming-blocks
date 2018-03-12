@@ -1,4 +1,4 @@
-package com.viana.soundprogramming
+package com.viana.soundprogramming.board
 
 import android.graphics.Canvas
 
