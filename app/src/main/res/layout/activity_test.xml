@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.viana.soundprogramming.TestActivity" android:columnCount="6" android:rowCount="6">
+
+
+    <Button android:text="play" android:onClick="play"/>
+
+</GridLayout>
