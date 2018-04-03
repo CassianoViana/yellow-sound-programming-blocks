@@ -2,7 +2,7 @@ package com.viana.soundprogramming.camera
 
 import topcodes.TopCode
 
-interface TopCodesChangedListener {
+interface TopCodesReaderListener {
 
     fun topCodesChanged(topCodes: List<TopCode>)
 }

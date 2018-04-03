@@ -47,10 +47,14 @@ class MainThread(
     }
 
     private fun updateAndDraw() {
-        canvas = surfaceHolder.lockCanvas()
-        synchronized(surfaceHolder) {
-            board.update()
-            board.draw(canvas)
+        try {
+            canvas = surfaceHolder.lockCanvas()
+            synchronized(surfaceHolder) {
+                board.update()
+                board.draw(canvas)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

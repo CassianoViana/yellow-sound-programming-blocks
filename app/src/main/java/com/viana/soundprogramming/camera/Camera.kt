@@ -1,19 +1,17 @@
 package com.viana.soundprogramming.camera
 
-import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.hardware.camera2.*
 import android.media.ImageReader
 import android.os.Handler
-import android.support.v4.app.ActivityCompat
 import android.util.Log
 import android.view.Surface
 import android.view.SurfaceView
-import com.viana.soundprogramming.REQUEST_CODE_CAMERA_PERMISSION
+import com.viana.soundprogramming.util.managePermissionCamera
 
 class Camera(
         private var context: Context,
@@ -50,16 +48,9 @@ class Camera(
         }
     }
 
+    @SuppressLint("MissingPermission")
     fun openCamera() {
-        val cameraNotPermitted = ActivityCompat
-                .checkSelfPermission(context, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        if (cameraNotPermitted) {
-            ActivityCompat.requestPermissions(context as Activity,
-                    arrayOf(Manifest.permission.CAMERA),
-                    REQUEST_CODE_CAMERA_PERMISSION)
-            return
-        }
-
+        if(managePermissionCamera(context as Activity)) return
         try {
             val facingBackCameraId = getFacingBackCameraId() ?: return
             cameraManager.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {

@@ -1,14 +1,24 @@
 package com.viana.soundprogramming.blocks
 
 import android.graphics.Canvas
-import android.util.Log
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
+import com.viana.soundprogramming.board.Board
 import topcodes.TopCode
 
-open class Block() {
+open class Block {
     var left: Int = 0
     var top: Int = 0
     var right: Int = 0
     var bottom: Int = 0
+    var centerX: Int = 0
+    var centerY: Int = 0
+    var board: Board? = null
+    val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    var active: Boolean = true
+    var rect = Rect()
+    var degree: Float = 0f
 
     var topCode: TopCode? = null
         set(topCode) {
@@ -19,14 +29,35 @@ open class Block() {
                 top = (it.centerY - radius).toInt()
                 right = (it.centerX + radius).toInt()
                 bottom = (it.centerY + radius).toInt()
+                centerX = it.centerX.toInt()
+                centerY = it.centerY.toInt()
+                degree = Math.toDegrees(it.orientation.toDouble()).toFloat()
+                rect = Rect(left, top, right, bottom)
             }
         }
 
     open fun execute() {
-        Log.i("Block", "execute")
     }
 
-    fun draw(canvas: Canvas?) {
+    open fun draw(canvas: Canvas?) {
         topCode?.draw(canvas)
+        paint.color = Color.WHITE
+        paint.textSize = 20f
+        canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
     }
+
+    open fun intersects(block: Block): Boolean {
+        return false
+    }
+
+    fun centerPoint(): Rect {
+        val dist = 1
+        return Rect(centerX - dist, centerY - dist, centerX + dist, centerY + dist)
+    }
+
+    override fun toString(): String {
+        return "Block(centerX=$centerX, centerY=$centerY, active=$active, degree=$degree)"
+    }
+
+
 }

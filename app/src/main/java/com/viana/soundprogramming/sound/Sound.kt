@@ -1,13 +1,19 @@
 package com.viana.soundprogramming.sound
 
-import android.media.MediaPlayer
-import com.viana.soundprogramming.appInstance
+import com.viana.soundprogramming.vibration.ProgrammingVibrator
+import java.util.*
 
-class Sound(rawSound: Int) {
-
-    private val mediaPlayer = MediaPlayer.create(appInstance, rawSound)
+class Sound(private val soundId: Int) {
+    private val timer = Timer()
+    var volume: Float = 0f
+    var delayMillis: Long = 500
 
     fun play() {
-        mediaPlayer.start()
+        timer.schedule(object : TimerTask() {
+            override fun run() {
+                SoundManager.instance.play(soundId)
+                ProgrammingVibrator.vibrate((volume * 10).toLong())
+            }
+        }, delayMillis)
     }
 }

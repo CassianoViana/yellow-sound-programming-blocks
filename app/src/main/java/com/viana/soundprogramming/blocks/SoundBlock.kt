@@ -1,13 +1,14 @@
 package com.viana.soundprogramming.blocks
 
-import android.media.MediaPlayer
-import com.viana.soundprogramming.SoundProgrammingApp
+import android.graphics.Canvas
+import android.graphics.Color
 
-class SoundBlock(rawSound: Int) : Block() {
+open class SoundBlock(val soundId: Int) : Block() {
 
-    private val mediaPlayer: MediaPlayer = MediaPlayer.create(SoundProgrammingApp.instance, rawSound)
-
-    override fun execute() {
-        mediaPlayer.start()
+    override fun draw(canvas: Canvas?) {
+        super.draw(canvas)
+        paint.color = Color.BLUE
+        paint.alpha = 100
+        canvas?.drawRect(rect, paint)
     }
 }

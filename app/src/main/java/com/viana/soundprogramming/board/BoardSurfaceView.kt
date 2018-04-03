@@ -1,42 +1,37 @@
 package com.viana.soundprogramming.board
 
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.PixelFormat
+import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.viana.soundprogramming.timeline.CollisionDetector
 import com.viana.soundprogramming.MainThread
-import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.blocks.Block
-import com.viana.soundprogramming.blocks.BlocksManager
+import com.viana.soundprogramming.blocks.BlocksManagerListener
+import com.viana.soundprogramming.timeline.CollisionDetector
+import com.viana.soundprogramming.timeline.Timeline
 
 class BoardSurfaceView
 @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyle: Int = 0
-) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board {
+) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board, BlocksManagerListener {
 
     private lateinit var mainThread: MainThread
-
-    private val paint: Paint
     private var canvas: Canvas? = null
-
     private val timeLine: Timeline
+    private var blocks = mutableListOf<Block>()
+
     override fun timeline() = this.timeLine
-
-    private val collisionDetector = CollisionDetector.instance
-    val blocksManager = BlocksManager.instance
-
-    private val blocks: List<Block>
-        get() = blocksManager.blocks
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
         holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
-        paint = Paint(Paint.ANTI_ALIAS_FLAG)
         timeLine = Timeline(this)
     }
 
@@ -59,16 +54,20 @@ class BoardSurfaceView
 
     override fun update() {
         timeLine.update()
-        collisionDetector.detectCollision(timeLine, blocks)
+        CollisionDetector.instance.detectCollision(timeLine, blocks)
     }
 
     override fun draw(canvas: Canvas?) {
-        super.draw(canvas)
-        this.canvas = canvas
-        clear()
-        if (canvas != null) {
-            drawBlocks()
-            drawTimeline()
+        try {
+            super.draw(canvas)
+            this.canvas = canvas
+            clear()
+            if (canvas != null) {
+                drawBlocks()
+                drawTimeline()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -77,10 +76,14 @@ class BoardSurfaceView
     }
 
     private fun drawBlocks() {
-        blocks.forEach { it.draw(canvas) }
+        blocks.iterator().forEach { it.draw(canvas) }
     }
 
     private fun drawTimeline() {
         canvas?.let { timeLine.draw(it) }
+    }
+
+    override fun updateBlocksList(blocks: List<Block>) {
+        this.blocks = blocks.toMutableList()
     }
 }

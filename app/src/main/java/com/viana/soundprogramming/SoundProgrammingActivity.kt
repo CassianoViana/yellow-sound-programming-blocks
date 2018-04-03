@@ -1,52 +1,78 @@
 package com.viana.soundprogramming
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.viana.soundprogramming.blocks.BlocksReader
+import com.viana.soundprogramming.blocks.Block
+import com.viana.soundprogramming.blocks.BlocksManager
+import com.viana.soundprogramming.blocks.BlocksManagerListener
+import com.viana.soundprogramming.blocks.TopCodesReader
 import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.CameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
-import com.viana.soundprogramming.camera.TopCodesChangedListener
+import com.viana.soundprogramming.core.Music
+import com.viana.soundprogramming.core.MusicBuilderImpl
+import com.viana.soundprogramming.timeline.Timeline
+import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
-import topcodes.TopCode
+
+
 
 const val REQUEST_CODE_CAMERA_PERMISSION = 100
+const val REQUEST_CODE_RECORD_PERMISSION = 200
+const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 300
+const val REQUEST_CODE_VIBRATE_PERMISSION = 400
 
 class SoundProgrammingActivity : AppCompatActivity() {
 
     private lateinit var camera: Camera
-    private val blocksReader: BlocksReader = BlocksReader()
+    private val topCodesReader = TopCodesReader()
+    private val blocksManager = BlocksManager()
+    private val musicBuilder = MusicBuilderImpl()
+    private var music: Music? = null
 
     private val cameraListener = object : CameraListener {
         override fun onEachFrame(bitmap: Bitmap) {
-            blocksReader.readBlocks(bitmap)
-        }
-    }
-
-    private val topCodesChangedLogListener = object : TopCodesChangedListener {
-        override fun topCodesChanged(topCodes: List<TopCode>) {
-            logText.text = String.format("%d", topCodes.size)
+            topCodesReader.read(bitmap)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_programming)
-        prepareTopCodeListeners()
         prepareCamera()
-    }
-
-    private fun prepareTopCodeListeners() {
-        blocksReader.topCodesListeners.add(boardSurfaceView.blocksManager)
-        blocksReader.topCodesListeners.add(topCodesChangedLogListener)
+        prepareTopCodeListeners()
+        prepareBlocksManagerListeners()
     }
 
     private fun prepareCamera() {
         val cameraListener: CameraListener = cameraListener
         camera = Camera(this, cameraListener, surfaceView)
+    }
+
+    private fun prepareTopCodeListeners() {
+        topCodesReader.addListener(blocksManager)
+    }
+
+    private fun prepareBlocksManagerListeners() {
+        blocksManager.addListener(boardSurfaceView)
+        blocksManager.addListener(object : BlocksManagerListener {
+            override fun updateBlocksList(blocks: List<Block>) {
+                music = musicBuilder.build(blocks, boardSurfaceView)
+            }
+        })
+        boardSurfaceView
+                .timeline()
+                .addListener(object : Timeline.Listener {
+                    override fun onHitStart() {
+                        ProgrammingVibrator.vibrate(10)
+                        music?.play()
+                    }
+                })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -62,18 +88,30 @@ class SoundProgrammingActivity : AppCompatActivity() {
     }
 
     fun onClickStartStop(view: View) {
-        if (!camera.isCameraOpen) startCamera() else stopCamera()
+        ProgrammingVibrator.vibrate(30)
+        if (!camera.isCameraOpen) start() else stop()
     }
 
-    private fun startCamera() {
+    fun onClickTest(view: View) {
+        ProgrammingVibrator.vibrate(30)
+        startActivity(Intent(this, TestActivity::class.java))
+    }
+
+    private fun start() {
+        btnStartStop.background = ContextCompat
+                .getDrawable(this, R.drawable.button_stop)
         btnStartStop.setText(R.string.stop)
         ScreenUtil.fullscreen(window)
         camera.openCamera()
+        boardSurfaceView.timeline().start()
     }
 
-    private fun stopCamera() {
+    private fun stop() {
+        btnStartStop.background = ContextCompat
+                .getDrawable(this, R.drawable.button_start)
         btnStartStop.setText(R.string.start)
         ScreenUtil.exitFullscreen(window)
         camera.closeCamera()
+        boardSurfaceView.timeline().stop()
     }
 }
