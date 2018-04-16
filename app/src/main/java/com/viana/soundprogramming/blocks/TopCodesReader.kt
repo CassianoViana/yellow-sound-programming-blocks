@@ -1,14 +1,13 @@
 package com.viana.soundprogramming.blocks
 
 import android.graphics.Bitmap
-import com.viana.soundprogramming.camera.TopCodesReaderListener
 import topcodes.Scanner
 import topcodes.TopCode
 
 class TopCodesReader {
 
     private val topCodesScanner: Scanner = Scanner()
-    private var listeners = mutableListOf<TopCodesReaderListener>()
+    private var listeners = mutableListOf<Listener>()
     private lateinit var topCodes: List<TopCode>
 
     fun read(bitmap: Bitmap) {
@@ -18,7 +17,11 @@ class TopCodesReader {
         }
     }
 
-    fun addListener(topCodesReaderListener: TopCodesReaderListener) {
-        listeners.add(topCodesReaderListener)
+    fun addListener(listener: Listener) {
+        listeners.add(listener)
+    }
+
+    interface Listener {
+        fun topCodesChanged(topCodes: List<TopCode>)
     }
 }

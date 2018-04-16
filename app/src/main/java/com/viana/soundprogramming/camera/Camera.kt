@@ -50,7 +50,7 @@ class Camera(
 
     @SuppressLint("MissingPermission")
     fun openCamera() {
-        if(managePermissionCamera(context as Activity)) return
+        if (managePermissionCamera(context as Activity)) return
         try {
             val facingBackCameraId = getFacingBackCameraId() ?: return
             cameraManager.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
@@ -93,7 +93,7 @@ class Camera(
         }
     }
 
-    private fun createTargetSurfaces(){
+    private fun createTargetSurfaces() {
         surfaces.clear()
         val surface = surfaceView.holder.surface
         val imageReaderSurface = imageReader.surface
@@ -150,7 +150,6 @@ class Camera(
         }
         return facingBackCameraId
     }
-
 }
 
 interface CameraListener {

@@ -10,7 +10,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import com.viana.soundprogramming.MainThread
 import com.viana.soundprogramming.blocks.Block
-import com.viana.soundprogramming.blocks.BlocksManagerListener
+import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.timeline.CollisionDetector
 import com.viana.soundprogramming.timeline.Timeline
 
@@ -19,20 +19,19 @@ class BoardSurfaceView
         context: Context,
         attrs: AttributeSet? = null,
         defStyle: Int = 0
-) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board, BlocksManagerListener {
+) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board, BlocksManager.Listener {
 
+    override lateinit var timeline: Timeline
     private lateinit var mainThread: MainThread
+    private var collisionDetector = CollisionDetector.instance
     private var canvas: Canvas? = null
-    private val timeLine: Timeline
-    private var blocks = mutableListOf<Block>()
-
-    override fun timeline() = this.timeLine
+    private var blocks = listOf<Block>()
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
         holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
-        timeLine = Timeline(this)
+        timeline = Timeline(this)
     }
 
     override fun heightFloat(): Float = height.toFloat()
@@ -53,8 +52,8 @@ class BoardSurfaceView
     }
 
     override fun update() {
-        timeLine.update()
-        CollisionDetector.instance.detectCollision(timeLine, blocks)
+        timeline.update()
+        collisionDetector.detectCollision(timeline, blocks)
     }
 
     override fun draw(canvas: Canvas?) {
@@ -80,10 +79,10 @@ class BoardSurfaceView
     }
 
     private fun drawTimeline() {
-        canvas?.let { timeLine.draw(it) }
+        canvas?.let { timeline.draw(it) }
     }
 
     override fun updateBlocksList(blocks: List<Block>) {
-        this.blocks = blocks.toMutableList()
+        this.blocks = blocks
     }
 }

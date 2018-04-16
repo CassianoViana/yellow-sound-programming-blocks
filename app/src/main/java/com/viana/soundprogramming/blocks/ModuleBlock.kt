@@ -12,7 +12,7 @@ class ModuleBlock(val module: Long) : Block() {
         super.draw(canvas)
         val diameter = topCode?.diameter
         if (diameter != null) {
-            moduleRect.set(left, top, (left + diameter * 5).toInt(), (top + diameter * 2).toInt())
+            moduleRect.set(left, top, (left + diameter * 5).toInt(), (top + diameter * 3).toInt())
         }
         paint.color = Color.CYAN
         paint.alpha = 50

@@ -31,7 +31,7 @@ open class Block {
                 bottom = (it.centerY + radius).toInt()
                 centerX = it.centerX.toInt()
                 centerY = it.centerY.toInt()
-                degree = Math.toDegrees(it.orientation.toDouble()).toFloat()
+                degree = Math.toDegrees(Math.abs(it.orientation.toDouble())).toFloat()
                 rect = Rect(left, top, right, bottom)
             }
         }

@@ -6,11 +6,9 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
-import com.viana.soundprogramming.blocks.Block
-import com.viana.soundprogramming.blocks.BlocksManager
-import com.viana.soundprogramming.blocks.BlocksManagerListener
-import com.viana.soundprogramming.blocks.TopCodesReader
+import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.CameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
@@ -19,7 +17,6 @@ import com.viana.soundprogramming.core.MusicBuilderImpl
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
-
 
 
 const val REQUEST_CODE_CAMERA_PERMISSION = 100
@@ -60,13 +57,18 @@ class SoundProgrammingActivity : AppCompatActivity() {
 
     private fun prepareBlocksManagerListeners() {
         blocksManager.addListener(boardSurfaceView)
-        blocksManager.addListener(object : BlocksManagerListener {
+        blocksManager.addListener(object : BlocksManager.Listener {
             override fun updateBlocksList(blocks: List<Block>) {
                 music = musicBuilder.build(blocks, boardSurfaceView)
             }
+
+            override fun beginBlockEntered(block: BeginBlock) {
+                Log.i("TESTE", "START Block entered")
+            }
+
         })
         boardSurfaceView
-                .timeline()
+                .timeline
                 .addListener(object : Timeline.Listener {
                     override fun onHitStart() {
                         ProgrammingVibrator.vibrate(10)
@@ -103,7 +105,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
         btnStartStop.setText(R.string.stop)
         ScreenUtil.fullscreen(window)
         camera.openCamera()
-        boardSurfaceView.timeline().start()
+        boardSurfaceView.timeline.start()
     }
 
     private fun stop() {
@@ -112,6 +114,6 @@ class SoundProgrammingActivity : AppCompatActivity() {
         btnStartStop.setText(R.string.start)
         ScreenUtil.exitFullscreen(window)
         camera.closeCamera()
-        boardSurfaceView.timeline().stop()
+        boardSurfaceView.timeline.stop()
     }
 }

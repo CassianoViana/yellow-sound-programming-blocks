@@ -16,11 +16,11 @@ fun getRecordedFileName(code: Int): String {
 
 class Recorder {
 
-    private var mediaRec: MediaRecorder? = null
+    private var mediaRec: MediaRecorder? = MediaRecorder()
     var listener: Listener? = null
 
     fun recordSeconds(seconds: Int, code: Int) {
-        mediaRec = MediaRecorder()
+        mediaRec?.reset()
         mediaRec?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRec?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
         mediaRec?.setOutputFile(getRecordedFileName(code))

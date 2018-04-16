@@ -29,13 +29,13 @@ class BlocksLibrary {
 
         blocks[279] = ExplanationBlock()
 
-        blocks[341] = ModuleBlock(2)
+        blocks[173] = ModuleBlock(2)
         blocks[345] = ModuleBlock(3)
 
         blocks[157] = SoundBlock(SoundManager.instance.load(R.raw.guittar1))
         blocks[167] = SoundBlock(SoundManager.instance.load(R.raw.guittar2))
         blocks[171] = SoundBlock(SoundManager.instance.load(R.raw.guittar3))
-        blocks[173] = SoundBlock(SoundManager.instance.load(R.raw.guittar4))
+        //blocks[173] = SoundBlock(SoundManager.instance.load(R.raw.guittar4))
         blocks[179] = SoundBlock(SoundManager.instance.load(R.raw.guittar5))
         blocks[181] = SoundBlock(SoundManager.instance.load(R.raw.guittar6))
         blocks[185] = SoundBlock(SoundManager.instance.load(R.raw.guittar7))

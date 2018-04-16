@@ -11,7 +11,7 @@ class Sound(private val soundId: Int) {
     fun play() {
         timer.schedule(object : TimerTask() {
             override fun run() {
-                SoundManager.instance.play(soundId)
+                SoundManager.instance.play(soundId, volume.toFloat())
                 ProgrammingVibrator.vibrate((volume * 10).toLong())
             }
         }, delayMillis)

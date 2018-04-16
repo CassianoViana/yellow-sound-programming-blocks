@@ -2,7 +2,6 @@ package com.viana.soundprogramming.core
 
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
-import com.viana.soundprogramming.sound.Sound
 
 open class MusicBuilderImpl : MusicBuilder {
 
@@ -26,7 +25,7 @@ open class MusicBuilderImpl : MusicBuilder {
         if (speedBlock.isNotEmpty()) {
             val first: Block? = speedBlock.first()
             first?.let {
-                (it as SpeedBlock).calculateSpeed(board.timeline())
+                (it as SpeedBlock).calculateSpeed(board)
             }
         }
     }
@@ -35,7 +34,7 @@ open class MusicBuilderImpl : MusicBuilder {
         val moduleBlocks = blocks.filter { it.javaClass == ModuleBlock::class.java }
         val soundBlocks = blocks.filter { it.javaClass == SoundBlock::class.java }
         soundBlocks.forEach { it.active = true }
-        val count = board.timeline().count
+        val count = board.timeline.count
         moduleBlocks.forEach { moduleBlock ->
             val intersectedSoundBlocks = soundBlocks.filter { soundBlock -> moduleBlock.intersects(soundBlock) }
             intersectedSoundBlocks.forEach {
@@ -48,9 +47,9 @@ open class MusicBuilderImpl : MusicBuilder {
         val beginBlocks = blocks.filter { it.javaClass == BeginBlock::class.java }
         val endBlocks = blocks.filter { it.javaClass == EndBlock::class.java }
         if (beginBlocks.isEmpty())
-            board.timeline().resetBegin()
+            board.timeline.resetBegin()
         if (endBlocks.isEmpty())
-            board.timeline().resetEnd()
+            board.timeline.resetEnd()
         val blocks = mutableListOf<Block>()
         blocks.addAll(beginBlocks)
         blocks.addAll(endBlocks)
@@ -63,17 +62,12 @@ open class MusicBuilderImpl : MusicBuilder {
     private fun buildSounds() {
         val soundBlocks = blocks.filter {
             it.javaClass == SoundBlock::class.java
-                    && it.centerX > board.timeline().begin
-                    && it.centerX < board.timeline().end
+                    && it.centerX > board.timeline.begin
+                    && it.centerX < board.timeline.end
                     && it.active
         }
         soundBlocks.forEach {
-            val soundId = (it as SoundBlock).soundId
-            val sound = Sound(soundId)
-            val timeline = board.timeline()
-            val boardWidth = board.widthFloat()
-            sound.delayMillis = (timeline.secondsToTraverseWidth / timeline.speedFactor * 1000 * (it.centerX - timeline.begin) / boardWidth).toLong()
-            sound.volume = Math.abs(it.degree / 360)
+            val sound = (it as SoundBlock).buildSound(board)
             music.sounds.add(sound)
         }
     }

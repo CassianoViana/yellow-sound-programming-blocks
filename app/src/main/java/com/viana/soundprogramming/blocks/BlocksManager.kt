@@ -1,17 +1,23 @@
 package com.viana.soundprogramming.blocks
 
-import com.viana.soundprogramming.camera.TopCodesReaderListener
 import topcodes.TopCode
 
-class BlocksManager : TopCodesReaderListener {
+class BlocksManager : TopCodesReader.Listener {
 
     private val blocks = mutableListOf<Block>()
-    private val listeners = mutableListOf<BlocksManagerListener>()
+    private val listeners = mutableListOf<Listener>()
     private val blocksLibrary = BlocksLibrary()
 
     override fun topCodesChanged(topCodes: List<TopCode>) {
         filterTopCodes(topCodes)
         updateBlocksList()
+        checkEnterBlock()
+    }
+
+    private fun checkEnterBlock() {
+        val beginBlocks: List<Block> = blocks.filter { it.javaClass == BeginBlock::javaClass }
+        if (!beginBlocks.isEmpty())
+            listeners.forEach { it.beginBlockEntered(beginBlocks.first() as BeginBlock) }
     }
 
     private fun filterTopCodes(topCodes: List<TopCode>) {
@@ -31,7 +37,13 @@ class BlocksManager : TopCodesReaderListener {
         }
     }
 
-    fun addListener(blocksManagerListener: BlocksManagerListener) {
+    fun addListener(blocksManagerListener: Listener) {
         listeners.add(blocksManagerListener)
+    }
+
+    interface Listener {
+        fun updateBlocksList(blocks: List<Block>)
+        fun beginBlockEntered(block: BeginBlock){}
+        fun endBlockEntered(block: EndBlock){}
     }
 }

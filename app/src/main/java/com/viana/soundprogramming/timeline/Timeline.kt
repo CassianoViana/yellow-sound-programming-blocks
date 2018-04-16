@@ -16,8 +16,8 @@ class Timeline(
         var begin: Float = 0f,
         var position: Float =01F,
         var speedFactor: Float = 1F,
-        var speed: Float = 1.0f,
-        val secondsToTraverseWidth: Int = 2
+        var speed: Float = 0.0f,
+        val secondsToTraverseWidth: Double = 2.0
 ) : BoardObject {
 
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)

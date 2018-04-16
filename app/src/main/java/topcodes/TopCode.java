@@ -29,6 +29,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Canvas;
 
+import java.util.Arrays;
+
 
 /**
  * TopCodes (Tangible Object Placement Codes) are black-and-white
@@ -529,5 +531,38 @@ public class TopCode {
             base++;
         }
         return list;
+    }
+
+    @Override
+    public String toString() {
+        return "TopCode{" +
+                "code=" + code +
+                ", unit=" + unit +
+                ", orientation=" + orientation +
+                ", x=" + x +
+                ", y=" + y +
+                ", core=" + Arrays.toString(core) +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TopCode topCode = (TopCode) o;
+
+        if (code != topCode.code) return false;
+        int acceptablyPositionDifference = 10;
+        if (Math.abs(topCode.x - x) > acceptablyPositionDifference) return false;
+        return Math.abs(topCode.y - y) < acceptablyPositionDifference;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = code;
+        result = 31 * result + (x != +0.0f ? Float.floatToIntBits(x) : 0);
+        result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
+        return result;
     }
 }
