@@ -2,6 +2,7 @@ package com.viana.soundprogramming
 
 import android.graphics.Canvas
 import android.os.AsyncTask
+import android.os.Message
 import android.view.SurfaceHolder
 import com.viana.soundprogramming.board.Board
 
@@ -19,6 +20,7 @@ class MainThread(
     private var waitTime: Long = 0
     private var frameCount = 0
     private val targetTime = 1000 / MAX_FPS
+    private val message: Message = Message()
 
     var running = false
 
@@ -30,13 +32,14 @@ class MainThread(
         while (running) {
             startTime = System.nanoTime()
             canvas = null
-            try {
+            board.mHandler?.dispatchMessage(message)
+            /*try {
                 updateAndDraw()
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
                 unlockCanvas()
-            }
+            }*/
             timeMillis = (System.nanoTime() - startTime) / 1000000
             waitIfNeed()
             increaseTotalTimeAndFrameCount()

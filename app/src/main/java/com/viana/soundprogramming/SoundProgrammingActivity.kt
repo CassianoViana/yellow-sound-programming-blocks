@@ -8,7 +8,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import android.view.View
-import com.viana.soundprogramming.blocks.*
+import com.viana.soundprogramming.blocks.BlocksManager
+import com.viana.soundprogramming.blocks.TopCodesReader
 import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.CameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
@@ -17,6 +18,7 @@ import com.viana.soundprogramming.core.MusicBuilderImpl
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
+import java.util.*
 
 
 const val REQUEST_CODE_CAMERA_PERMISSION = 100
@@ -24,12 +26,13 @@ const val REQUEST_CODE_RECORD_PERMISSION = 200
 const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 300
 const val REQUEST_CODE_VIBRATE_PERMISSION = 400
 
-class SoundProgrammingActivity : AppCompatActivity() {
+class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
 
     private lateinit var camera: Camera
     private val topCodesReader = TopCodesReader()
     private val blocksManager = BlocksManager()
     private val musicBuilder = MusicBuilderImpl()
+    private val stateMachine = StateMachine()
     private var music: Music? = null
 
     private val cameraListener = object : CameraListener {
@@ -44,10 +47,16 @@ class SoundProgrammingActivity : AppCompatActivity() {
         prepareCamera()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                runOnUiThread({
+                    startApp()
+                })
+            }
+        }, 1000)
     }
 
     private fun prepareCamera() {
-        val cameraListener: CameraListener = cameraListener
         camera = Camera(this, cameraListener, surfaceView)
     }
 
@@ -56,21 +65,22 @@ class SoundProgrammingActivity : AppCompatActivity() {
     }
 
     private fun prepareBlocksManagerListeners() {
-        blocksManager.addListener(boardSurfaceView)
-        blocksManager.addListener(object : BlocksManager.Listener {
-            override fun updateBlocksList(blocks: List<Block>) {
-                music = musicBuilder.build(blocks, boardSurfaceView)
-            }
-
-            override fun beginBlockEntered(block: BeginBlock) {
-                Log.i("TESTE", "START Block entered")
-            }
-
-        })
+        blocksManager
+                .addListener(boardSurfaceView)
+                .addListener(stateMachine)
+        stateMachine
+                .addListener(this)
+                .addListener(boardSurfaceView.timeline)
+                .addListener(object : StateMachine.Listener{
+                    override fun stateChanged(state: StateMachine.State) {
+                        Log.i("teste", state.toString())
+                    }
+                })
         boardSurfaceView
                 .timeline
                 .addListener(object : Timeline.Listener {
                     override fun onHitStart() {
+                        music = musicBuilder.build(blocksManager.blocks, boardSurfaceView)
                         ProgrammingVibrator.vibrate(10)
                         music?.play()
                     }
@@ -91,7 +101,7 @@ class SoundProgrammingActivity : AppCompatActivity() {
 
     fun onClickStartStop(view: View) {
         ProgrammingVibrator.vibrate(30)
-        if (!camera.isCameraOpen) start() else stop()
+        if (!camera.isCameraOpen) startApp() else stopApp()
     }
 
     fun onClickTest(view: View) {
@@ -99,21 +109,30 @@ class SoundProgrammingActivity : AppCompatActivity() {
         startActivity(Intent(this, TestActivity::class.java))
     }
 
-    private fun start() {
-        btnStartStop.background = ContextCompat
-                .getDrawable(this, R.drawable.button_stop)
-        btnStartStop.setText(R.string.stop)
+    private fun startApp() {
         ScreenUtil.fullscreen(window)
         camera.openCamera()
-        boardSurfaceView.timeline.start()
     }
 
-    private fun stop() {
-        btnStartStop.background = ContextCompat
-                .getDrawable(this, R.drawable.button_start)
-        btnStartStop.setText(R.string.start)
+    private fun stopApp() {
         ScreenUtil.exitFullscreen(window)
         camera.closeCamera()
-        boardSurfaceView.timeline.stop()
+    }
+
+    override fun stateChanged(state: StateMachine.State) {
+        when (state) {
+            StateMachine.State.PLAYING -> {
+                btnStartStop.background = ContextCompat
+                        .getDrawable(this, R.drawable.button_stop)
+                btnStartStop.setText(R.string.stop)
+            }
+            StateMachine.State.PAUSED -> {
+                btnStartStop.background = ContextCompat
+                        .getDrawable(this, R.drawable.button_start)
+                btnStartStop.setText(R.string.start)
+            }
+            else -> {
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@ import topcodes.TopCode
 
 class BlocksManager : TopCodesReader.Listener {
 
-    private val blocks = mutableListOf<Block>()
+    val blocks = mutableListOf<Block>()
     private val listeners = mutableListOf<Listener>()
     private val blocksLibrary = BlocksLibrary()
 
@@ -37,8 +37,9 @@ class BlocksManager : TopCodesReader.Listener {
         }
     }
 
-    fun addListener(blocksManagerListener: Listener) {
+    fun addListener(blocksManagerListener: Listener): BlocksManager {
         listeners.add(blocksManagerListener)
+        return this
     }
 
     interface Listener {

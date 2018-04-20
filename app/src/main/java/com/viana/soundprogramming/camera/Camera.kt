@@ -41,11 +41,9 @@ class Camera(
 
     private fun readBitmap(reader: ImageReader) {
         val image = reader.acquireLatestImage()
-        image?.let {
-            val bitmap = bitmapReader.readImage(it)
-            it.close()
-            cameraListener.onEachFrame(bitmap)
-        }
+        val bitmap = bitmapReader.readImage(image)
+        image.close()
+        cameraListener.onEachFrame(bitmap)
     }
 
     @SuppressLint("MissingPermission")
@@ -110,12 +108,8 @@ class Camera(
     }
 
     private fun startRepeatingSessionRequestToCamera() {
-        try {
-            cameraSession.setRepeatingRequest(captureRequest,
-                    object : CameraCaptureSession.CaptureCallback() {}, backgroundHandler)
-        } catch (e: CameraAccessException) {
-            e.printStackTrace()
-        }
+        cameraSession.setRepeatingRequest(captureRequest,
+                object : CameraCaptureSession.CaptureCallback() {}, backgroundHandler)
     }
 
     private fun prepareImageReader() {

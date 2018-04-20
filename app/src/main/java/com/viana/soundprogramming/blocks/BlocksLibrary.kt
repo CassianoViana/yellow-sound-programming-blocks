@@ -8,7 +8,7 @@ class BlocksLibrary {
     private val blocks: MutableMap<Int, Block> = mutableMapOf()
 
     init {
-        blocks[31] = StartBlock()
+        blocks[31] = PlayBlock()
         blocks[47] = StopBlock()
         blocks[87] = BeginBlock()
         blocks[91] = EndBlock()

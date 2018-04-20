@@ -5,6 +5,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -23,19 +25,29 @@ class BoardSurfaceView
 
     override lateinit var timeline: Timeline
     private lateinit var mainThread: MainThread
-    private var collisionDetector = CollisionDetector.instance
+    private val collisionDetector = CollisionDetector()
     private var canvas: Canvas? = null
     private var blocks = listOf<Block>()
+    override var widthFloat = 0f
+    override var heightFloat = 0f
+    override var mHandler: Handler? = null
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
         holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
         timeline = Timeline(this)
+        heightFloat = height.toFloat()
+        widthFloat = width.toFloat()
+        prepareLooperListener()
     }
 
-    override fun heightFloat(): Float = height.toFloat()
-    override fun widthFloat(): Float = width.toFloat()
+    private fun prepareLooperListener() {
+        mHandler = Handler(Looper.getMainLooper()) {
+            this.holder?.let { updateAndDraw(it) }
+            true
+        }
+    }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
         mainThread = MainThread(surfaceHolder, this)
@@ -44,11 +56,29 @@ class BoardSurfaceView
     }
 
     override fun surfaceChanged(surfaceHolder: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
+        widthFloat = width.toFloat()
+        heightFloat = height.toFloat()
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder?) {
         mainThread.running = false
         mainThread.cancel(true)
+    }
+
+    private fun updateAndDraw(surfaceHolder: SurfaceHolder) {
+        val canvas = surfaceHolder.lockCanvas()
+        try {
+            canvas?.let {
+                update()
+                synchronized(surfaceHolder) {
+                    draw(canvas)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            surfaceHolder.unlockCanvasAndPost(canvas)
+        }
     }
 
     override fun update() {

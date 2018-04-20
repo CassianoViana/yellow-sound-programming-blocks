@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import com.viana.soundprogramming.StateMachine
 import com.viana.soundprogramming.averageFps
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.board.Board
@@ -18,7 +19,7 @@ class Timeline(
         var speedFactor: Float = 1F,
         var speed: Float = 0.0f,
         val secondsToTraverseWidth: Double = 2.0
-) : BoardObject {
+) : BoardObject, StateMachine.Listener {
 
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var rect: Rect = Rect()
@@ -33,7 +34,7 @@ class Timeline(
     }
 
     private fun calculateSpeed() {
-        speed = (board.widthFloat() / averageFps / secondsToTraverseWidth)
+        speed = (board.widthFloat / averageFps / secondsToTraverseWidth)
                 .toFloat() * speedFactor
     }
 
@@ -45,7 +46,7 @@ class Timeline(
         val left = position.toInt()
         val top = 0
         val right = (position + speed).toInt()
-        val bottom = board.heightFloat().toInt()
+        val bottom = board.heightFloat.toInt()
         rect.set(left, top, right, bottom)
     }
 
@@ -79,7 +80,7 @@ class Timeline(
     }
 
     fun resetEnd() {
-        end = board.widthFloat()
+        end = board.widthFloat
     }
 
     fun start() {
@@ -88,5 +89,14 @@ class Timeline(
 
     fun stop() {
         speedFactor = 0F
+    }
+
+    override fun stateChanged(state: StateMachine.State) {
+        when(state){
+            StateMachine.State.PLAYING -> start()
+            StateMachine.State.PAUSED -> stop()
+            else -> {
+            }
+        }
     }
 }
