@@ -9,7 +9,7 @@ class BlocksLibrary {
 
     init {
         blocks[31] = PlayBlock()
-        blocks[47] = StopBlock()
+        blocks[47] = PauseBlock()
         blocks[87] = BeginBlock()
         blocks[91] = EndBlock()
 

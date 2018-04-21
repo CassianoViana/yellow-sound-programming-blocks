@@ -4,7 +4,7 @@ import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
 
 open class MusicBuilderImpl : MusicBuilder {
-
+    override var maxVolume: Float = 1f
     private var music = MusicImpl()
     private lateinit var blocks: List<Block>
     private lateinit var board: Board
@@ -14,6 +14,7 @@ open class MusicBuilderImpl : MusicBuilder {
         this.board = board
         this.blocks = blocks
         calculateSpeed()
+        calculateVolume()
         defineMusicBeginEnd()
         computeModuleBlocks()
         buildSounds()
@@ -21,12 +22,16 @@ open class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun calculateSpeed() {
-        val speedBlock = blocks.filter { it.javaClass == SpeedBlock::class.java }
-        if (speedBlock.isNotEmpty()) {
-            val first: Block? = speedBlock.first()
-            first?.let {
-                (it as SpeedBlock).calculateSpeed(board)
-            }
+        val speedBlock: Block? = blocks.firstOrNull { it.javaClass == SpeedBlock::class.java }
+        speedBlock?.let {
+            (it as SpeedBlock).calculateSpeed(board)
+        }
+    }
+
+    private fun calculateVolume() {
+        val volumeBlock: Block? = blocks.firstOrNull { it.javaClass == VolumeBlock::class.java }
+        volumeBlock?.let {
+            (it as VolumeBlock).calculateVolume(this)
         }
     }
 
@@ -67,7 +72,7 @@ open class MusicBuilderImpl : MusicBuilder {
                     && it.active
         }
         soundBlocks.forEach {
-            val sound = (it as SoundBlock).buildSound(board)
+            val sound = (it as SoundBlock).buildSound(board, this)
             music.sounds.add(sound)
         }
     }

@@ -2,6 +2,7 @@ package com.viana.soundprogramming
 
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
+import com.viana.soundprogramming.blocks.PauseBlock
 import com.viana.soundprogramming.blocks.PlayBlock
 
 class StateMachine : BlocksManager.Listener {
@@ -10,9 +11,9 @@ class StateMachine : BlocksManager.Listener {
         PLAYING, PAUSED, RECORDING, EXPLAINING
     }
 
-    val listeners = mutableListOf<Listener>()
+    private val listeners = mutableListOf<Listener>()
 
-    var state: State = State.PAUSED
+    private var state: State = State.PLAYING
         set(value) {
             val changed = value != field
             field = value
@@ -21,12 +22,13 @@ class StateMachine : BlocksManager.Listener {
         }
 
     override fun updateBlocksList(blocks: List<Block>) {
-        checkIfPlayBlockEntered(blocks)
+        checkIfPlayPauseBlocksEntered(blocks)
     }
 
-    private fun checkIfPlayBlockEntered(blocks: List<Block>) {
-        val beginBlocks: List<Block> = blocks.filter { it.javaClass == PlayBlock::class.java }
-        state = if (!beginBlocks.isEmpty()) State.PLAYING else State.PAUSED
+    private fun checkIfPlayPauseBlocksEntered(blocks: List<Block>) {
+        val playBlock: Block? = blocks.firstOrNull { it.javaClass == PlayBlock::class.java }
+        val pauseBlock: Block? = blocks.firstOrNull { it.javaClass == PauseBlock::class.java }
+        state = if (playBlock != null || (pauseBlock == null && state != State.PAUSED)) State.PLAYING else State.PAUSED
     }
 
     fun addListener(listener: Listener): StateMachine {

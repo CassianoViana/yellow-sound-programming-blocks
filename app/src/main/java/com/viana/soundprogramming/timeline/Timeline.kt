@@ -9,14 +9,14 @@ import com.viana.soundprogramming.averageFps
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.board.BoardObject
+import java.util.*
 
 class Timeline(
         var board: Board,
         var count: Long = 0,
         var end: Float = 1280f,
         var begin: Float = 0f,
-        var position: Float =01F,
-        var speedFactor: Float = 1F,
+        var position: Float = 01F,
         var speed: Float = 0.0f,
         val secondsToTraverseWidth: Double = 2.0
 ) : BoardObject, StateMachine.Listener {
@@ -24,13 +24,36 @@ class Timeline(
     private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private var rect: Rect = Rect()
     private val listeners = mutableListOf<Listener>()
+    private var timer: Timer = Timer()
 
+    var speedFactor: Float = 1.00F
+        set(value) {
+            val changingOrStarting = value != field && value > 0
+            val stopping = field != 0f && value == 0f
+            if (changingOrStarting || stopping) {
+                field = value
+                scheduleTimer()
+            }
+        }
+
+    fun scheduleTimer() {
+        timer.cancel()
+        timer = Timer()
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
+                position = begin
+                count ++
+                listeners.forEach {
+                    it.onHitStart()
+                }
+            }
+        }, 0, ((secondsToTraverseWidth / speedFactor) * 1000).toLong())
+    }
 
     override fun update() {
         calculateSpeed()
         updatePosition()
         updateRectBounds()
-        controlReachTheEnd()
     }
 
     private fun calculateSpeed() {
@@ -53,14 +76,6 @@ class Timeline(
     override fun draw(canvas: Canvas) {
         paint.color = Color.YELLOW
         canvas.drawRect(rect, paint)
-    }
-
-    private fun controlReachTheEnd() {
-        if (position >= end) {
-            count++
-            position = begin
-            listeners.forEach { it.onHitStart() }
-        }
     }
 
     fun addListener(listener: Listener) {
@@ -92,7 +107,7 @@ class Timeline(
     }
 
     override fun stateChanged(state: StateMachine.State) {
-        when(state){
+        when (state) {
             StateMachine.State.PLAYING -> start()
             StateMachine.State.PAUSED -> stop()
             else -> {

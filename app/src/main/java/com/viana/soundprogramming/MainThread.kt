@@ -1,16 +1,12 @@
 package com.viana.soundprogramming
 
-import android.graphics.Canvas
 import android.os.AsyncTask
-import android.os.Message
-import android.view.SurfaceHolder
 import com.viana.soundprogramming.board.Board
 
 const val MAX_FPS = 30
 var averageFps: Double = 0.0
 
 class MainThread(
-        private val surfaceHolder: SurfaceHolder,
         private val board: Board
 ) : AsyncTask<Void, Void, Void>() {
 
@@ -20,26 +16,13 @@ class MainThread(
     private var waitTime: Long = 0
     private var frameCount = 0
     private val targetTime = 1000 / MAX_FPS
-    private val message: Message = Message()
 
     var running = false
-
-    companion object {
-        var canvas: Canvas? = null
-    }
 
     override fun doInBackground(vararg p0: Void?): Void? {
         while (running) {
             startTime = System.nanoTime()
-            canvas = null
-            board.mHandler?.dispatchMessage(message)
-            /*try {
-                updateAndDraw()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                unlockCanvas()
-            }*/
+            board.updateAndDraw()
             timeMillis = (System.nanoTime() - startTime) / 1000000
             waitIfNeed()
             increaseTotalTimeAndFrameCount()
@@ -47,23 +30,6 @@ class MainThread(
                 resetCounters()
         }
         return null
-    }
-
-    private fun updateAndDraw() {
-        try {
-            canvas = surfaceHolder.lockCanvas()
-            synchronized(surfaceHolder) {
-                board.update()
-                board.draw(canvas)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun unlockCanvas() {
-        if (canvas != null)
-            surfaceHolder.unlockCanvasAndPost(canvas)
     }
 
     private fun resetCounters() {

@@ -5,8 +5,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
-import android.os.Handler
-import android.os.Looper
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -30,7 +28,6 @@ class BoardSurfaceView
     private var blocks = listOf<Block>()
     override var widthFloat = 0f
     override var heightFloat = 0f
-    override var mHandler: Handler? = null
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
@@ -39,20 +36,26 @@ class BoardSurfaceView
         timeline = Timeline(this)
         heightFloat = height.toFloat()
         widthFloat = width.toFloat()
-        prepareLooperListener()
-    }
-
-    private fun prepareLooperListener() {
-        mHandler = Handler(Looper.getMainLooper()) {
-            this.holder?.let { updateAndDraw(it) }
-            true
-        }
     }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
-        mainThread = MainThread(surfaceHolder, this)
+    }
+
+    fun start() {
+        mainThread = MainThread(this)
         mainThread.running = true
         mainThread.execute(null)
+        timeline.scheduleTimer()
+    }
+
+    fun stop() {
+        stopLoopThread()
+    }
+
+    private fun stopLoopThread() {
+        mainThread.running = false
+        if (!mainThread.isCancelled)
+            mainThread.cancel(true)
     }
 
     override fun surfaceChanged(surfaceHolder: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
@@ -61,23 +64,22 @@ class BoardSurfaceView
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder?) {
-        mainThread.running = false
-        mainThread.cancel(true)
+        stopLoopThread()
     }
 
-    private fun updateAndDraw(surfaceHolder: SurfaceHolder) {
-        val canvas = surfaceHolder.lockCanvas()
+    override fun updateAndDraw() {
+        val canvas = holder.lockCanvas()
         try {
             canvas?.let {
                 update()
-                synchronized(surfaceHolder) {
+                synchronized(holder) {
                     draw(canvas)
                 }
             }
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
-            surfaceHolder.unlockCanvasAndPost(canvas)
+            holder.unlockCanvasAndPost(canvas)
         }
     }
 
@@ -91,10 +93,8 @@ class BoardSurfaceView
             super.draw(canvas)
             this.canvas = canvas
             clear()
-            if (canvas != null) {
-                drawBlocks()
-                drawTimeline()
-            }
+            drawBlocks()
+            drawTimeline()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -105,7 +105,7 @@ class BoardSurfaceView
     }
 
     private fun drawBlocks() {
-        blocks.iterator().forEach { it.draw(canvas) }
+        blocks.toSet().forEach { it.draw(canvas) }
     }
 
     private fun drawTimeline() {

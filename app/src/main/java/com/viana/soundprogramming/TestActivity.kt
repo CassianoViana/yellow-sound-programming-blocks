@@ -4,20 +4,24 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.mapzen.speakerbox.Speakerbox
 import com.viana.soundprogramming.sound.Recorder
 import com.viana.soundprogramming.sound.SoundManager
 import com.viana.soundprogramming.sound.getRecordedFileName
 import com.viana.soundprogramming.util.managePermissionDirectory
 import com.viana.soundprogramming.util.managePermissionSound
+import java.util.*
 
 class TestActivity : AppCompatActivity() {
 
     val recorder = Recorder()
-    var soundId:Int = 0
+    var soundId: Int = 0
+    var speakerBox: Speakerbox? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
+        speakerBox = Speakerbox(application)
     }
 
     fun play(view: View) {
@@ -30,15 +34,15 @@ class TestActivity : AppCompatActivity() {
         soundManager.play(id3)
     }
 
-    fun load(view: View){
+    fun load(view: View) {
         soundId = SoundManager.instance.load(getRecordedFileName(777))
     }
 
-    fun record(view: View?){
+    fun record(view: View?) {
         val code = 777
         if (managePermissionDirectory(this)) return
         if (managePermissionSound(this)) return
-        recorder.listener = object : Recorder.Listener{
+        recorder.listener = object : Recorder.Listener {
             override fun onCodeRecorded(producedSoundId: Int) {
                 soundId = producedSoundId
             }
@@ -47,12 +51,14 @@ class TestActivity : AppCompatActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if(requestCode == REQUEST_CODE_RECORD_PERMISSION){
+        if (requestCode == REQUEST_CODE_RECORD_PERMISSION) {
             record(null)
         }
     }
 
-    fun playRecord(view: View){
+    fun playRecord(view: View) {
+        speakerBox?.textToSpeech?.language = Locale("pt", "BR")
+        speakerBox?.play("Olá. Vamos programar. Comece adicionando algumas peças.")
         recorder.play(soundId)
     }
 }

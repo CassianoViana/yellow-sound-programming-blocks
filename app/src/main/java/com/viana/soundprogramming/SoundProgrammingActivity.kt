@@ -20,7 +20,6 @@ import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import java.util.*
 
-
 const val REQUEST_CODE_CAMERA_PERMISSION = 100
 const val REQUEST_CODE_RECORD_PERMISSION = 200
 const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 300
@@ -50,10 +49,10 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 runOnUiThread({
-                    startApp()
+                    startCamera()
                 })
             }
-        }, 1000)
+        }, 5000)
     }
 
     private fun prepareCamera() {
@@ -81,7 +80,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 .addListener(object : Timeline.Listener {
                     override fun onHitStart() {
                         music = musicBuilder.build(blocksManager.blocks, boardSurfaceView)
-                        ProgrammingVibrator.vibrate(10)
+                        /*ProgrammingVibrator.vibrate(10)*/
                         music?.play()
                     }
                 })
@@ -101,21 +100,24 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
 
     fun onClickStartStop(view: View) {
         ProgrammingVibrator.vibrate(30)
-        if (!camera.isCameraOpen) startApp() else stopApp()
+        if (!camera.isCameraOpen) startCamera() else stopCamera()
     }
 
     fun onClickTest(view: View) {
+        stopCamera()
         ProgrammingVibrator.vibrate(30)
         startActivity(Intent(this, TestActivity::class.java))
     }
 
-    private fun startApp() {
-        ScreenUtil.fullscreen(window)
+    private fun startCamera() {
+        //ScreenUtil.fullscreen(window)
+        boardSurfaceView.start()
         camera.openCamera()
     }
 
-    private fun stopApp() {
-        ScreenUtil.exitFullscreen(window)
+    private fun stopCamera() {
+        //ScreenUtil.exitFullscreen(window)
+        boardSurfaceView.stop()
         camera.closeCamera()
     }
 

@@ -108,8 +108,19 @@ class Camera(
     }
 
     private fun startRepeatingSessionRequestToCamera() {
-        cameraSession.setRepeatingRequest(captureRequest,
-                object : CameraCaptureSession.CaptureCallback() {}, backgroundHandler)
+        val value: CameraCaptureSession.CaptureCallback = object : CameraCaptureSession.CaptureCallback() {}
+        Thread({
+            while (isCameraOpen) {
+                try {
+                    cameraSession.capture(captureRequest, value, backgroundHandler)
+                    Thread.sleep(2000)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }).start()
+        /*cameraSession.setRepeatingRequest(captureRequest,
+                value, backgroundHandler)*/
     }
 
     private fun prepareImageReader() {
