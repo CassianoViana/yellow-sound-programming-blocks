@@ -11,13 +11,6 @@ class BlocksManager : TopCodesReader.Listener {
     override fun topCodesChanged(topCodes: List<TopCode>) {
         filterTopCodes(topCodes)
         updateBlocksList()
-        checkEnterBlock()
-    }
-
-    private fun checkEnterBlock() {
-        val beginBlocks: List<Block> = blocks.filter { it.javaClass == BeginBlock::javaClass }
-        if (!beginBlocks.isEmpty())
-            listeners.forEach { it.beginBlockEntered(beginBlocks.first() as BeginBlock) }
     }
 
     private fun filterTopCodes(topCodes: List<TopCode>) {
@@ -32,8 +25,9 @@ class BlocksManager : TopCodesReader.Listener {
     }
 
     private fun updateBlocksList() {
+        val copiedBlocks = blocks.toList()
         listeners.forEach {
-            it.updateBlocksList(blocks)
+            it.updateBlocksList(copiedBlocks)
         }
     }
 
@@ -44,7 +38,5 @@ class BlocksManager : TopCodesReader.Listener {
 
     interface Listener {
         fun updateBlocksList(blocks: List<Block>)
-        fun beginBlockEntered(block: BeginBlock){}
-        fun endBlockEntered(block: EndBlock){}
     }
 }

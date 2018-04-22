@@ -4,9 +4,7 @@ import com.viana.soundprogramming.sound.Sound
 
 abstract class Music {
 
-    val sounds = mutableListOf<Sound>()
+    var sounds = listOf<Sound>()
     abstract fun play()
-    abstract fun pause()
-    abstract fun clear()
 
 }

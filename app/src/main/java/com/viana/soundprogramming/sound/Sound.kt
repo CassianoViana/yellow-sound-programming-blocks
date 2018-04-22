@@ -9,11 +9,12 @@ class Sound(private val soundId: Int) {
     var delayMillis: Long = 500
 
     fun play() {
-        timer.schedule(object : TimerTask() {
-            override fun run() {
-                SoundManager.instance.play(soundId, volume)
-                ProgrammingVibrator.vibrate((volume * 10).toLong())
-            }
-        }, delayMillis)
+        if (delayMillis > 10)
+            timer.schedule(object : TimerTask() {
+                override fun run() {
+                    SoundManager.instance.play(soundId, volume)
+                    ProgrammingVibrator.vibrate((volume * 10).toLong())
+                }
+            }, delayMillis)
     }
 }

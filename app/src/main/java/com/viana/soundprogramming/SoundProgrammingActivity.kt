@@ -15,10 +15,12 @@ import com.viana.soundprogramming.camera.CameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilderImpl
+import com.viana.soundprogramming.speaker.Speaker
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import java.util.*
+
 
 const val REQUEST_CODE_CAMERA_PERMISSION = 100
 const val REQUEST_CODE_RECORD_PERMISSION = 200
@@ -33,6 +35,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
     private val musicBuilder = MusicBuilderImpl()
     private val stateMachine = StateMachine()
     private var music: Music? = null
+    private val speaker = Speaker()
 
     private val cameraListener = object : CameraListener {
         override fun onEachFrame(bitmap: Bitmap) {
@@ -70,20 +73,20 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         stateMachine
                 .addListener(this)
                 .addListener(boardSurfaceView.timeline)
-                .addListener(object : StateMachine.Listener{
+                .addListener(object : StateMachine.Listener {
                     override fun stateChanged(state: StateMachine.State) {
+                        speaker.say(getString(R.string.phrases))
                         Log.i("teste", state.toString())
                     }
                 })
         boardSurfaceView
-                .timeline
-                .addListener(object : Timeline.Listener {
-                    override fun onHitStart() {
-                        music = musicBuilder.build(blocksManager.blocks, boardSurfaceView)
-                        /*ProgrammingVibrator.vibrate(10)*/
-                        music?.play()
-                    }
-                })
+                .timeline?.addListener(object : Timeline.Listener {
+            override fun onHitStart() {
+                music = musicBuilder.build(blocksManager.blocks, boardSurfaceView)
+                /*ProgrammingVibrator.vibrate(10)*/
+                music?.play()
+            }
+        })
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
@@ -111,7 +114,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
 
     private fun startCamera() {
         //ScreenUtil.fullscreen(window)
-        boardSurfaceView.start()
+        boardSurfaceView.start(this, timelineView)
         camera.openCamera()
     }
 

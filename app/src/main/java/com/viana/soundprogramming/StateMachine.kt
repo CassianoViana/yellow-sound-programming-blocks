@@ -31,8 +31,8 @@ class StateMachine : BlocksManager.Listener {
         state = if (playBlock != null || (pauseBlock == null && state != State.PAUSED)) State.PLAYING else State.PAUSED
     }
 
-    fun addListener(listener: Listener): StateMachine {
-        this.listeners.add(listener)
+    fun addListener(listener: Listener?): StateMachine {
+        listener?.let { this.listeners.add(it) }
         return this
     }
 

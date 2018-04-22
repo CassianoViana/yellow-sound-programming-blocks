@@ -31,7 +31,9 @@ open class SoundBlock(private val soundId: Int) : Block() {
     private fun calculateVolume(board: Board) =
             ((board.heightFloat - this.centerY) * (maxVolume - minVolume) / board.heightFloat) + minVolume
 
-    private fun calculatePlayMoment(board: Board) =
-            (board.timeline.secondsToTraverseWidth / board.timeline.speedFactor * 1000 *
-                    (this.centerX - board.timeline.begin) / board.widthFloat).toLong()
+    private fun calculatePlayMoment(board: Board): Long =
+            board.timeline?.let {
+                (it.secondsToTraverseWidth / it.speedFactor * 1000 *
+                        (this.centerX - it.begin) / board.widthFloat).toLong()
+            } ?: 0
 }

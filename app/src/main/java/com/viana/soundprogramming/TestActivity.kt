@@ -4,24 +4,22 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.mapzen.speakerbox.Speakerbox
 import com.viana.soundprogramming.sound.Recorder
 import com.viana.soundprogramming.sound.SoundManager
 import com.viana.soundprogramming.sound.getRecordedFileName
+import com.viana.soundprogramming.speaker.Speaker
 import com.viana.soundprogramming.util.managePermissionDirectory
 import com.viana.soundprogramming.util.managePermissionSound
-import java.util.*
 
 class TestActivity : AppCompatActivity() {
 
+    val speaker:Speaker = Speaker()
     val recorder = Recorder()
     var soundId: Int = 0
-    var speakerBox: Speakerbox? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
-        speakerBox = Speakerbox(application)
     }
 
     fun play(view: View) {
@@ -57,8 +55,7 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun playRecord(view: View) {
-        speakerBox?.textToSpeech?.language = Locale("pt", "BR")
-        speakerBox?.play("Olá. Vamos programar. Comece adicionando algumas peças.")
+        speaker.say("Olá. Vamos programar. Comece adicionando algumas peças.")
         recorder.play(soundId)
     }
 }

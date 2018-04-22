@@ -1,5 +1,6 @@
 package com.viana.soundprogramming.board
 
+import android.app.Activity
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -8,7 +9,7 @@ import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.viana.soundprogramming.MainThread
+import android.view.View
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.timeline.CollisionDetector
@@ -21,8 +22,7 @@ class BoardSurfaceView
         defStyle: Int = 0
 ) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board, BlocksManager.Listener {
 
-    override lateinit var timeline: Timeline
-    private lateinit var mainThread: MainThread
+    override var timeline: Timeline? = null
     private val collisionDetector = CollisionDetector()
     private var canvas: Canvas? = null
     private var blocks = listOf<Block>()
@@ -33,29 +33,20 @@ class BoardSurfaceView
         setBackgroundColor(Color.TRANSPARENT)
         holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
-        timeline = Timeline(this)
         heightFloat = height.toFloat()
         widthFloat = width.toFloat()
     }
 
-    override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
-    }
-
-    fun start() {
-        mainThread = MainThread(this)
-        mainThread.running = true
-        mainThread.execute(null)
-        timeline.scheduleTimer()
+    fun start(parent: Activity, timelineView: View) {
+        timeline = Timeline(this, parent, timelineView)
+        timeline?.scheduleTimer()
     }
 
     fun stop() {
-        stopLoopThread()
+        timeline?.stop()
     }
 
-    private fun stopLoopThread() {
-        mainThread.running = false
-        if (!mainThread.isCancelled)
-            mainThread.cancel(true)
+    override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
     }
 
     override fun surfaceChanged(surfaceHolder: SurfaceHolder?, p1: Int, p2: Int, p3: Int) {
@@ -64,7 +55,6 @@ class BoardSurfaceView
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder?) {
-        stopLoopThread()
     }
 
     override fun updateAndDraw() {
@@ -84,8 +74,10 @@ class BoardSurfaceView
     }
 
     override fun update() {
-        timeline.update()
-        collisionDetector.detectCollision(timeline, blocks)
+        timeline?.let {
+            it.update()
+            collisionDetector.detectCollision(it, blocks)
+        }
     }
 
     override fun draw(canvas: Canvas?) {
@@ -109,7 +101,7 @@ class BoardSurfaceView
     }
 
     private fun drawTimeline() {
-        canvas?.let { timeline.draw(it) }
+        canvas?.let { timeline?.draw(it) }
     }
 
     override fun updateBlocksList(blocks: List<Block>) {

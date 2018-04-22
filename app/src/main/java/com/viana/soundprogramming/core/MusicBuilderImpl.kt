@@ -2,6 +2,7 @@ package com.viana.soundprogramming.core
 
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
+import com.viana.soundprogramming.timeline.Timeline
 
 open class MusicBuilderImpl : MusicBuilder {
     override var maxVolume: Float = 1f
@@ -10,7 +11,6 @@ open class MusicBuilderImpl : MusicBuilder {
     private lateinit var board: Board
 
     override fun build(blocks: List<Block>, board: Board): Music {
-        music.clear()
         this.board = board
         this.blocks = blocks
         calculateSpeed()
@@ -39,7 +39,7 @@ open class MusicBuilderImpl : MusicBuilder {
         val moduleBlocks = blocks.filter { it.javaClass == ModuleBlock::class.java }
         val soundBlocks = blocks.filter { it.javaClass == SoundBlock::class.java }
         soundBlocks.forEach { it.active = true }
-        val count = board.timeline.count
+        val count = board.timeline?.count ?: 0
         moduleBlocks.forEach { moduleBlock ->
             val intersectedSoundBlocks = soundBlocks.filter { soundBlock -> moduleBlock.intersects(soundBlock) }
             intersectedSoundBlocks.forEach {
@@ -52,9 +52,9 @@ open class MusicBuilderImpl : MusicBuilder {
         val beginBlocks = blocks.filter { it.javaClass == BeginBlock::class.java }
         val endBlocks = blocks.filter { it.javaClass == EndBlock::class.java }
         if (beginBlocks.isEmpty())
-            board.timeline.resetBegin()
+            board.timeline?.resetBegin()
         if (endBlocks.isEmpty())
-            board.timeline.resetEnd()
+            board.timeline?.resetEnd()
         val blocks = mutableListOf<Block>()
         blocks.addAll(beginBlocks)
         blocks.addAll(endBlocks)
@@ -65,15 +65,20 @@ open class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun buildSounds() {
-        val soundBlocks = blocks.filter {
-            it.javaClass == SoundBlock::class.java
-                    && it.centerX > board.timeline.begin
-                    && it.centerX < board.timeline.end
-                    && it.active
+        board.timeline?.let { timeline ->
+            music.sounds = blocks
+                    .filter {
+                        insideBeginAndEnd(it, timeline)
+                    }.map {
+                        (it as SoundBlock).buildSound(board, this)
+                    }
         }
-        soundBlocks.forEach {
-            val sound = (it as SoundBlock).buildSound(board, this)
-            music.sounds.add(sound)
-        }
+    }
+
+    private fun insideBeginAndEnd(it: Block, timeline: Timeline): Boolean {
+        return (it.javaClass == SoundBlock::class.java
+                && it.centerX > timeline.begin
+                && it.centerX < timeline.end
+                && it.active)
     }
 }
