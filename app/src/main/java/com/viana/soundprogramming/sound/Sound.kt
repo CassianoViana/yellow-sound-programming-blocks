@@ -9,7 +9,7 @@ class Sound(private val soundId: Int) {
     var delayMillis: Long = 500
 
     fun play() {
-        if (delayMillis > 10)
+        if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             timer.schedule(object : TimerTask() {
                 override fun run() {
                     SoundManager.instance.play(soundId, volume)

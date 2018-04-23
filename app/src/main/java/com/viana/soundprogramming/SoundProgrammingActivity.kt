@@ -49,17 +49,54 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         prepareCamera()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ScreenUtil.fullscreen(window)
+        startAfterDelay(1000)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        ScreenUtil.exitFullscreen(window)
+        stopCamera()
+    }
+
+    fun onClickStartStop(view: View) {
+        ProgrammingVibrator.vibrate(30)
+        if (!camera.isCameraOpen) startCamera() else stopCamera()
+    }
+
+    fun onClickTest(view: View) {
+        stopCamera()
+        ProgrammingVibrator.vibrate(30)
+        startActivity(Intent(this, TestActivity::class.java))
+    }
+
+    private fun startAfterDelay(delay: Long) {
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 runOnUiThread({
                     startCamera()
                 })
             }
-        }, 5000)
+        }, delay)
     }
 
     private fun prepareCamera() {
+        boardSurfaceView.prepare(this, timelineView)
         camera = Camera(this, cameraListener, surfaceView)
+    }
+
+    private fun startCamera() {
+        boardSurfaceView.start()
+        camera.openCamera()
+    }
+
+    private fun stopCamera() {
+        boardSurfaceView.stop()
+        camera.closeCamera()
     }
 
     private fun prepareTopCodeListeners() {
@@ -75,7 +112,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 .addListener(boardSurfaceView.timeline)
                 .addListener(object : StateMachine.Listener {
                     override fun stateChanged(state: StateMachine.State) {
-                        speaker.say(getString(R.string.phrases))
                         Log.i("teste", state.toString())
                     }
                 })
@@ -83,7 +119,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart() {
                 music = musicBuilder.build(blocksManager.blocks, boardSurfaceView)
-                /*ProgrammingVibrator.vibrate(10)*/
+                ProgrammingVibrator.vibrate(10)
                 music?.play()
             }
         })
@@ -96,42 +132,16 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
             camera.openCamera()
     }
 
-    override fun onResume() {
-        super.onResume()
-        ScreenUtil.fullscreen(window)
-    }
-
-    fun onClickStartStop(view: View) {
-        ProgrammingVibrator.vibrate(30)
-        if (!camera.isCameraOpen) startCamera() else stopCamera()
-    }
-
-    fun onClickTest(view: View) {
-        stopCamera()
-        ProgrammingVibrator.vibrate(30)
-        startActivity(Intent(this, TestActivity::class.java))
-    }
-
-    private fun startCamera() {
-        //ScreenUtil.fullscreen(window)
-        boardSurfaceView.start(this, timelineView)
-        camera.openCamera()
-    }
-
-    private fun stopCamera() {
-        //ScreenUtil.exitFullscreen(window)
-        boardSurfaceView.stop()
-        camera.closeCamera()
-    }
-
     override fun stateChanged(state: StateMachine.State) {
         when (state) {
             StateMachine.State.PLAYING -> {
+                speaker.saySavedPhrase(getString(R.string.started))
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_stop)
                 btnStartStop.setText(R.string.stop)
             }
             StateMachine.State.PAUSED -> {
+                speaker.saySavedPhrase(getString(R.string.paused))
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_start)
                 btnStartStop.setText(R.string.start)

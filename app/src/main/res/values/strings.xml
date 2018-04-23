@@ -6,5 +6,7 @@
     <string name="stop">Stop</string>
     <string name="screen">Tela</string>
     <string name="test">Test</string>
-    <string name="phrases">Olá. Vamos codear animalmente? Comece adicionando algumas peças.</string>
+    <string name="letstart">Olá. Vamos codear animalmente? Comece adicionando algumas peças.</string>
+    <string name="started">O show começou</string>
+    <string name="paused">A música foi interrompida</string>
 </resources>

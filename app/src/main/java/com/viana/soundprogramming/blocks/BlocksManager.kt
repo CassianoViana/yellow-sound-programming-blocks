@@ -4,30 +4,20 @@ import topcodes.TopCode
 
 class BlocksManager : TopCodesReader.Listener {
 
-    val blocks = mutableListOf<Block>()
     private val listeners = mutableListOf<Listener>()
     private val blocksLibrary = BlocksLibrary()
+    var blocks: List<Block> = listOf()
 
     override fun topCodesChanged(topCodes: List<TopCode>) {
-        filterTopCodes(topCodes)
-        updateBlocksList()
+        updateBlocksList(topCodes.mapNotNull {
+            blocksLibrary.getTopCodeBlock(it)
+        })
     }
 
-    private fun filterTopCodes(topCodes: List<TopCode>) {
-        blocks.clear()
-        topCodes.forEach {
-            val block = blocksLibrary.get(it.code)
-            if (block != null) {
-                block.topCode = it
-                blocks.add(block)
-            }
-        }
-    }
-
-    private fun updateBlocksList() {
-        val copiedBlocks = blocks.toList()
+    private fun updateBlocksList(blocks: List<Block>) {
+        this.blocks = blocks
         listeners.forEach {
-            it.updateBlocksList(copiedBlocks)
+            it.updateBlocksList(blocks)
         }
     }
 

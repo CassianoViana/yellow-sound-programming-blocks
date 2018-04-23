@@ -25,7 +25,6 @@ class BoardSurfaceView
     override var timeline: Timeline? = null
     private val collisionDetector = CollisionDetector()
     private var canvas: Canvas? = null
-    private var blocks = listOf<Block>()
     override var widthFloat = 0f
     override var heightFloat = 0f
 
@@ -37,8 +36,11 @@ class BoardSurfaceView
         widthFloat = width.toFloat()
     }
 
-    fun start(parent: Activity, timelineView: View) {
+    fun prepare(parent: Activity, timelineView: View) {
         timeline = Timeline(this, parent, timelineView)
+    }
+
+    fun start() {
         timeline?.scheduleTimer()
     }
 
@@ -76,7 +78,7 @@ class BoardSurfaceView
     override fun update() {
         timeline?.let {
             it.update()
-            collisionDetector.detectCollision(it, blocks)
+            //collisionDetector.detectCollision(it, blocks)
         }
     }
 
@@ -84,9 +86,6 @@ class BoardSurfaceView
         try {
             super.draw(canvas)
             this.canvas = canvas
-            clear()
-            drawBlocks()
-            drawTimeline()
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -96,15 +95,11 @@ class BoardSurfaceView
         canvas?.drawColor(0, PorterDuff.Mode.CLEAR)
     }
 
-    private fun drawBlocks() {
+    private fun drawBlocks(blocks: List<Block>) {
         blocks.toSet().forEach { it.draw(canvas) }
     }
 
-    private fun drawTimeline() {
-        canvas?.let { timeline?.draw(it) }
-    }
-
     override fun updateBlocksList(blocks: List<Block>) {
-        this.blocks = blocks
+        //drawBlocks(blocks)
     }
 }

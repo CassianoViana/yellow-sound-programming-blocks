@@ -3,12 +3,8 @@ package com.viana.soundprogramming.timeline
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
 import android.view.View
 import com.viana.soundprogramming.StateMachine
-import com.viana.soundprogramming.averageFps
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.board.BoardObject
@@ -24,8 +20,6 @@ class Timeline(
         val secondsToTraverseWidth: Double = 2.0
 ) : BoardObject, StateMachine.Listener {
 
-    private val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var rect: Rect = Rect()
     private val listeners = mutableListOf<Listener>()
     private var timer: Timer = Timer()
     private val insignificantMovement: Int = 15
@@ -55,13 +49,15 @@ class Timeline(
             val stopping = field != 0f && value == 0f
             if (changingOrStarting || stopping) {
                 field = value
-                scheduleTimer()
+                when {
+                    stopping -> stopTimer()
+                    else -> scheduleTimer()
+                }
             }
         }
 
     fun scheduleTimer() {
-        timer.cancel()
-        timer.purge()
+        stopTimer()
         timer = Timer()
         val percentageToTraverse = (end - begin) / board.widthFloat
         val cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
@@ -78,6 +74,11 @@ class Timeline(
             }, 0, cycleInterval)
     }
 
+    private fun stopTimer() {
+        timer.cancel()
+        timer.purge()
+    }
+
     private fun translate(startX: Float, endX: Float, duration: Long) {
         parent.runOnUiThread({
             timelineView.x = startX
@@ -88,40 +89,18 @@ class Timeline(
     }
 
     override fun update() {
-        calculateSpeed()
-        updatePosition()
-        updateRectBounds()
-    }
 
-    private fun calculateSpeed() {
-        speed = (board.widthFloat / averageFps / secondsToTraverseWidth)
-                .toFloat() * speedFactor
-    }
-
-    private fun updatePosition() {
-        position += speed
-    }
-
-    private fun updateRectBounds() {
-        val left = position.toInt()
-        val top = 0
-        val right = (position + speed).toInt()
-        val bottom = board.heightFloat.toInt()
-        rect.set(left, top, right, bottom)
     }
 
     override fun draw(canvas: Canvas) {
-        paint.color = Color.YELLOW
-        canvas.drawRect(rect, paint)
+
     }
 
     fun addListener(listener: Listener) {
         listeners.add(listener)
     }
 
-    fun intersects(block: Block): Boolean {
-        return Rect.intersects(rect, block.centerPoint())
-    }
+    fun intersects(block: Block): Boolean = false
 
     interface Listener {
         fun onHitStart()
@@ -141,6 +120,7 @@ class Timeline(
 
     fun stop() {
         speedFactor = 0F
+
     }
 
     override fun stateChanged(state: StateMachine.State) {

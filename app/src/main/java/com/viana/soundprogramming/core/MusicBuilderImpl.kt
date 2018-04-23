@@ -2,13 +2,13 @@ package com.viana.soundprogramming.core
 
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
-import com.viana.soundprogramming.timeline.Timeline
 
 open class MusicBuilderImpl : MusicBuilder {
+
     override var maxVolume: Float = 1f
     private var music = MusicImpl()
-    private lateinit var blocks: List<Block>
     private lateinit var board: Board
+    private var blocks: List<Block> = listOf()
 
     override fun build(blocks: List<Block>, board: Board): Music {
         this.board = board
@@ -68,17 +68,15 @@ open class MusicBuilderImpl : MusicBuilder {
         board.timeline?.let { timeline ->
             music.sounds = blocks
                     .filter {
-                        insideBeginAndEnd(it, timeline)
-                    }.map {
+                        it.javaClass == SoundBlock::class.java
+                                && it.centerX > timeline.begin
+                                && it.centerX < timeline.end
+                                && it.active
+                    }
+                    .map {
                         (it as SoundBlock).buildSound(board, this)
                     }
         }
     }
 
-    private fun insideBeginAndEnd(it: Block, timeline: Timeline): Boolean {
-        return (it.javaClass == SoundBlock::class.java
-                && it.centerX > timeline.begin
-                && it.centerX < timeline.end
-                && it.active)
-    }
 }

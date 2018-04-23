@@ -2,6 +2,7 @@ package com.viana.soundprogramming.blocks
 
 import com.viana.soundprogramming.R
 import com.viana.soundprogramming.sound.SoundManager
+import topcodes.TopCode
 
 class BlocksLibrary {
 
@@ -54,6 +55,9 @@ class BlocksLibrary {
 
     }
 
-    fun get(code: Int): Block? = blocks[code]
-
+    fun getTopCodeBlock(topCode: TopCode): Block? {
+        val block = blocks[topCode.code]
+        block?.topCode = topCode
+        return block
+    }
 }
