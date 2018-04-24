@@ -9,6 +9,5 @@ interface Board {
     var widthFloat: Float
     var heightFloat: Float
     fun updateAndDraw()
-    fun update()
-    fun draw(canvas: Canvas?)
+    fun draw(canvas: Canvas)
 }

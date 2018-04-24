@@ -7,13 +7,11 @@ import android.view.View
 import com.viana.soundprogramming.sound.Recorder
 import com.viana.soundprogramming.sound.SoundManager
 import com.viana.soundprogramming.sound.getRecordedFileName
-import com.viana.soundprogramming.speaker.Speaker
 import com.viana.soundprogramming.util.managePermissionDirectory
 import com.viana.soundprogramming.util.managePermissionSound
 
 class TestActivity : AppCompatActivity() {
 
-    val speaker:Speaker = Speaker()
     val recorder = Recorder()
     var soundId: Int = 0
 
@@ -55,7 +53,6 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun playRecord(view: View) {
-        speaker.say("Olá. Vamos programar. Comece adicionando algumas peças.")
         recorder.play(soundId)
     }
 }

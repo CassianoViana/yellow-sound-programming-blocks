@@ -7,12 +7,12 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.util.AttributeSet
+import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
-import com.viana.soundprogramming.timeline.CollisionDetector
 import com.viana.soundprogramming.timeline.Timeline
 
 class BoardSurfaceView
@@ -20,13 +20,15 @@ class BoardSurfaceView
         context: Context,
         attrs: AttributeSet? = null,
         defStyle: Int = 0
-) : SurfaceView(context, attrs, defStyle), SurfaceHolder.Callback, Board, BlocksManager.Listener {
+) : SurfaceView(context, attrs, defStyle),
+        SurfaceHolder.Callback,
+        Board,
+        BlocksManager.Listener {
 
     override var timeline: Timeline? = null
-    private val collisionDetector = CollisionDetector()
-    private var canvas: Canvas? = null
     override var widthFloat = 0f
     override var heightFloat = 0f
+    private lateinit var blocks: List<Block>
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
@@ -63,7 +65,6 @@ class BoardSurfaceView
         val canvas = holder.lockCanvas()
         try {
             canvas?.let {
-                update()
                 synchronized(holder) {
                     draw(canvas)
                 }
@@ -75,31 +76,27 @@ class BoardSurfaceView
         }
     }
 
-    override fun update() {
-        timeline?.let {
-            it.update()
-            //collisionDetector.detectCollision(it, blocks)
-        }
-    }
-
-    override fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas) {
         try {
+            Log.i("Board", "draw")
             super.draw(canvas)
-            this.canvas = canvas
+            clear(canvas)
+            drawBlocks(canvas, blocks)
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    private fun clear() {
-        canvas?.drawColor(0, PorterDuff.Mode.CLEAR)
+    private fun clear(canvas: Canvas) {
+        canvas.drawColor(0, PorterDuff.Mode.CLEAR)
     }
 
-    private fun drawBlocks(blocks: List<Block>) {
+    private fun drawBlocks(canvas: Canvas, blocks: List<Block>) {
         blocks.toSet().forEach { it.draw(canvas) }
     }
 
     override fun updateBlocksList(blocks: List<Block>) {
-        //drawBlocks(blocks)
+        this.blocks = blocks
+        updateAndDraw()
     }
 }

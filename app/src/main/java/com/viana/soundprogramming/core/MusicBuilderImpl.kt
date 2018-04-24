@@ -10,15 +10,17 @@ open class MusicBuilderImpl : MusicBuilder {
     private lateinit var board: Board
     private var blocks: List<Block> = listOf()
 
-    override fun build(blocks: List<Block>, board: Board): Music {
-        this.board = board
-        this.blocks = blocks
-        calculateSpeed()
-        calculateVolume()
-        defineMusicBeginEnd()
-        computeModuleBlocks()
-        buildSounds()
-        return music
+    override fun build(blocks: List<Block>, board: Board, onMusicReadyListener: MusicBuilder.OnMusicReadyListener) {
+        Thread({
+            this.board = board
+            this.blocks = blocks
+            calculateSpeed()
+            calculateVolume()
+            defineMusicBeginEnd()
+            computeModuleBlocks()
+            buildSounds()
+            onMusicReadyListener.ready(music)
+        }).start()
     }
 
     private fun calculateSpeed() {

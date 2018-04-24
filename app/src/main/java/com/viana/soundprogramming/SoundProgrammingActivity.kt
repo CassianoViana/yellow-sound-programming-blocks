@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.blocks.TopCodesReader
@@ -14,8 +13,9 @@ import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.CameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
+import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.core.MusicBuilderImpl
-import com.viana.soundprogramming.speaker.Speaker
+import com.viana.soundprogramming.sound.Speaker
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
@@ -35,7 +35,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
     private val musicBuilder = MusicBuilderImpl()
     private val stateMachine = StateMachine()
     private var music: Music? = null
-    private val speaker = Speaker()
 
     private val cameraListener = object : CameraListener {
         override fun onEachFrame(bitmap: Bitmap) {
@@ -49,6 +48,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         prepareCamera()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
+        Speaker.instance.load()
     }
 
     override fun onResume() {
@@ -79,6 +79,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
             override fun run() {
                 runOnUiThread({
                     startCamera()
+                    Speaker.instance.say(R.raw.vamos_programar)
                 })
             }
         }, delay)
@@ -110,17 +111,19 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         stateMachine
                 .addListener(this)
                 .addListener(boardSurfaceView.timeline)
-                .addListener(object : StateMachine.Listener {
-                    override fun stateChanged(state: StateMachine.State) {
-                        Log.i("teste", state.toString())
-                    }
-                })
         boardSurfaceView
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart() {
-                music = musicBuilder.build(blocksManager.blocks, boardSurfaceView)
                 ProgrammingVibrator.vibrate(10)
-                music?.play()
+                musicBuilder.build(
+                        blocksManager.blocks,
+                        boardSurfaceView,
+                        object : MusicBuilder.OnMusicReadyListener {
+                            override fun ready(music: Music) {
+                                music.play()
+                            }
+                        }
+                )
             }
         })
     }
@@ -132,16 +135,22 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
             camera.openCamera()
     }
 
+    interface Listener {
+        fun started()
+        fun cameraOpened()
+        fun cameraClosed()
+    }
+
     override fun stateChanged(state: StateMachine.State) {
         when (state) {
             StateMachine.State.PLAYING -> {
-                speaker.saySavedPhrase(getString(R.string.started))
+                Speaker.instance.say(R.raw.a_musica_comecou)
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_stop)
                 btnStartStop.setText(R.string.stop)
             }
             StateMachine.State.PAUSED -> {
-                speaker.saySavedPhrase(getString(R.string.paused))
+                Speaker.instance.say(R.raw.a_musica_foi_interrompida)
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_start)
                 btnStartStop.setText(R.string.start)

@@ -5,7 +5,12 @@ import com.viana.soundprogramming.board.Board
 
 interface MusicBuilder {
 
-    fun build(blocks: List<Block>, board: Board): Music
+    fun build(blocks: List<Block>, board: Board, onMusicReadyListener: OnMusicReadyListener)
     var maxVolume: Float
+
+
+    interface OnMusicReadyListener {
+        fun ready(music: Music)
+    }
 
 }

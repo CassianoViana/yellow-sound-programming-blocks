@@ -10,6 +10,12 @@ class SoundManager {
         val instance = SoundManager()
     }
 
+
+
+    init {
+
+    }
+
     private val soundPool: SoundPool
 
     constructor() {
@@ -36,7 +42,7 @@ class SoundManager {
         soundPool.play(soundId, 1f, 1f, 1, 0, 1f)
     }
 
-    fun play(soundId: Int, volume:Float) {
+    fun play(soundId: Int, volume: Float) {
         soundPool.play(soundId, volume, volume, 1, 0, 1f)
     }
 }
