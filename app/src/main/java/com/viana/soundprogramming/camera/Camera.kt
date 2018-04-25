@@ -12,13 +12,16 @@ import android.util.Log
 import android.view.Surface
 import android.view.SurfaceView
 import com.viana.soundprogramming.util.managePermissionCamera
+import java.util.*
 
 class Camera(
         private var context: Context,
-        private var cameraListener: CameraListener,
         private var surfaceView: SurfaceView,
         private val TAG: String = "Camera"
 ) {
+
+    var onEachFrameListener: OnEachFrameListener? = null;
+    var onOpenCameraListener: OnOpenCameraListener? = null;
 
     private var backgroundHandler = Handler(Handler.Callback {
         Log.i(TAG, it.toString())
@@ -43,49 +46,61 @@ class Camera(
         val image = reader.acquireLatestImage()
         val bitmap = bitmapReader.readImage(image)
         image.close()
-        cameraListener.onEachFrame(bitmap)
+        onEachFrameListener?.newFrame(bitmap)
     }
 
     @SuppressLint("MissingPermission")
     fun openCamera() {
         if (managePermissionCamera(context as Activity)) return
         try {
-            val facingBackCameraId = getFacingBackCameraId() ?: return
-            cameraManager.openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
-                override fun onOpened(camera: CameraDevice) {
-                    cameraDevice = camera
-                    startCameraSession(camera)
-                    isCameraOpen = true
-                }
+            val facingBackCameraId: String = getFacingBackCameraId() ?: return
 
-                override fun onDisconnected(camera: CameraDevice) {
-                    Log.e(TAG, "onDisconnected")
-                }
+            cameraManager.apply {
+                registerAvailabilityCallback(object : CameraManager.AvailabilityCallback() {
+                    override fun onCameraAvailable(cameraId: String?) {
+                        Log.i("CameraAvailability", "available")
+                    }
 
-                override fun onError(camera: CameraDevice, error: Int) {
-                    Log.e(TAG, "onError")
-                }
+                    override fun onCameraUnavailable(cameraId: String?) {
+                        Log.i("CameraAvailability", "unavailable")
+                    }
+                }, backgroundHandler)
+                openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
+                    override fun onOpened(camera: CameraDevice) {
+                        cameraDevice = camera
+                        startCameraSession(camera)
+                        onOpenCameraListener?.cameraOpened()
+                        isCameraOpen = true
+                    }
 
-                private fun startCameraSession(camera: CameraDevice) = try {
-                    prepareImageReader()
-                    createTargetSurfaces()
-                    createCaptureRequest()
-                    camera.createCaptureSession(surfaces,
-                            object : CameraCaptureSession.StateCallback() {
-                                override fun onConfigured(session: CameraCaptureSession) {
-                                    cameraSession = session
-                                    startRepeatingSessionRequestToCamera()
-                                }
+                    override fun onDisconnected(camera: CameraDevice) {
+                        Log.e(TAG, "onDisconnected")
+                    }
 
-                                override fun onConfigureFailed(session: CameraCaptureSession) {
-                                    Log.e(TAG, "onConfigureFailed")
-                                }
-                            }, backgroundHandler)
-                } catch (e: CameraAccessException) {
-                    e.printStackTrace()
-                }
-            }, backgroundHandler)
+                    override fun onError(camera: CameraDevice, error: Int) {
+                        Log.e(TAG, "onError")
+                    }
 
+                    private fun startCameraSession(camera: CameraDevice) = try {
+                        prepareImageReader()
+                        createTargetSurfaces()
+                        createCaptureRequest()
+                        camera.createCaptureSession(surfaces,
+                                object : CameraCaptureSession.StateCallback() {
+                                    override fun onConfigured(session: CameraCaptureSession) {
+                                        cameraSession = session
+                                        startRepeatingSessionRequestToCamera()
+                                    }
+
+                                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                                        Log.e(TAG, "onConfigureFailed")
+                                    }
+                                }, backgroundHandler)
+                    } catch (e: CameraAccessException) {
+                        e.printStackTrace()
+                    }
+                }, backgroundHandler)
+            }
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
@@ -101,7 +116,7 @@ class Camera(
 
     private fun createCaptureRequest() {
         cameraDevice.let {
-            val captureRequestBuilder = it.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
+            val captureRequestBuilder = it.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
             surfaces.forEach { captureRequestBuilder.addTarget(it) }
             captureRequest = captureRequestBuilder.build()
         }
@@ -109,16 +124,21 @@ class Camera(
 
     private fun startRepeatingSessionRequestToCamera() {
         val value: CameraCaptureSession.CaptureCallback = object : CameraCaptureSession.CaptureCallback() {}
-        Thread({
-            while (isCameraOpen) {
+        val timer = Timer()
+        timer.scheduleAtFixedRate(object : TimerTask() {
+            override fun run() {
                 try {
+                    if (!isCameraOpen) {
+                        cancel()
+                        return
+                    }
                     cameraSession.capture(captureRequest, value, backgroundHandler)
-                    Thread.sleep(2000)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
             }
-        }).start()
+
+        }, 0, 7000)
         /*cameraSession.setRepeatingRequest(captureRequest,
                 value, backgroundHandler)*/
     }
@@ -157,6 +177,10 @@ class Camera(
     }
 }
 
-interface CameraListener {
-    fun onEachFrame(bitmap: Bitmap)
+interface OnEachFrameListener {
+    fun newFrame(bitmap: Bitmap)
+}
+
+interface OnOpenCameraListener {
+    fun cameraOpened()
 }

@@ -10,7 +10,8 @@ import android.view.View
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.blocks.TopCodesReader
 import com.viana.soundprogramming.camera.Camera
-import com.viana.soundprogramming.camera.CameraListener
+import com.viana.soundprogramming.camera.OnEachFrameListener
+import com.viana.soundprogramming.camera.OnOpenCameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilder
@@ -34,13 +35,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
     private val blocksManager = BlocksManager()
     private val musicBuilder = MusicBuilderImpl()
     private val stateMachine = StateMachine()
-    private var music: Music? = null
-
-    private val cameraListener = object : CameraListener {
-        override fun onEachFrame(bitmap: Bitmap) {
-            topCodesReader.read(bitmap)
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,7 +73,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
             override fun run() {
                 runOnUiThread({
                     startCamera()
-                    Speaker.instance.say(R.raw.vamos_programar)
                 })
             }
         }, delay)
@@ -87,11 +80,21 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
 
     private fun prepareCamera() {
         boardSurfaceView.prepare(this, timelineView)
-        camera = Camera(this, cameraListener, surfaceView)
+        camera = Camera(this, surfaceView)
+        camera.onEachFrameListener = object : OnEachFrameListener {
+            override fun newFrame(bitmap: Bitmap) {
+                topCodesReader.read(bitmap)
+            }
+        }
+        camera.onOpenCameraListener = object : OnOpenCameraListener {
+            override fun cameraOpened() {
+                Speaker.instance.say(R.raw.vamos_programar)
+                boardSurfaceView.start()
+            }
+        }
     }
 
     private fun startCamera() {
-        boardSurfaceView.start()
         camera.openCamera()
     }
 
@@ -133,12 +136,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 && grantResults.isNotEmpty()
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
             camera.openCamera()
-    }
-
-    interface Listener {
-        fun started()
-        fun cameraOpened()
-        fun cameraClosed()
     }
 
     override fun stateChanged(state: StateMachine.State) {

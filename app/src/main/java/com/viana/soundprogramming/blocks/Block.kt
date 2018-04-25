@@ -58,6 +58,4 @@ open class Block {
     override fun toString(): String {
         return "Block(centerX=$centerX, centerY=$centerY, active=$active, degree=$degree)"
     }
-
-
 }

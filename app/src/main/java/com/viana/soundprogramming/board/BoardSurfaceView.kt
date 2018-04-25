@@ -28,7 +28,7 @@ class BoardSurfaceView
     override var timeline: Timeline? = null
     override var widthFloat = 0f
     override var heightFloat = 0f
-    private lateinit var blocks: List<Block>
+    private var blocks: List<Block> = listOf()
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
@@ -64,11 +64,7 @@ class BoardSurfaceView
     override fun updateAndDraw() {
         val canvas = holder.lockCanvas()
         try {
-            canvas?.let {
-                synchronized(holder) {
-                    draw(canvas)
-                }
-            }
+            draw(canvas)
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -92,7 +88,7 @@ class BoardSurfaceView
     }
 
     private fun drawBlocks(canvas: Canvas, blocks: List<Block>) {
-        blocks.toSet().forEach { it.draw(canvas) }
+        blocks.forEach { it.draw(canvas) }
     }
 
     override fun updateBlocksList(blocks: List<Block>) {
