@@ -108,9 +108,9 @@ class Camera(
 
     private fun createTargetSurfaces() {
         surfaces.clear()
-        val surface = surfaceView.holder.surface
+        //val surface = surfaceView.holder.surface
         val imageReaderSurface = imageReader.surface
-        surfaces.add(surface)
+        //surfaces.add(surface)
         imageReaderSurface?.let { surfaces.add(it) }
     }
 
@@ -138,7 +138,7 @@ class Camera(
                 }
             }
 
-        }, 0, 7000)
+        }, 0, 4000)
         /*cameraSession.setRepeatingRequest(captureRequest,
                 value, backgroundHandler)*/
     }

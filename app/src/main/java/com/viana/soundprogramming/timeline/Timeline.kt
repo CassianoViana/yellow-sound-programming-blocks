@@ -3,8 +3,6 @@ package com.viana.soundprogramming.timeline
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.app.Activity
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.animation.Animation
@@ -18,7 +16,6 @@ class Timeline(
         parent: Activity,
         timelineView: View,
         var count: Long = 0,
-        var position: Float = 01F,
         val secondsToTraverseWidth: Double = 2.0
 ) : StateMachine.Listener {
 
@@ -31,7 +28,9 @@ class Timeline(
 
     var begin: Float = 0f
         set(value) {
-            if (changingOrStarting(field, value, insignificantMovement)) {
+            val changingOrStarting = changingOrStarting(field, value, insignificantMovement)
+            val resetting = field != 0f && value == 0f
+            if (changingOrStarting || resetting) {
                 field = value
                 scheduleTimer()
             }
@@ -40,7 +39,8 @@ class Timeline(
     var end: Float = 1280f
         set(value) {
             val changingOrStarting = changingOrStarting(field, value, insignificantMovement)
-            if (changingOrStarting) {
+            val resetting = field != board.widthFloat && value == board.widthFloat
+            if (changingOrStarting || resetting) {
                 field = value
                 scheduleTimer()
             }
@@ -67,11 +67,10 @@ class Timeline(
         val percentageToTraverse = (end - begin) / board.widthFloat
         val cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
         if (cycleInterval > 0) {
+            //timelineAnimator.transition(position, end, cycleInterval)
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    position = begin
-                    timelineAnimator.transition2(position, end, cycleInterval)
-                    count++
+                    timelineAnimator.transition2(begin, end, cycleInterval)
                     listeners.forEach {
                         it.onHitStart()
                     }
@@ -125,7 +124,6 @@ class TimelineAnimator(
 ) {
 
     private var animation: ObjectAnimator? = null
-    private val handler = Handler(Looper.getMainLooper())
 
     fun transition(startX: Float, endX: Float, duration: Long) {
         timelineView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
@@ -158,5 +156,6 @@ class TimelineAnimator(
             animation?.cancel()
         })
     }
+
 
 }
