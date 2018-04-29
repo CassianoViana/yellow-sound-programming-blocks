@@ -5,7 +5,6 @@ import android.animation.ValueAnimator
 import android.app.Activity
 import android.util.Log
 import android.view.View
-import android.view.animation.Animation
 import com.viana.soundprogramming.StateMachine
 import com.viana.soundprogramming.board.Board
 import java.util.*
@@ -20,9 +19,9 @@ class Timeline(
 ) : StateMachine.Listener {
 
     private val listeners = mutableListOf<Listener>()
-    private var timer: Timer = Timer()
+    private var timer: TimelineTimer = TimelineTimer()
     private val insignificantMovement: Int = 15
-    private val timelineAnimator = TimelineAnimator(parent, timelineView)
+    private val timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
 
     private fun changingOrStarting(field: Float, value: Float, insignificantMovement: Int = 0) = (Math.abs(value - field) > insignificantMovement) && value > 0
 
@@ -63,15 +62,15 @@ class Timeline(
     fun scheduleTimer() {
         Log.i("Timeline", "Timer scheduled")
         stopTimer()
-        timer = Timer()
+        timer = TimelineTimer()
         val percentageToTraverse = (end - begin) / board.widthFloat
         val cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
         if (cycleInterval > 0) {
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    timelineAnimator.runLine(begin, end, cycleInterval)
+                    timelineAnimator.transition(begin, end, cycleInterval)
                     listeners.forEach {
-                        it.onHitStart()
+                        it.onHitStart(timer)
                     }
                 }
             }, 0, cycleInterval)
@@ -80,7 +79,6 @@ class Timeline(
 
     private fun stopTimer() {
         timer.cancel()
-        timer.purge()
     }
 
     fun addListener(listener: Listener) {
@@ -88,7 +86,7 @@ class Timeline(
     }
 
     interface Listener {
-        fun onHitStart()
+        fun onHitStart(timelineTimer: TimelineTimer)
     }
 
     fun resetBegin() {
@@ -117,37 +115,14 @@ class Timeline(
     }
 }
 
-class TimelineAnimator(
-        private var parent: Activity,
-        private var timelineView: View
+abstract class TimelineAnimator(
+        var parent: Activity,
+        var timelineView: View
 ) {
 
-    private var animation: ObjectAnimator? = null
+    var animation: ObjectAnimator? = null
 
-    fun transition(startX: Float, endX: Float, duration: Long) {
-        timelineView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
-        timelineView.x = startX
-        animation = ObjectAnimator.ofFloat(timelineView, "translationX", endX)
-        animation?.duration = duration
-        animation?.repeatCount = Animation.INFINITE
-        parent.runOnUiThread({
-            timelineView.visibility = View.VISIBLE
-            animation?.start()
-        })
-    }
-
-    fun runLine(startX: Float, endX: Float, durationx: Long) {
-        parent.runOnUiThread({
-            timelineView.visibility = View.VISIBLE
-            ValueAnimator.ofFloat(startX, endX).apply {
-                duration = durationx
-                addUpdateListener {
-                    timelineView.x = it.animatedValue as Float
-                }
-                start()
-            }
-        })
-    }
+    abstract fun transition(startX: Float, endX: Float, duration: Long);
 
     fun stop() {
         parent.runOnUiThread({
@@ -155,6 +130,48 @@ class TimelineAnimator(
             animation?.cancel()
         })
     }
+}
 
+class TimelineAnimatorObjectAnimator(parent: Activity, timelineView: View) : TimelineAnimator(parent, timelineView) {
+    override fun transition(startX: Float, endX: Float, duration: Long) {
+        animation = ObjectAnimator.ofFloat(timelineView, "translationX", endX)
+        animation?.duration = duration
+        parent.runOnUiThread({
+            timelineView.setLayerType(View.LAYER_TYPE_HARDWARE, null)
+            timelineView.x = startX
+            timelineView.visibility = View.VISIBLE
+            animation?.start()
+        })
+    }
 
+}
+
+class TimelineAnimatorValueAnimator(parent: Activity, timelineView: View) : TimelineAnimator(parent, timelineView) {
+    override fun transition(startX: Float, endX: Float, duration: Long) {
+        parent.runOnUiThread({
+            timelineView.visibility = View.VISIBLE
+            ValueAnimator.ofFloat(startX, endX).apply {
+                ValueAnimator@ this.duration = duration
+                addUpdateListener {
+                    timelineView.x = it.animatedValue as Float
+                }
+                start()
+            }
+        })
+    }
+}
+
+class TimelineTimer {
+    var cancelled: Boolean = false
+    private val timer: Timer = Timer()
+
+    fun scheduleAtFixedRate(timerTask: TimerTask, i: Long, cycleInterval: Long) {
+        timer.scheduleAtFixedRate(timerTask, i, cycleInterval)
+    }
+
+    fun cancel() {
+        timer.cancel()
+        timer.purge()
+        this.cancelled = true
+    }
 }

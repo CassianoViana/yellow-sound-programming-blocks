@@ -19,6 +19,7 @@ import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.core.MusicBuilderImpl
 import com.viana.soundprogramming.sound.Speaker
 import com.viana.soundprogramming.timeline.Timeline
+import com.viana.soundprogramming.timeline.TimelineTimer
 import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import java.util.*
@@ -131,9 +132,9 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 .addListener(boardSurfaceView.timeline)
         boardSurfaceView
                 .timeline?.addListener(object : Timeline.Listener {
-            override fun onHitStart() {
+            override fun onHitStart(timelineTimer: TimelineTimer) {
                 ProgrammingVibrator.vibrate(10)
-                music?.play()
+                music?.play(timelineTimer)
             }
         })
     }
