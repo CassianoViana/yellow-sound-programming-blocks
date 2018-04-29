@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.blocks.TopCodesReader
 import com.viana.soundprogramming.camera.Camera
@@ -35,6 +36,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
     private val blocksManager = BlocksManager()
     private val musicBuilder = MusicBuilderImpl()
     private val stateMachine = StateMachine()
+    private var music:Music? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -111,6 +113,19 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         blocksManager
                 .addListener(boardSurfaceView)
                 .addListener(stateMachine)
+                .addListener(object : BlocksManager.Listener{
+                    override fun updateBlocksList(blocks: List<Block>) {
+                        musicBuilder.build(
+                                blocks,
+                                boardSurfaceView,
+                                object : MusicBuilder.OnMusicReadyListener {
+                                    override fun ready(music: Music) {
+                                        this@SoundProgrammingActivity.music = music
+                                    }
+                                }
+                        )
+                    }
+                })
         stateMachine
                 .addListener(this)
                 .addListener(boardSurfaceView.timeline)
@@ -118,15 +133,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart() {
                 ProgrammingVibrator.vibrate(10)
-                musicBuilder.build(
-                        blocksManager.blocks,
-                        boardSurfaceView,
-                        object : MusicBuilder.OnMusicReadyListener {
-                            override fun ready(music: Music) {
-                                music.play()
-                            }
-                        }
-                )
+                music?.play()
             }
         })
     }

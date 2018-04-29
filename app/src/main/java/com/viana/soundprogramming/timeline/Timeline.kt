@@ -67,10 +67,9 @@ class Timeline(
         val percentageToTraverse = (end - begin) / board.widthFloat
         val cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
         if (cycleInterval > 0) {
-            //timelineAnimator.transition(position, end, cycleInterval)
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    timelineAnimator.transition2(begin, end, cycleInterval)
+                    timelineAnimator.runLine(begin, end, cycleInterval)
                     listeners.forEach {
                         it.onHitStart()
                     }
@@ -137,7 +136,7 @@ class TimelineAnimator(
         })
     }
 
-    fun transition2(startX: Float, endX: Float, durationx: Long) {
+    fun runLine(startX: Float, endX: Float, durationx: Long) {
         parent.runOnUiThread({
             timelineView.visibility = View.VISIBLE
             ValueAnimator.ofFloat(startX, endX).apply {
