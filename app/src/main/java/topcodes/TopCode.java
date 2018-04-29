@@ -29,6 +29,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Canvas;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 
@@ -70,10 +72,10 @@ public class TopCode {
     protected float orientation;
 
     /** Horizontal center of a symbol */
-    protected float x;
+    public float x;
 
     /** Vertical center of a symbol */
-    protected float y;
+    public float y;
 
     /** Buffer used to decode sectors */
     protected int [] core;
@@ -564,5 +566,15 @@ public class TopCode {
         result = 31 * result + (x != +0.0f ? Float.floatToIntBits(x) : 0);
         result = 31 * result + (y != +0.0f ? Float.floatToIntBits(y) : 0);
         return result;
+    }
+
+    @Nullable
+    public TopCode copy() {
+        TopCode topCode = new TopCode();
+        topCode.setCode(this.code);
+        topCode.setDiameter(this.getDiameter());
+        topCode.setOrientation(this.orientation);
+        topCode.setLocation(this.getCenterX(), this.getCenterY());
+        return topCode;
     }
 }

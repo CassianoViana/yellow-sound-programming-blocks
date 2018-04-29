@@ -6,7 +6,7 @@ import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.sound.Sound
 
-open class SoundBlock(private val soundId: Int) : Block() {
+open class SoundBlock(private val soundId: Int) : RepeatableBlock() {
 
     private var maxVolume = 1f
     private val minVolume = 0f
@@ -26,6 +26,12 @@ open class SoundBlock(private val soundId: Int) : Block() {
         sound.volume = volume
         sound.delayMillis = calculatePlayMoment(board)
         return sound
+    }
+
+    override fun copy(): Block {
+        val block = SoundBlock(soundId)
+        fillWithProperties(block)
+        return block
     }
 
     private fun calculateVolume(board: Board) =

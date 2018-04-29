@@ -7,7 +7,6 @@ class BlocksManager : TopCodesReader.Listener {
 
     private val listeners = mutableListOf<Listener>()
     private val blocksLibrary = BlocksLibrary()
-    var blocks: List<Block> = listOf()
     private val blocksUpdateAnalyzer = BlocksChangesAnalyzerByBlocksPropsList()
 
     override fun topCodesChanged(topCodes: List<TopCode>) {
@@ -17,17 +16,29 @@ class BlocksManager : TopCodesReader.Listener {
     }
 
     private fun updateBlocksList(blocks: List<Block>) {
-        if (blocksUpdateAnalyzer.blocksChanged(blocks)) {
-            this.blocks = blocks
-            listeners.forEach {
-                it.updateBlocksList(blocks)
-            }
-        }
+        if (blocksUpdateAnalyzer.blocksChanged(blocks))
+            blocks.toMutableList()
+                    .apply {
+                        addAll(repeatRepeatableBlocks(blocks))
+                    }
+                    .apply {
+                        listeners.forEach {
+                            it.updateBlocksList(this)
+                        }
+                    }
     }
 
     fun addListener(blocksManagerListener: Listener): BlocksManager {
         listeners.add(blocksManagerListener)
         return this
+    }
+
+    private fun repeatRepeatableBlocks(blocks: List<Block>): List<Block> {
+        val repeatableBlocks = blocks.filterIsInstance(RepeatableBlock::class.java)
+        val loopBlocks = blocks.filterIsInstance(LoopBlock::class.java)
+        return loopBlocks.flatMap {
+            it.repeatBlocks(repeatableBlocks)
+        }
     }
 
     interface Listener {

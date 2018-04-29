@@ -58,4 +58,27 @@ open class Block {
     override fun toString(): String {
         return "Block(centerX=$centerX, centerY=$centerY, active=$active, degree=$degree)"
     }
+
+    open fun copy(): Block {
+        val block = Block()
+        fillWithProperties(block)
+        return block
+    }
+
+    open fun fillWithProperties(block: Block) {
+        block.board = board
+        block.topCode = topCode?.copy()
+    }
+
+    fun move(toX: Int, toY: Int) {
+        this.apply {
+            centerX = toX
+            centerY = toY
+            topCode?.apply {
+                x = toX.toFloat()
+                y = toY.toFloat()
+            }
+        }
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.viana.soundprogramming.core
 
+import android.util.Log
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
 
@@ -12,14 +13,15 @@ open class MusicBuilderImpl : MusicBuilder {
 
     override fun build(blocks: List<Block>, board: Board, onMusicReadyListener: MusicBuilder.OnMusicReadyListener) {
         Thread({
-            this.board = board
             this.blocks = blocks
+            this.board = board
             calculateSpeed()
             calculateVolume()
             defineMusicBeginEnd()
             computeModuleBlocks()
             buildSounds()
             onMusicReadyListener.ready(music)
+            Log.i("Sounds", music.sounds.size.toString())
         }).start()
     }
 
@@ -38,8 +40,8 @@ open class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun computeModuleBlocks() {
-        val moduleBlocks = blocks.filter { it.javaClass == ModuleBlock::class.java }
-        val soundBlocks = blocks.filter { it.javaClass == SoundBlock::class.java }
+        val moduleBlocks = blocks.filterIsInstance(ModuleBlock::class.java)
+        val soundBlocks = blocks.filterIsInstance(SoundBlock::class.java)
         soundBlocks.forEach { it.active = true }
         val count = board.timeline?.count ?: 0
         moduleBlocks.forEach { moduleBlock ->
