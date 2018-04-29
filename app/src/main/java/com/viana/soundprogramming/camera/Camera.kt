@@ -20,8 +20,8 @@ class Camera(
         private val TAG: String = "Camera"
 ) {
 
-    var onEachFrameListener: OnEachFrameListener? = null;
-    var onOpenCameraListener: OnOpenCameraListener? = null;
+    var onEachFrameListener: OnEachFrameListener? = null
+    var onOpenCameraListener: OnOpenCameraListener? = null
 
     private var backgroundHandler = Handler(Handler.Callback {
         Log.i(TAG, it.toString())

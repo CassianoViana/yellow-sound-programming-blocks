@@ -20,29 +20,20 @@ class Timeline(
 
     private val listeners = mutableListOf<Listener>()
     private var timer: TimelineTimer = TimelineTimer()
-    private val insignificantMovement: Int = 15
     private val timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
 
     private fun changingOrStarting(field: Float, value: Float, insignificantMovement: Int = 0) = (Math.abs(value - field) > insignificantMovement) && value > 0
 
     var begin: Float = 0f
         set(value) {
-            val changingOrStarting = changingOrStarting(field, value, insignificantMovement)
-            val resetting = field != 0f && value == 0f
-            if (changingOrStarting || resetting) {
-                field = value
-                scheduleTimer()
-            }
+            field = value
+            scheduleTimer()
         }
 
     var end: Float = 1280f
         set(value) {
-            val changingOrStarting = changingOrStarting(field, value, insignificantMovement)
-            val resetting = field != board.widthFloat && value == board.widthFloat
-            if (changingOrStarting || resetting) {
-                field = value
-                scheduleTimer()
-            }
+            field = value
+            scheduleTimer()
         }
 
     var speedFactor: Float = 1.00F
