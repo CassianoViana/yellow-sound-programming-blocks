@@ -22,8 +22,6 @@ class Timeline(
     private var timer: TimelineTimer = TimelineTimer()
     private val timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
 
-    private fun changingOrStarting(field: Float, value: Float, insignificantMovement: Int = 0) = (Math.abs(value - field) > insignificantMovement) && value > 0
-
     var begin: Float = 0f
         set(value) {
             field = value
@@ -38,15 +36,12 @@ class Timeline(
 
     var speedFactor: Float = 1.00F
         set(value) {
-            val changingOrStarting = changingOrStarting(field, value)
-            val stopping = field != 0f && value == 0f
-            if (changingOrStarting || stopping) {
-                field = value
-                when {
-                    stopping -> stopTimer()
-                    else -> scheduleTimer()
-                }
-                if (stopping) timelineAnimator.stop()
+            field = value
+            if (field == 0f) {
+                stopTimer()
+                timelineAnimator.stop()
+            } else {
+                scheduleTimer()
             }
         }
 

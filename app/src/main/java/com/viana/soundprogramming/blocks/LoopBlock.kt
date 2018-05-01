@@ -21,7 +21,8 @@ class LoopBlock : Block() {
             copiedBlocks.addAll(coveredBlocks.map {
                 val distFromThisBlock = Math.abs(it.centerX - LoopBlock@ centerX)
                 it.copy().apply {
-                    move(centerX + i * distFromThisBlock, centerY)
+                    val diameter = (this.topCode?.diameter ?: 0f).toInt()
+                    move(centerX + i * diameter, centerY)
                 }
             })
         }

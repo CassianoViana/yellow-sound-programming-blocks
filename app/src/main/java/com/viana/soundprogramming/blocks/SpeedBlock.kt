@@ -12,8 +12,10 @@ class SpeedBlock : Block() {
         if (degree > 360)
             degree -= 360
 
-        val speedFactor = Math.abs(degree) / 120
-        timeline?.speedFactor = 3 - speedFactor
+        val stopped = timeline?.speedFactor != 0f
+        if(stopped) {
+            val speedFactor = Math.abs(degree) / 120
+            timeline?.speedFactor = 3 - speedFactor
+        }
     }
-
 }
