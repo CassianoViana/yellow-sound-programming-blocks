@@ -16,17 +16,17 @@ class LoopBlock : Block() {
     fun repeatBlocks(blocks: List<RepeatableBlock>): List<Block> {
         val coveredBlocks = blocks.filter { Rect.intersects(intersectionRect, it.rect) }
         var i = 0
-        val copiedBlocks = mutableListOf<Block>()
+        val repeatingBlocks = mutableListOf<Block>()
         while (++i < 3) {
-            copiedBlocks.addAll(coveredBlocks.map {
-                val distFromThisBlock = Math.abs(it.centerX - LoopBlock@ centerX)
-                it.copy().apply {
-                    val diameter = (this.topCode?.diameter ?: 0f).toInt()
-                    move(centerX + i * diameter, centerY)
+            repeatingBlocks.addAll(coveredBlocks.map { repeatableBlock ->
+                val distFromLoopBlock = Math.abs(repeatableBlock.centerX - LoopBlock@ centerX)
+                repeatableBlock.copy().apply {
+                    //val diameter = (topCode?.diameter ?: 0f).toInt()
+                    move(centerX + i * distFromLoopBlock, centerY)
                 }
             })
         }
-        return copiedBlocks
+        return repeatingBlocks
     }
 
     override fun draw(canvas: Canvas?) {

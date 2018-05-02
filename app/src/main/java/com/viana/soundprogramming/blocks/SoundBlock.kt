@@ -34,8 +34,17 @@ open class SoundBlock(private val soundId: Int) : RepeatableBlock() {
         return block
     }
 
-    private fun calculateVolume(board: Board) =
-            ((board.heightFloat - this.centerY) * (maxVolume - minVolume) / board.heightFloat) + minVolume
+    private fun calculateVolume(board: Board): Float {
+        var degree = this.degree
+        degree += 180
+        if (degree > 360)
+            degree -= 360
+        val volume = Math.abs(degree) / 360
+        return volume * (maxVolume - minVolume)
+    }
+
+    private fun calculateByYposition(board: Board) =
+            ((board.heightFloat - this.centerY) / board.heightFloat * (maxVolume - minVolume)) + minVolume
 
     private fun calculatePlayMoment(board: Board): Long =
             board.timeline?.let {
