@@ -7,6 +7,8 @@ import com.viana.soundprogramming.board.Board
 open class MusicBuilderImpl : MusicBuilder {
 
     override var maxVolume: Float = 1f
+    override var maxSoundBlockDiameter: Float = 1f
+    override var minSoundBlockDiameter: Float = 1f
     private var music = MusicImpl()
     private lateinit var board: Board
     private var blocks: List<Block> = listOf()
@@ -16,10 +18,10 @@ open class MusicBuilderImpl : MusicBuilder {
             this.blocks = blocks
             this.board = board
             calculateSpeed()
-            calculateVolume()
+            calculateGlobalVolume()
             defineMusicBeginEnd()
-            computeModuleBlocks()
             buildSounds()
+            //computeModuleBlocks()
             onMusicReadyListener.ready(music)
             Log.i("Sounds", music.sounds.size.toString())
         }).start()
@@ -32,7 +34,7 @@ open class MusicBuilderImpl : MusicBuilder {
         }
     }
 
-    private fun calculateVolume() {
+    private fun calculateGlobalVolume() {
         val volumeBlock: Block? = blocks.firstOrNull { it.javaClass == VolumeBlock::class.java }
         volumeBlock?.let {
             (it as VolumeBlock).calculateVolume(this)
@@ -70,13 +72,20 @@ open class MusicBuilderImpl : MusicBuilder {
 
     private fun buildSounds() {
         board.timeline?.let { timeline ->
-            music.sounds = blocks
+            val soundBlocks = blocks
                     .filter {
                         it.javaClass == SoundBlock::class.java
                                 && it.centerX > timeline.begin
                                 && it.centerX < timeline.end
                                 && it.active
                     }
+            this.maxSoundBlockDiameter = soundBlocks.map { it.diameter }.max() ?: 0f
+            if (soundBlocks.size == 1) {
+                minSoundBlockDiameter = 0f
+            } else {
+                this.minSoundBlockDiameter = soundBlocks.map { it.diameter }.min() ?: 0f
+            }
+            music.sounds = soundBlocks
                     .map {
                         (it as SoundBlock).buildSound(board, this)
                     }

@@ -17,17 +17,24 @@ class LoopBlock : Block() {
         val coveredBlocks = blocks.filter { Rect.intersects(intersectionRect, it.rect) }
         var i = 0
         val repeatingBlocks = mutableListOf<Block>()
-        while (++i < 3) {
-            repeatingBlocks.addAll(coveredBlocks.map { repeatableBlock ->
-                val distFromLoopBlock = Math.abs(repeatableBlock.centerX - LoopBlock@ centerX)
-                repeatableBlock.copy().apply {
-                    //val diameter = (topCode?.diameter ?: 0f).toInt()
-                    move(centerX + i * distFromLoopBlock, centerY)
-                }
-            })
+        val nearestOfLoopBlock: RepeatableBlock? = coveredBlocks.minBy { block -> distFromLoopBlock(block) }
+        val fartherOfLoopBlock: RepeatableBlock? = coveredBlocks.maxBy { block -> distFromLoopBlock(block) }
+        if (nearestOfLoopBlock != null && fartherOfLoopBlock != null) {
+            val nearestDistFromLoopBlock = distFromLoopBlock(nearestOfLoopBlock)
+            val x = nearestDistFromLoopBlock + Math.abs(fartherOfLoopBlock.centerX - nearestOfLoopBlock.centerX)
+            while (++i < 3) {
+                repeatingBlocks.addAll(coveredBlocks.map { repeatableBlock ->
+                    repeatableBlock.copy().apply {
+                        move(repeatableBlock.centerX + i * x, centerY)
+                    }
+                })
+            }
         }
         return repeatingBlocks
     }
+
+    private fun distFromLoopBlock(block: RepeatableBlock) =
+            Math.abs(block.centerX - LoopBlock@ centerX)
 
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)

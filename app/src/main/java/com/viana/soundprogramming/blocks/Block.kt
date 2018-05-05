@@ -14,6 +14,7 @@ open class Block {
     var bottom: Int = 0
     var centerX: Int = 0
     var centerY: Int = 0
+    var diameter: Float = 0f
     var board: Board? = null
     val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     var active: Boolean = true
@@ -31,6 +32,7 @@ open class Block {
                 bottom = (it.centerY + radius).toInt()
                 centerX = it.centerX.toInt()
                 centerY = it.centerY.toInt()
+                diameter = it.diameter
                 degree = Math.toDegrees(Math.abs(it.orientation.toDouble())).toFloat()
                 rect = Rect(left, top, right, bottom)
             }
@@ -79,6 +81,5 @@ open class Block {
                 y = toY.toFloat()
             }
         }
-
     }
 }

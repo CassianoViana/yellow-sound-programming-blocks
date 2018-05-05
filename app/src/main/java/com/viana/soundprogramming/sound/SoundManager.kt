@@ -53,6 +53,12 @@ class SoundManager {
         tryAgainIfNotRead(playTryResult, soundId)
     }
 
+    fun play(soundId: Int, volumeLeft: Float, volumeRight: Float) {
+        //Log.i("play", "volumeLeft: $volumeLeft, volumeRight: $volumeRight")
+        val playTryResult = soundPool.play(soundId, volumeLeft, volumeRight, 1, 0, 1f)
+        tryAgainIfNotRead(playTryResult, soundId)
+    }
+
     private fun tryAgainIfNotRead(playTryResult: Int, soundId: Int) {
         if (playTryResult == 0) {
             failedNotReadySounds.add(soundId)

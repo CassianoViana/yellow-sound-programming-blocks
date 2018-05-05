@@ -7,6 +7,8 @@ import java.util.*
 class Sound(private val soundId: Int) {
     private val timer = Timer()
     var volume: Float = 0f
+    var volumeLeft: Float = 0f
+    var volumeRight: Float = 0f
     var delayMillis: Long = 500
 
     fun play(timelineTimer: TimelineTimer) {
@@ -14,8 +16,8 @@ class Sound(private val soundId: Int) {
             timer.schedule(object : TimerTask() {
                 override fun run() {
                     if (!timelineTimer.cancelled) {
-                        SoundManager.instance.play(soundId, volume)
-                        ProgrammingVibrator.vibrate((volume * 10).toLong())
+                        SoundManager.instance.play(soundId, volumeLeft, volumeRight)
+                        ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
                 }
             }, delayMillis)

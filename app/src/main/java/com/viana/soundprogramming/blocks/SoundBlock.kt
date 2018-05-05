@@ -8,8 +8,10 @@ import com.viana.soundprogramming.sound.Sound
 
 open class SoundBlock(private val soundId: Int) : RepeatableBlock() {
 
-    private var maxVolume = 1f
-    private val minVolume = 0f
+    private var maxGlobalVolume = 1f
+    private val minGlobalVolume = 0f
+    private var variantVolume = 0.8f
+    private val minVolume = 0.2f
 
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)
@@ -19,13 +21,29 @@ open class SoundBlock(private val soundId: Int) : RepeatableBlock() {
     }
 
     fun buildSound(board: Board, musicBuilder: MusicBuilder): Sound {
-        maxVolume = musicBuilder.maxVolume
+        maxGlobalVolume = musicBuilder.maxVolume
         val soundId = this.soundId
         val sound = Sound(soundId)
-        val volume = calculateVolume(board)
+        val volume = calculateVolumeByDiameter(musicBuilder)
         sound.volume = volume
+        sound.volumeLeft = calculateVolumeLeft(board) * volume
+        sound.volumeRight = calculateVolumeRight(board) * volume
         sound.delayMillis = calculatePlayMoment(board)
         return sound
+    }
+
+    private fun calculateVolumeLeft(board: Board): Float {
+        val end = board.timeline?.end!!
+        val begin = board.timeline?.begin!!
+        val deltaBeginEnd = end - begin
+        return (deltaBeginEnd - (centerX - begin)) / deltaBeginEnd
+    }
+
+    private fun calculateVolumeRight(board: Board): Float {
+        val end = board.timeline?.end!!
+        val begin = board.timeline?.begin!!
+        val deltaBeginEnd = end - begin
+        return (deltaBeginEnd - (end - centerX)) / deltaBeginEnd
     }
 
     override fun copy(): Block {
@@ -34,17 +52,23 @@ open class SoundBlock(private val soundId: Int) : RepeatableBlock() {
         return block
     }
 
-    private fun calculateVolume(board: Board): Float {
+    private fun calculateVolumeByDiameter(musicBuilder: MusicBuilder): Float {
+        val maxDiameter = musicBuilder.maxSoundBlockDiameter
+        val minDiameter = musicBuilder.minSoundBlockDiameter
+        return (minVolume + variantVolume * ((diameter - minDiameter) / (maxDiameter - minDiameter))) * maxGlobalVolume
+    }
+
+    private fun calculateVolumeByDegree(board: Board): Float {
         var degree = this.degree
         degree += 180
         if (degree > 360)
             degree -= 360
         val volume = Math.abs(degree) / 360
-        return volume * (maxVolume - minVolume)
+        return volume * (maxGlobalVolume - minGlobalVolume)
     }
 
     private fun calculateByYposition(board: Board) =
-            ((board.heightFloat - this.centerY) / board.heightFloat * (maxVolume - minVolume)) + minVolume
+            ((board.heightFloat - this.centerY) / board.heightFloat * (maxGlobalVolume - minGlobalVolume)) + minGlobalVolume
 
     private fun calculatePlayMoment(board: Board): Long =
             board.timeline?.let {
