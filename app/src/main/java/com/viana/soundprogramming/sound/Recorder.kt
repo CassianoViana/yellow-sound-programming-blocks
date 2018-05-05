@@ -1,17 +1,11 @@
 package com.viana.soundprogramming.sound
 
 import android.media.MediaRecorder
-import android.os.Environment
-import java.io.File
+import com.viana.soundprogramming.appInstance
 import java.util.*
 
-val SOUNDS_DIRECTORY = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).absolutePath + "/SoundProgramming"
-
 fun getRecordedFileName(code: Int): String {
-    val soundsDirectory = File(SOUNDS_DIRECTORY)
-    if (!soundsDirectory.exists())
-        soundsDirectory.mkdirs()
-    return "$SOUNDS_DIRECTORY/$code.3gp"
+    return appInstance.filesDir.absolutePath + "/$code.3gp"
 }
 
 class Recorder {
@@ -20,7 +14,7 @@ class Recorder {
     var listener: Listener? = null
 
     fun recordSeconds(seconds: Int, code: Int) {
-        mediaRec?.reset()
+        mediaRec = MediaRecorder()
         mediaRec?.setAudioSource(MediaRecorder.AudioSource.MIC)
         mediaRec?.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
         mediaRec?.setOutputFile(getRecordedFileName(code))
@@ -44,11 +38,14 @@ class Recorder {
 
     private fun stopRecording(code: Int) {
         try {
-            val soundRecordedId = SoundManager.instance.load(getRecordedFileName(code))
-            listener?.onCodeRecorded(soundRecordedId)
             mediaRec?.stop()
             mediaRec?.release()
             mediaRec = null
+            SoundManager.instance.load(getRecordedFileName(code), object : SoundManager.OnLoadListener {
+                override fun loaded(soundId: Int) {
+                    listener?.onCodeRecorded(soundId)
+                }
+            })
         } catch (e: Exception) {
             e.printStackTrace()
         }

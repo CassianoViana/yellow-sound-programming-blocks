@@ -8,6 +8,7 @@ import com.viana.soundprogramming.board.Board
 import topcodes.TopCode
 
 open class Block {
+    var code: Int = 0
     var left: Int = 0
     var top: Int = 0
     var right: Int = 0
@@ -33,6 +34,7 @@ open class Block {
                 centerX = it.centerX.toInt()
                 centerY = it.centerY.toInt()
                 diameter = it.diameter
+                code = it.code
                 degree = Math.toDegrees(Math.abs(it.orientation.toDouble())).toFloat()
                 rect = Rect(left, top, right, bottom)
             }
@@ -82,4 +84,20 @@ open class Block {
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Block
+
+        if (code != other.code) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return code
+    }
+
 }

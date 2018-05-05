@@ -17,9 +17,14 @@ import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.core.MusicBuilderImpl
+import com.viana.soundprogramming.sound.BlocksRecorder
 import com.viana.soundprogramming.sound.Speaker
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.timeline.TimelineTimer
+import com.viana.soundprogramming.util.managePermissionCamera
+import com.viana.soundprogramming.util.managePermissionDirectory
+import com.viana.soundprogramming.util.managePermissionSound
+import com.viana.soundprogramming.util.managePermissionVibrate
 import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import kotlinx.android.synthetic.main.activity_sound_programming.*
 import java.util.*
@@ -30,14 +35,15 @@ const val REQUEST_CODE_RECORD_PERMISSION = 200
 const val REQUEST_CODE_WRITE_EXTERNAL_PERMISSION = 300
 const val REQUEST_CODE_VIBRATE_PERMISSION = 400
 
-class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
+class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, BlocksRecorder.Listener {
 
     private lateinit var camera: Camera
     private val topCodesReader = TopCodesReader()
     private val blocksManager = BlocksManager()
     private val musicBuilder = MusicBuilderImpl()
+    private val blocksRecorder = BlocksRecorder()
     private val stateMachine = StateMachine()
-    private var music:Music? = null
+    private var music: Music? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +51,12 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         prepareCamera()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
+        prepareBlocksRecorder()
         Speaker.instance.load()
+        managePermissionSound(this)
+        managePermissionCamera(this)
+        managePermissionVibrate(this)
+        managePermissionDirectory(this)
     }
 
     override fun onResume() {
@@ -66,8 +77,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
     }
 
     fun onClickTest(view: View) {
-        stopCamera()
-        ProgrammingVibrator.vibrate(30)
         startActivity(Intent(this, TestActivity::class.java))
     }
 
@@ -98,6 +107,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
     }
 
     private fun startCamera() {
+        camera.flashLightOn = true
         camera.openCamera()
     }
 
@@ -114,7 +124,8 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         blocksManager
                 .addListener(boardSurfaceView)
                 .addListener(stateMachine)
-                .addListener(object : BlocksManager.Listener{
+                .addListener(blocksRecorder)
+                .addListener(object : BlocksManager.Listener {
                     override fun updateBlocksList(blocks: List<Block>) {
                         musicBuilder.build(
                                 blocks,
@@ -139,6 +150,10 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
         })
     }
 
+    private fun prepareBlocksRecorder() {
+        blocksRecorder.addListener(this)
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE_CAMERA_PERMISSION
                 && grantResults.isNotEmpty()
@@ -153,15 +168,34 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener {
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_stop)
                 btnStartStop.setText(R.string.stop)
+                blocksRecorder.waitingForRecordableBlockEnter = false
             }
             StateMachine.State.PAUSED -> {
                 Speaker.instance.say(R.raw.a_musica_foi_interrompida)
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_start)
                 btnStartStop.setText(R.string.start)
+                blocksRecorder.waitingForRecordableBlockEnter = false
+            }
+            StateMachine.State.RECORDING -> {
+                Speaker.instance.say(R.raw.modo_gravacao)
+                blocksRecorder.waitingForRecordableBlockEnter = true
             }
             else -> {
             }
         }
+    }
+
+    override fun readyToStartRecord(code: Int) {
+        Speaker.instance.say(R.raw.gravando_em_3_2_1)
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                blocksRecorder.record(object : BlocksRecorder.OnRecordCompletedListener {
+                    override fun recordCompleted(soundId: Int) {
+                        Speaker.instance.say(R.raw.peca_gravada_com_sucesso)
+                    }
+                })
+            }
+        }, 3000)
     }
 }

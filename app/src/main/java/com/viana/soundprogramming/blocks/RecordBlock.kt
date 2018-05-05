@@ -1,5 +1,5 @@
 package com.viana.soundprogramming.blocks
 
-class ExplanationBlock : Block() {
+class RecordBlock : Block() {
 
 }

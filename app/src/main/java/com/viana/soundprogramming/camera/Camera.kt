@@ -27,8 +27,8 @@ class Camera(
         Log.i(TAG, it.toString())
         true
     })
+    var flashLightOn = false
     var isCameraOpen = false
-
     private lateinit var cameraDevice: CameraDevice
     private lateinit var imageReader: ImageReader
     private lateinit var cameraSession: CameraCaptureSession
@@ -117,6 +117,9 @@ class Camera(
     private fun createCaptureRequest() {
         cameraDevice.let {
             val captureRequestBuilder = it.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            if (flashLightOn) {
+                captureRequestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH)
+            }
             surfaces.forEach { captureRequestBuilder.addTarget(it) }
             captureRequest = captureRequestBuilder.build()
         }

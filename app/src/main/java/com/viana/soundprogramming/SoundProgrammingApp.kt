@@ -2,7 +2,7 @@ package com.viana.soundprogramming
 
 import android.app.Application
 
-var appInstance: SoundProgrammingApp? = null
+lateinit var appInstance: SoundProgrammingApp
 
 class SoundProgrammingApp : Application() {
 

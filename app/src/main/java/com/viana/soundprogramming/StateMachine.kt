@@ -1,9 +1,6 @@
 package com.viana.soundprogramming
 
-import com.viana.soundprogramming.blocks.Block
-import com.viana.soundprogramming.blocks.BlocksManager
-import com.viana.soundprogramming.blocks.PauseBlock
-import com.viana.soundprogramming.blocks.PlayBlock
+import com.viana.soundprogramming.blocks.*
 
 class StateMachine : BlocksManager.Listener {
 
@@ -22,13 +19,24 @@ class StateMachine : BlocksManager.Listener {
         }
 
     override fun updateBlocksList(blocks: List<Block>) {
+        checkIfRecordBlockEntered(blocks)
         checkIfPlayPauseBlocksEntered(blocks)
     }
 
     private fun checkIfPlayPauseBlocksEntered(blocks: List<Block>) {
-        val playBlock: Block? = blocks.firstOrNull { it.javaClass == PlayBlock::class.java }
-        val pauseBlock: Block? = blocks.firstOrNull { it.javaClass == PauseBlock::class.java }
-        state = if (playBlock != null || (pauseBlock == null && state != State.PAUSED)) State.PLAYING else State.PAUSED
+        val recordBlock = blocks.firstOrNull { it.javaClass == RecordBlock::class.java }
+        if (recordBlock == null) {
+            val playBlock = blocks.firstOrNull { it.javaClass == PlayBlock::class.java }
+            val pauseBlock = blocks.firstOrNull { it.javaClass == PauseBlock::class.java }
+            state = if (playBlock != null || (pauseBlock == null && state != State.PAUSED)) State.PLAYING else State.PAUSED
+        }
+    }
+
+    private fun checkIfRecordBlockEntered(blocks: List<Block>) {
+        val recordBlock = blocks.firstOrNull { it.javaClass == RecordBlock::class.java }
+        if (recordBlock != null) {
+            state = State.RECORDING
+        }
     }
 
     fun addListener(listener: Listener?): StateMachine {

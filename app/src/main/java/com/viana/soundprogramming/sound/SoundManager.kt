@@ -14,6 +14,7 @@ class SoundManager {
     private val soundPool: SoundPool
 
     private val failedNotReadySounds: MutableList<Int> = mutableListOf()
+    private var onLoadListener: OnLoadListener? = null
 
     constructor() {
         var audioAttributes: AudioAttributes = AudioAttributes.Builder()
@@ -32,6 +33,7 @@ class SoundManager {
                 play(soundId)
                 failedNotReadySounds.remove(soundId)
             }
+            onLoadListener?.loaded(soundId)
         }
     }
 
@@ -40,6 +42,11 @@ class SoundManager {
     }
 
     fun load(path: String): Int {
+        return soundPool.load(path, 1)
+    }
+
+    fun load(path: String, onLoadListener: OnLoadListener): Int {
+        this.onLoadListener = onLoadListener
         return soundPool.load(path, 1)
     }
 
@@ -63,5 +70,9 @@ class SoundManager {
         if (playTryResult == 0) {
             failedNotReadySounds.add(soundId)
         }
+    }
+
+    interface OnLoadListener {
+        fun loaded(soundId: Int)
     }
 }

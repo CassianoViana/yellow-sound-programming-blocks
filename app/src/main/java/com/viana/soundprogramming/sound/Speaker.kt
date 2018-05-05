@@ -10,6 +10,9 @@ class Speaker {
         add(R.raw.vamos_programar)
         add(R.raw.a_musica_foi_interrompida)
         add(R.raw.a_musica_comecou)
+        add(R.raw.modo_gravacao)
+        add(R.raw.gravando_em_3_2_1)
+        add(R.raw.peca_gravada_com_sucesso)
     }
 
     companion object {

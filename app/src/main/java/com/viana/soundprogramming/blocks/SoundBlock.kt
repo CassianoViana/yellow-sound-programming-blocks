@@ -6,7 +6,7 @@ import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.sound.Sound
 
-open class SoundBlock(private val soundId: Int) : RepeatableBlock() {
+open class SoundBlock(var soundId: Int) : RepeatableBlock() {
 
     private var maxGlobalVolume = 1f
     private val minGlobalVolume = 0f

@@ -28,7 +28,7 @@ class BlocksLibrary {
         blocks[117] = HasDogBlock()
         blocks[121] = DogBlock(SoundManager.instance.load(R.raw.dog))
 
-        blocks[279] = ExplanationBlock()
+        blocks[279] = RecordBlock()
 
         blocks[173] = ModuleBlock(2)
         blocks[345] = ModuleBlock(3)

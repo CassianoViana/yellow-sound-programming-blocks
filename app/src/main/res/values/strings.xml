@@ -9,4 +9,5 @@
     <string name="letstart">Olá. Vamos codear animalmente? Comece adicionando algumas peças.</string>
     <string name="started">O show começou</string>
     <string name="paused">A música foi interrompida</string>
+    <string name="permlab_flashlight">Permissão para usar a lanterna</string>
 </resources>
