@@ -51,6 +51,7 @@ class Camera(
 
     @SuppressLint("MissingPermission")
     fun openCamera() {
+        if (isCameraOpen) return
         if (managePermissionCamera(context as Activity)) return
         try {
             val facingBackCameraId: String = getFacingBackCameraId() ?: return
@@ -75,10 +76,12 @@ class Camera(
 
                     override fun onDisconnected(camera: CameraDevice) {
                         Log.e(TAG, "onDisconnected")
+                        isCameraOpen = false
                     }
 
                     override fun onError(camera: CameraDevice, error: Int) {
                         Log.e(TAG, "onError")
+                        isCameraOpen = false
                     }
 
                     private fun startCameraSession(camera: CameraDevice) = try {

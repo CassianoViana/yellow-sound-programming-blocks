@@ -2,18 +2,20 @@ package com.viana.soundprogramming
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.viana.soundprogramming.sound.MyAudioRecorder
+import com.viana.soundprogramming.sound.RecordAudio
 import com.viana.soundprogramming.sound.Recorder
 import com.viana.soundprogramming.sound.SoundManager
-import com.viana.soundprogramming.sound.getRecordedFileName
-import com.viana.soundprogramming.util.managePermissionDirectory
-import com.viana.soundprogramming.util.managePermissionSound
 
 class TestActivity : AppCompatActivity() {
 
-    val recorder = Recorder()
-    var soundId: Int = 0
+    private val recorder: Recorder = MyAudioRecorder()
+    private var soundId: Int = 0
+
+    private var recordAudio = RecordAudio()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,19 +33,15 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun load(view: View) {
-        soundId = SoundManager.instance.load(getRecordedFileName(777))
+        soundId = SoundManager.instance.load(recorder.getRecordedFileName(777))
     }
 
     fun record(view: View?) {
-        val code = 777
-        if (managePermissionDirectory(this)) return
-        if (managePermissionSound(this)) return
-        recorder.listener = object : Recorder.Listener {
-            override fun onCodeRecorded(producedSoundId: Int) {
-                soundId = producedSoundId
-            }
-        }
-        recorder.recordSeconds(3, code)
+        recordAudio.recordingFile = Environment.getExternalStorageDirectory().absolutePath+"/teste.wav";
+    }
+
+    fun stop(view: View) {
+        /*recordAudio.stop()*/
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -53,6 +51,6 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun playRecord(view: View) {
-        recorder.play(soundId)
+
     }
 }

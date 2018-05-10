@@ -8,6 +8,7 @@
 
     <Button android:text="play" android:onClick="play"/>
     <Button android:text="record" android:onClick="record"/>
+    <Button android:text="stop" android:onClick="stop"/>
     <Button android:text="load" android:onClick="load"/>
     <Button android:text="play record" android:onClick="playRecord"/>
 

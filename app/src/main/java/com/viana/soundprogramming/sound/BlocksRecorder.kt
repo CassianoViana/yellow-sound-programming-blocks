@@ -7,17 +7,19 @@ import com.viana.soundprogramming.blocks.SoundBlock
 class BlocksRecorder : BlocksManager.Listener {
 
     var waitingForRecordableBlockEnter: Boolean = false
-    private val recorder: Recorder = Recorder()
+    var recording: Boolean = false
+    private val recorder: Recorder = MyMediaRecorder()
     private var previousSoundBlocks = mutableListOf<SoundBlock>()
     private val listeners = mutableListOf<Listener>()
     private var soundBlockEnteredToBeRecorded: SoundBlock? = null
 
     override fun updateBlocksList(blocks: List<Block>) {
-        if (waitingForRecordableBlockEnter) {
-            val soundBlocks: List<SoundBlock> = blocks.filterIsInstance(SoundBlock::class.java)
-            getSoundBlockWhenItEnter(soundBlocks)
-            this.previousSoundBlocks = soundBlocks.toMutableList()
-        }
+        val soundBlocks: List<SoundBlock> = blocks.filterIsInstance(SoundBlock::class.java)
+        if (!recording)
+            if (waitingForRecordableBlockEnter) {
+                getSoundBlockWhenItEnter(soundBlocks)
+            }
+        this.previousSoundBlocks = soundBlocks.toMutableList()
     }
 
     private fun getSoundBlockWhenItEnter(soundBlocks: List<SoundBlock>) {
@@ -35,10 +37,12 @@ class BlocksRecorder : BlocksManager.Listener {
 
     fun record(onRecordCompletedListener: OnRecordCompletedListener) {
         soundBlockEnteredToBeRecorded?.let {
+            recording = true
             record(it.code, object : BlocksRecorder.OnRecordCompletedListener {
                 override fun recordCompleted(soundId: Int) {
                     it.soundId = soundId
                     onRecordCompletedListener.recordCompleted(it.soundId)
+                    recording = false
                 }
             })
         }

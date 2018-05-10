@@ -44,6 +44,7 @@ class BoardSurfaceView
 
     fun start() {
         timeline?.scheduleTimer()
+        timeline?.start()
     }
 
     fun stop() {

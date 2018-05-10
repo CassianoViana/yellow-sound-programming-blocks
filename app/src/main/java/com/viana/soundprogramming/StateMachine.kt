@@ -5,7 +5,10 @@ import com.viana.soundprogramming.blocks.*
 class StateMachine : BlocksManager.Listener {
 
     enum class State {
-        PLAYING, PAUSED, RECORDING, EXPLAINING
+        PLAYING,
+        PAUSED,
+        RECORDING,
+        EXPLAINING;
     }
 
     private val listeners = mutableListOf<Listener>()
@@ -14,28 +17,32 @@ class StateMachine : BlocksManager.Listener {
         set(value) {
             val changed = value != field
             field = value
-            if (changed)
+            if (changed) {
                 listeners.forEach { it.stateChanged(state) }
+            }
         }
 
     override fun updateBlocksList(blocks: List<Block>) {
-        checkIfRecordBlockEntered(blocks)
-        checkIfPlayPauseBlocksEntered(blocks)
+        checkBlocksToChangeState(blocks)
     }
 
-    private fun checkIfPlayPauseBlocksEntered(blocks: List<Block>) {
-        val recordBlock = blocks.firstOrNull { it.javaClass == RecordBlock::class.java }
-        if (recordBlock == null) {
-            val playBlock = blocks.firstOrNull { it.javaClass == PlayBlock::class.java }
-            val pauseBlock = blocks.firstOrNull { it.javaClass == PauseBlock::class.java }
-            state = if (playBlock != null || (pauseBlock == null && state != State.PAUSED)) State.PLAYING else State.PAUSED
-        }
-    }
-
-    private fun checkIfRecordBlockEntered(blocks: List<Block>) {
+    private fun checkBlocksToChangeState(blocks: List<Block>) {
         val recordBlock = blocks.firstOrNull { it.javaClass == RecordBlock::class.java }
         if (recordBlock != null) {
             state = State.RECORDING
+            return
+        }
+
+        val playBlock = blocks.firstOrNull { it.javaClass == PlayBlock::class.java }
+        if (playBlock != null) {
+            state = State.PLAYING
+            return
+        }
+
+        val pauseBlock = blocks.firstOrNull { it.javaClass == PauseBlock::class.java }
+        if (pauseBlock != null) {
+            state = State.PAUSED
+            return
         }
     }
 
