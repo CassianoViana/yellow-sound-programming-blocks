@@ -6,7 +6,7 @@ import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.viana.soundprogramming.sound.MyAudioRecorder
-import com.viana.soundprogramming.sound.RecordAudio
+import com.viana.soundprogramming.sound.CyanogenAudioRecorder
 import com.viana.soundprogramming.sound.Recorder
 import com.viana.soundprogramming.sound.SoundManager
 
@@ -15,7 +15,7 @@ class TestActivity : AppCompatActivity() {
     private val recorder: Recorder = MyAudioRecorder()
     private var soundId: Int = 0
 
-    private var recordAudio = RecordAudio()
+    private var recordAudio = CyanogenAudioRecorder()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,11 +37,13 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun record(view: View?) {
-        recordAudio.recordingFile = Environment.getExternalStorageDirectory().absolutePath+"/teste.wav";
+        recordAudio = CyanogenAudioRecorder()
+        val recordTargetPath = Environment.getExternalStorageDirectory().absolutePath + "/abacate"
+        recordAudio.startRecording(recordTargetPath)
     }
 
     fun stop(view: View) {
-        /*recordAudio.stop()*/
+        recordAudio.stop()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

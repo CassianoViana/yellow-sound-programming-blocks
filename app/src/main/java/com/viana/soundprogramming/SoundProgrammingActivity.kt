@@ -77,7 +77,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         if (!camera.isCameraOpen) startCamera() else stopCamera()
     }
 
-    fun onClickTest(view: View) {
+    fun onClickTest(view: View?) {
         startActivity(Intent(this, TestActivity::class.java))
     }
 

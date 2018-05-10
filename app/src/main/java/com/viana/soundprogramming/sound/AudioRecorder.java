@@ -51,7 +51,7 @@ public class AudioRecorder {
 
     omrecorder.Recorder createWavRecorder(File file) {
         return OmRecorder.wav(
-                new PullTransport.Default(mic2(), new PullTransport.OnAudioChunkPulledListener() {
+                new PullTransport.Default(mic(), new PullTransport.OnAudioChunkPulledListener() {
                     @Override
                     public void onAudioChunkPulled(AudioChunk audioChunk) {
                         animateVoice((float) (audioChunk.maxAmplitude() / 200.0));

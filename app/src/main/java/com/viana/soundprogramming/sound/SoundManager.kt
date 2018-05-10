@@ -1,6 +1,6 @@
 package com.viana.soundprogramming.sound
 
-import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.SoundPool
 import android.util.Log
 import com.viana.soundprogramming.appInstance
@@ -11,22 +11,12 @@ class SoundManager {
         val instance = SoundManager()
     }
 
-    private val soundPool: SoundPool
+    private val soundPool: SoundPool = SoundPool(10, AudioManager.STREAM_MUSIC, 0)
 
     private val failedNotReadySounds: MutableList<Int> = mutableListOf()
     private var onLoadListener: OnLoadListener? = null
 
     constructor() {
-        var audioAttributes: AudioAttributes = AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build()
-
-        soundPool = SoundPool.Builder()
-                .setMaxStreams(10)
-                .setAudioAttributes(audioAttributes)
-                .build()
-
         soundPool.setOnLoadCompleteListener { a: SoundPool, soundId: Int, c: Int ->
             Log.i("SoundManager", "load sound $soundId, $c")
             if (failedNotReadySounds.contains(soundId)) {
