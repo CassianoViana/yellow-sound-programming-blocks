@@ -24,8 +24,13 @@ class TestActivity : AppCompatActivity() {
         Thread({
             audioTrackPlayer.start()
             audioTrackPlayer.playWav(Environment.getExternalStorageDirectory().absolutePath + "/abacate.pcm")
-            audioTrackPlayer.addInterval(20)
-            audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.a_peca_foi_gravada))
+
+            for (i in 1 until 10) {
+                audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.drum1))
+                audioTrackPlayer.addInterval(1)
+                audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.drum2))
+            }
+
             audioTrackPlayer.stop()
         }).start()
     }

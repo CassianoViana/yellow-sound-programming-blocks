@@ -27,7 +27,7 @@ public class AudioTrackPlayer {
     }
 
     public void addInterval(int seconds) {
-        int sizeInBytes = seconds * SAMPLE_RATE_IN_HZ;
+        int sizeInBytes = seconds * SAMPLE_RATE_IN_HZ * 2;
         byte nothing[] = new byte[sizeInBytes];
         audioTrack.write(nothing, 0, sizeInBytes);
     }
