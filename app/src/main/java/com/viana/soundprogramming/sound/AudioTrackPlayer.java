@@ -3,59 +3,67 @@ package com.viana.soundprogramming.sound;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.media.audiofx.PresetReverb;
 
-import java.io.DataInputStream;
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
-
-/**
- * Created by cassiano on 5/11/18.
- */
 
 public class AudioTrackPlayer {
     private static final int HEADER_SIZE = 44;
+    private static final int SAMPLE_RATE_IN_HZ = 44100;
+    private static final int CHANNEL_OUT_MONO = AudioFormat.CHANNEL_OUT_MONO;
+    private static final int ENCODING_PCM_16_BIT = AudioFormat.ENCODING_PCM_16BIT;
+    private final int minBufferSize;
+    private final int bufferSize;
+    private AudioTrack audioTrack;
+    private final byte[] audioData;
 
-    public void play(String filepath) {
+    public AudioTrackPlayer() {
+        minBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO, ENCODING_PCM_16_BIT);
+        bufferSize = 512;
+        audioData = new byte[bufferSize];
+    }
 
-        int minBufferSize = AudioTrack.getMinBufferSize(44100, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        int bufferSize = 512;
-        AudioTrack audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_CONFIGURATION_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize, AudioTrack.MODE_STREAM);
+    public void addInterval(int seconds) {
+        int sizeInBytes = seconds * SAMPLE_RATE_IN_HZ;
+        byte nothing[] = new byte[sizeInBytes];
+        audioTrack.write(nothing, 0, sizeInBytes);
+    }
 
-        int i = 0;
-        byte[] s = new byte[bufferSize];
+    public void playWav(String filepath) {
         try {
             FileInputStream fin = new FileInputStream(filepath);
-            DataInputStream dis = new DataInputStream(fin);
-            ignoreHeaderWav(fin);
-            audioTrack.play();
-
-            PresetReverb reverb = new  PresetReverb(0, audioTrack.getAudioSessionId());
-            reverb.setPreset( PresetReverb.PRESET_PLATE);
-            reverb.setEnabled(true);
-            audioTrack.attachAuxEffect(reverb.getId());
-            audioTrack.setAuxEffectSendLevel(1);
-
-            while ((i = dis.read(s, 0, bufferSize)) > -1) {
-                audioTrack.write(s, 0, i);
-            }
-            audioTrack.stop();
-            audioTrack.release();
-            dis.close();
+            playInputStream(fin);
             fin.close();
-
-        } catch (FileNotFoundException e) {
-            // TODO
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void ignoreHeaderWav(FileInputStream fin) throws IOException {
+    public void playInputStream(InputStream fin) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(fin);
+        discardWavHeader(fin);
+        int i;
+        while ((i = bis.read(audioData, 0, bufferSize)) > -1) {
+            audioTrack.write(audioData, 0, i);
+        }
+        bis.close();
+    }
+
+    public void start() {
+        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO, ENCODING_PCM_16_BIT, minBufferSize, AudioTrack.MODE_STREAM);
+        audioTrack.play();
+        audioTrack.setVolume(1f);
+    }
+
+    public void stop() {
+        audioTrack.stop();
+        audioTrack.release();
+    }
+
+    private void discardWavHeader(InputStream fin) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(HEADER_SIZE);
         fin.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
         buffer.rewind();
