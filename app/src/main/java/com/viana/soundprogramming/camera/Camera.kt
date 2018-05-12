@@ -134,11 +134,11 @@ class Camera(
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 try {
-                    if (!isCameraOpen) {
+                    if (isCameraOpen) {
+                        cameraSession.capture(captureRequest, value, backgroundHandler)
+                    } else {
                         cancel()
-                        return
                     }
-                    cameraSession.capture(captureRequest, value, backgroundHandler)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

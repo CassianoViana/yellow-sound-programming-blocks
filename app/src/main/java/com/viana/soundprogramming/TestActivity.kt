@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.viana.soundprogramming.sound.MyAudioRecorder
-import com.viana.soundprogramming.sound.CyanogenAudioRecorder
-import com.viana.soundprogramming.sound.Recorder
-import com.viana.soundprogramming.sound.SoundManager
+import com.viana.soundprogramming.sound.*
 
 class TestActivity : AppCompatActivity() {
 
@@ -16,6 +13,7 @@ class TestActivity : AppCompatActivity() {
     private var soundId: Int = 0
 
     private var recordAudio = CyanogenAudioRecorder()
+    private var audioTrackPlayer = AudioTrackPlayer()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,13 +21,7 @@ class TestActivity : AppCompatActivity() {
     }
 
     fun play(view: View) {
-        val soundManager = SoundManager.instance
-        val id1 = soundManager.load(R.raw.guittar1)
-        val id2 = soundManager.load(R.raw.guittar2)
-        val id3 = soundManager.load(R.raw.guittar3)
-        soundManager.play(id1)
-        soundManager.play(id2)
-        soundManager.play(id3)
+        audioTrackPlayer.play(Environment.getExternalStorageDirectory().absolutePath + "/abacate.wav")
     }
 
     fun load(view: View) {

@@ -6,7 +6,6 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.View
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
@@ -108,7 +107,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun startCamera() {
-        camera.flashLightOn = true
+        camera.flashLightOn = false
         camera.openCamera()
     }
 
@@ -169,19 +168,18 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_stop)
                 btnStartStop.setText(R.string.stop)
-                blocksRecorder.waitingForRecordableBlockEnter = false
+                blocksRecorder.waitingForRecordableBlockApproximation = false
             }
             StateMachine.State.PAUSED -> {
                 Speaker.instance.say(R.raw.a_musica_foi_interrompida)
                 btnStartStop.background = ContextCompat
                         .getDrawable(this, R.drawable.button_start)
                 btnStartStop.setText(R.string.start)
-                blocksRecorder.waitingForRecordableBlockEnter = false
+                blocksRecorder.waitingForRecordableBlockApproximation = false
             }
             StateMachine.State.RECORDING -> {
-                Log.i("Recorder", "StateMachine.State.RECORDING; blocksRecorder.waitingForRecordableBlockEnter = true")
                 Speaker.instance.say(R.raw.modo_gravacao)
-                blocksRecorder.waitingForRecordableBlockEnter = true
+                blocksRecorder.waitingForRecordableBlockApproximation = true
             }
             else -> {
             }
@@ -189,18 +187,15 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     override fun readyToStartRecord(code: Int) {
-        Log.i("Recorder", "readyToStartRecord")
-        Speaker.instance.say(R.raw.gravando_em_3_2_1)
+        Speaker.instance.say(R.raw.pronto_a_peca_foi_selecionada)
         Timer().schedule(object : TimerTask() {
             override fun run() {
-                Log.i("Recorder", "blocksRecorder.record")
                 blocksRecorder.record(object : BlocksRecorder.OnRecordCompletedListener {
                     override fun recordCompleted(soundId: Int) {
-                        Log.i("Recorder", "Speaker.instance.say(R.raw.peca_gravada_com_sucesso)")
-                        Speaker.instance.say(R.raw.peca_gravada_com_sucesso)
+                        Speaker.instance.say(R.raw.a_peca_foi_gravada)
                     }
                 })
             }
-        }, 3550)
+        }, 7500)
     }
 }

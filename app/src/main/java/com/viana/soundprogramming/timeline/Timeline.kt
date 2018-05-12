@@ -95,6 +95,7 @@ class Timeline(
         when (state) {
             StateMachine.State.PLAYING -> start()
             StateMachine.State.PAUSED -> stop()
+            StateMachine.State.RECORDING -> stop()
             else -> {
             }
         }

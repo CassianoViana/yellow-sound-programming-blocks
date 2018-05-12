@@ -14,4 +14,6 @@ interface MusicBuilder {
         fun ready(music: Music)
     }
 
+    fun isWiredHeadsetOn(): Boolean
+
 }

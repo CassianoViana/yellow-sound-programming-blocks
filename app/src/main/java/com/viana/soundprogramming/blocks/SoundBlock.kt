@@ -26,8 +26,13 @@ open class SoundBlock(var soundId: Int) : RepeatableBlock() {
         val sound = Sound(soundId)
         val volume = calculateVolumeByDiameter(musicBuilder)
         sound.volume = volume
-        sound.volumeLeft = calculateVolumeLeft(board) * volume
-        sound.volumeRight = calculateVolumeRight(board) * volume
+        if (musicBuilder.isWiredHeadsetOn()) {
+            sound.volumeLeft = calculateVolumeLeft(board) * volume
+            sound.volumeRight = calculateVolumeRight(board) * volume
+        } else {
+            sound.volumeLeft = volume
+            sound.volumeRight = volume
+        }
         sound.delayMillis = calculatePlayMoment(board)
         return sound
     }
@@ -55,6 +60,7 @@ open class SoundBlock(var soundId: Int) : RepeatableBlock() {
     private fun calculateVolumeByDiameter(musicBuilder: MusicBuilder): Float {
         val maxDiameter = musicBuilder.maxSoundBlockDiameter
         val minDiameter = musicBuilder.minSoundBlockDiameter
+        if (maxDiameter - minDiameter <= 3) return 1f
         return (minVolume + variantVolume * ((diameter - minDiameter) / (maxDiameter - minDiameter))) * maxGlobalVolume
     }
 

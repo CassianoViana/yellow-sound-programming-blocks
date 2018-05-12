@@ -25,7 +25,6 @@ public class CyanogenAudioRecorder {
             CHANNEL_IN, FORMAT);
 
     private AudioRecord mRecord;
-    private Thread mRecordThread;
     private byte[] mData;
 
     public void startRecording(String recordingFilePath) {
@@ -43,13 +42,12 @@ public class CyanogenAudioRecorder {
     }
 
     private void startRecordingThread() {
-        mRecordThread = new Thread(new Runnable() {
+        Thread mRecordThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 BufferedOutputStream out = null;
                 try {
                     out = new BufferedOutputStream(new FileOutputStream(recordingFilePath));
-
                     while (isRecording) {
                         int mStatus = mRecord.read(mData, 0, mData.length);
                         if (mStatus == AudioRecord.ERROR_INVALID_OPERATION ||
@@ -80,7 +78,9 @@ public class CyanogenAudioRecorder {
 
     public void stop() {
         isRecording = false;
-        String mOutFilePath = recordingFilePath.replace(EXTENSION, PcmConverter.WAV_EXTENSION);
-        PcmConverter.convertToWave(mOutFilePath, BUFFER_SIZE);
+        mRecord.stop();
+        mRecord.release();
+        String mOutFilePath = recordingFilePath.replace(EXTENSION, PcmWavConverter.WAV_EXTENSION);
+        PcmWavConverter.convertToWave(mOutFilePath, BUFFER_SIZE);
     }
 }

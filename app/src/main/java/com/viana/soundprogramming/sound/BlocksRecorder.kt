@@ -1,33 +1,40 @@
 package com.viana.soundprogramming.sound
 
+import com.viana.soundprogramming.R
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.blocks.SoundBlock
+import java.util.*
 
 class BlocksRecorder : BlocksManager.Listener {
 
-    var waitingForRecordableBlockEnter: Boolean = false
+    var waitingForRecordableBlockApproximation: Boolean = false
     var recording: Boolean = false
-    private val recorder: Recorder = MyMediaRecorder()
-    private var previousSoundBlocks = mutableListOf<SoundBlock>()
+    var busy: Boolean = false
+        set(value) {
+            field = value
+            Timer().schedule(object : TimerTask() {
+                override fun run() {
+                    field = false
+                }
+            }, 10000)
+        }
+    private val recorder: Recorder = MyAudioRecorder()
     private val listeners = mutableListOf<Listener>()
     private var soundBlockEnteredToBeRecorded: SoundBlock? = null
 
     override fun updateBlocksList(blocks: List<Block>) {
-        val soundBlocks: List<SoundBlock> = blocks.filterIsInstance(SoundBlock::class.java)
-        if (!recording)
-            if (waitingForRecordableBlockEnter) {
-                getSoundBlockWhenItEnter(soundBlocks)
+        if (busy || !waitingForRecordableBlockApproximation) return
+        blocks.firstOrNull {
+            it.diameter > 150
+        }?.apply {
+            busy = true
+            if (this !is SoundBlock) {
+                Speaker.instance.say(R.raw.essa_peca_nao_pode_ser_gravada)
+            } else if (!recording) {
+                soundBlockEnteredToBeRecorded = this
+                readyToStartRecord(code)
             }
-        this.previousSoundBlocks = soundBlocks.toMutableList()
-    }
-
-    private fun getSoundBlockWhenItEnter(soundBlocks: List<SoundBlock>) {
-        this.soundBlockEnteredToBeRecorded = soundBlocks.firstOrNull {
-            !previousSoundBlocks.contains(it)
-        }
-        this.soundBlockEnteredToBeRecorded?.let {
-            readyToStartRecord(it.code)
         }
     }
 
@@ -37,24 +44,17 @@ class BlocksRecorder : BlocksManager.Listener {
 
     fun record(onRecordCompletedListener: OnRecordCompletedListener) {
         soundBlockEnteredToBeRecorded?.let {
-            recording = true
-            record(it.code, object : BlocksRecorder.OnRecordCompletedListener {
-                override fun recordCompleted(soundId: Int) {
-                    it.soundId = soundId
-                    onRecordCompletedListener.recordCompleted(it.soundId)
-                    recording = false
+            recorder.apply {
+                listener = object : Recorder.Listener {
+                    override fun onCodeRecorded(producedSoundId: Int) {
+                        recording = false
+                        it.soundId = producedSoundId
+                        onRecordCompletedListener.recordCompleted(it.soundId)
+                    }
                 }
-            })
-        }
-    }
-
-    private fun record(code: Int, onRecordCompletedListener: OnRecordCompletedListener) {
-        recorder.listener = object : Recorder.Listener {
-            override fun onCodeRecorded(producedSoundId: Int) {
-                onRecordCompletedListener.recordCompleted(producedSoundId)
+                recordSeconds(3, it.code)
             }
         }
-        this.recorder.recordSeconds(3, code)
     }
 
     fun addListener(listener: Listener) {

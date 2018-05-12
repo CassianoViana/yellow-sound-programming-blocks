@@ -9,13 +9,13 @@ import java.io.IOException;
 import static com.viana.soundprogramming.sound.CyanogenAudioRecorder.EXTENSION;
 
 
-class PcmConverter {
+class PcmWavConverter {
     static final String WAV_EXTENSION = ".wav";
     private static final long SAMPLE_RATE = 44100;
     private static final int RECORDER_BPP = 16;
     private static final int CHANNELS = 1;
     private static final long BYTE_RATE = RECORDER_BPP * 441000 * CHANNELS / 8;
-    private static final String TAG = "PcmConverter";
+    private static final String TAG = "PcmWavConverter";
 
     @SuppressWarnings("SameParameterValue")
     static void convertToWave(String inputPath, int bufferSize) {

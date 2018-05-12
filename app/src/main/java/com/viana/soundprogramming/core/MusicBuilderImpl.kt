@@ -1,10 +1,17 @@
 package com.viana.soundprogramming.core
 
+import android.content.Context
+import android.media.AudioManager
 import android.util.Log
+import com.viana.soundprogramming.appInstance
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
 
 open class MusicBuilderImpl : MusicBuilder {
+
+    override fun isWiredHeadsetOn(): Boolean =
+            (appInstance.getSystemService(Context.AUDIO_SERVICE) as AudioManager)
+                    .isWiredHeadsetOn
 
     override var maxVolume: Float = 1f
     override var maxSoundBlockDiameter: Float = 1f

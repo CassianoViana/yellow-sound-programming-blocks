@@ -11,8 +11,9 @@ class Speaker {
         add(R.raw.a_musica_foi_interrompida)
         add(R.raw.a_musica_comecou)
         add(R.raw.modo_gravacao)
-        add(R.raw.gravando_em_3_2_1)
-        add(R.raw.peca_gravada_com_sucesso)
+        add(R.raw.pronto_a_peca_foi_selecionada)
+        add(R.raw.a_peca_foi_gravada)
+        add(R.raw.essa_peca_nao_pode_ser_gravada)
     }
 
     companion object {
