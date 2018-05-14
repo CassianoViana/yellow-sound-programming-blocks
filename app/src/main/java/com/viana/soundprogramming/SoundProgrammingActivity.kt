@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
+import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.blocks.TopCodesReader
 import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.OnEachFrameListener
@@ -145,7 +146,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
                 ProgrammingVibrator.vibrate(10)
-                music?.play(timelineTimer)
+                music?.play()
             }
         })
     }
@@ -191,7 +192,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 blocksRecorder.record(object : BlocksRecorder.OnRecordCompletedListener {
-                    override fun recordCompleted(soundId: Int) {
+                    override fun recordCompleted(soundBlock: SoundBlock) {
                         Speaker.instance.say(R.raw.a_peca_foi_gravada)
                     }
                 })

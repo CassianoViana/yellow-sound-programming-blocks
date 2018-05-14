@@ -8,7 +8,7 @@ interface Recorder {
     fun recordSeconds(seconds: Int, code: Int)
 
     interface Listener {
-        fun onCodeRecorded(producedSoundId: Int)
+        fun onCodeRecorded(producedSoundId: Int, recordedFilePath: String)
     }
 
     fun getRecordedFileName(code: Int): String {

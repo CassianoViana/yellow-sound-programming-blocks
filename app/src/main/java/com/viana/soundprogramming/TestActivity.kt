@@ -22,15 +22,18 @@ class TestActivity : AppCompatActivity() {
 
     fun play(view: View) {
         Thread({
-            audioTrackPlayer.start()
-            audioTrackPlayer.playWav(Environment.getExternalStorageDirectory().absolutePath + "/abacate.pcm")
+            val wav = Environment.getExternalStorageDirectory().absolutePath + "/abacate.pcm"
+            val sequencer = AudioSequencer()
+            sequencer.add(resources.openRawResource(R.raw.drum1))
+            sequencer.add(resources.openRawResource(R.raw.drum1))
 
+            audioTrackPlayer.start()
+            audioTrackPlayer.playWav(wav)
             for (i in 1 until 10) {
                 audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.drum1))
                 audioTrackPlayer.addInterval(1)
                 audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.drum2))
             }
-
             audioTrackPlayer.stop()
         }).start()
     }

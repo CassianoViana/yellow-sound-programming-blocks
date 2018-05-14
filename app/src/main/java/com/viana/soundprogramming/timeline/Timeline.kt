@@ -19,7 +19,7 @@ class Timeline(
 ) : StateMachine.Listener {
 
     private val listeners = mutableListOf<Listener>()
-    private var timer: TimelineTimer = TimelineTimer()
+    var timer: TimelineTimer = TimelineTimer()
     private val timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
 
     var begin: Float = 0f

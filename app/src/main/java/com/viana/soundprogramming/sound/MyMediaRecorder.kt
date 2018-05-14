@@ -38,7 +38,7 @@ class MyMediaRecorder : Recorder {
             mediaRec = null
             SoundManager.instance.load(getRecordedFileName(code), object : SoundManager.OnLoadListener {
                 override fun loaded(soundId: Int) {
-                    listener.onCodeRecorded(soundId)
+                    listener.onCodeRecorded(soundId, getRecordedFileName(code))
                 }
             })
         } catch (e: Exception) {

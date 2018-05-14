@@ -19,8 +19,9 @@ class MyAudioRecorder : Recorder {
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 audioRecorder.stop()
-                val soundId = SoundManager.instance.load(getRecordedFileName(code))
-                listener.onCodeRecorded(soundId)
+                val recordedFilePath = getRecordedFileName(code)
+                val soundId = SoundManager.instance.load(recordedFilePath)
+                listener.onCodeRecorded(soundId, recordedFilePath)
             }
         }, seconds * 1000L)
     }

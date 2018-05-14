@@ -14,7 +14,7 @@ import static android.content.ContentValues.TAG;
 
 public class CyanogenAudioRecorder {
 
-    public static String EXTENSION = ".pcm";
+    static String EXTENSION = ".pcm";
     private boolean isRecording = true;
     private String recordingFilePath;
 

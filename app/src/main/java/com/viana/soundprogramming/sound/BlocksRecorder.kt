@@ -4,6 +4,7 @@ import com.viana.soundprogramming.R
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.blocks.SoundBlock
+import java.io.FileInputStream
 import java.util.*
 
 class BlocksRecorder : BlocksManager.Listener {
@@ -46,10 +47,11 @@ class BlocksRecorder : BlocksManager.Listener {
         soundBlockEnteredToBeRecorded?.let {
             recorder.apply {
                 listener = object : Recorder.Listener {
-                    override fun onCodeRecorded(producedSoundId: Int) {
+                    override fun onCodeRecorded(producedSoundId: Int, recordedFilePath: String) {
                         recording = false
                         it.soundId = producedSoundId
-                        onRecordCompletedListener.recordCompleted(it.soundId)
+                        it.soundStream = FileInputStream(recordedFilePath)
+                        onRecordCompletedListener.recordCompleted(it)
                     }
                 }
                 recordSeconds(3, it.code)
@@ -66,7 +68,7 @@ class BlocksRecorder : BlocksManager.Listener {
     }
 
     interface OnRecordCompletedListener {
-        fun recordCompleted(soundId: Int)
+        fun recordCompleted(soundBlock: SoundBlock)
     }
 
 }

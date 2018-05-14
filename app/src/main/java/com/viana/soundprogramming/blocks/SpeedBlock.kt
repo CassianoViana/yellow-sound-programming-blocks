@@ -4,8 +4,8 @@ import com.viana.soundprogramming.board.Board
 
 class SpeedBlock : Block() {
 
-    fun calculateSpeed(board: Board) {
-        val timeline = board.timeline
+    fun calculateSpeed(board: Board?) {
+        val timeline = board?.timeline
 
         var degree = this.degree
         degree += 180
