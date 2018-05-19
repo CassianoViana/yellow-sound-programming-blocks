@@ -6,7 +6,7 @@ import com.viana.soundprogramming.timeline.TimelineTimer
 
 class MusicSoundPool(var musicBuilder: MusicBuilder) : Music(Sound.SoundPoolSoundBuilder(musicBuilder)) {
 
-    override fun play(timelineTimer: TimelineTimer) {
+    override fun play() {
         val timer: TimelineTimer? = musicBuilder.board.timeline?.timer
         if (timer != null) {
             sounds.forEach {

@@ -12,6 +12,7 @@ abstract class Sound {
     var volume: Float = 0f
     var volumeLeft: Float = 0f
     var volumeRight: Float = 0f
+    var delayMillis: Long = 500
 
     abstract fun play(timer: TimelineTimer)
 
@@ -107,6 +108,7 @@ abstract class Sound {
                 sound.volumeLeft = volume
                 sound.volumeRight = volume
             }
+            sound.delayMillis = calculatePlayMoment(soundBlock)
             return sound
         }
     }
@@ -114,7 +116,6 @@ abstract class Sound {
 
 class SoundSoundPool(private val soundId: Int) : Sound() {
     private val timer = Timer()
-    var delayMillis: Long = 500
     override fun play(timelineTimer: TimelineTimer) {
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             timer.schedule(object : TimerTask() {

@@ -25,10 +25,12 @@ class TestActivity : AppCompatActivity() {
 
     fun play(view: View) {
         Thread({
-            val audioMixer = AudioMixer(10, 44100 * 2, 1f)
-            audioMixer.addSound(0f, IOUtils.toByteArray(resources.openRawResource(R.raw.falta_informar_parametro_repita)))
-            audioMixer.addSound(2f, IOUtils.toByteArray(resources.openRawResource(R.raw.drum1)))
-            audioMixer.addSound(3f, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
+            val audioMixer = AudioMixer(10 * 1000, 44100 * 2, 1f)
+            audioMixer.addSound(0, IOUtils.toByteArray(resources.openRawResource(R.raw.falta_informar_parametro_repita)))
+            audioMixer.addSound(2000, IOUtils.toByteArray(resources.openRawResource(R.raw.drum1)))
+            audioMixer.addSound(3000, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
+            audioMixer.addSound(3100, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
+            audioMixer.addSound(3500, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
 
             val mixed: InputStream = ByteArrayInputStream(audioMixer.mixAddedSounds())
 

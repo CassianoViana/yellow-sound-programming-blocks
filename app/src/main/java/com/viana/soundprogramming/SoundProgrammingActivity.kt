@@ -135,6 +135,8 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                                 object : MusicBuilder.OnMusicReadyListener {
                                     override fun ready(music: Music) {
                                         this@SoundProgrammingActivity.music = music
+                                        ProgrammingVibrator.vibrate(10)
+                                        music.play()
                                     }
 
                                     override fun error(e: SoundSyntaxError) {
@@ -150,8 +152,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         boardSurfaceView
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
-                ProgrammingVibrator.vibrate(10)
-                music?.play(timelineTimer)
+
             }
         })
     }

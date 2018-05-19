@@ -3,26 +3,27 @@ package com.viana.soundprogramming.core
 import com.viana.soundprogramming.sound.AudioSequencer
 import com.viana.soundprogramming.sound.Sound
 import com.viana.soundprogramming.sound.SoundAudioTrack
-import com.viana.soundprogramming.timeline.TimelineTimer
 
-class MusicAudioTrack(musicBuilder: MusicBuilder) : Music(Sound.SoundAudioTrackBuilder(musicBuilder)) {
+class MusicAudioTrack(val musicBuilder: MusicBuilder) : Music(Sound.SoundAudioTrackBuilder(musicBuilder)) {
 
     private val audioSequencer = AudioSequencer()
     private var playing: Boolean = false
 
-    override fun play(timelineTimer: TimelineTimer) {
+    override fun play() {
         if (playing) return
         playing = true
-        audioSequencer.clear()
+        musicBuilder.board.timeline?.secondsToTraverseWidth?.toFloat()?.let {
+            audioSequencer.setup((it * 1000).toInt())
+        }
         sounds.forEach {
             val soundAudioTrack = it as SoundAudioTrack
-            audioSequencer.add(soundAudioTrack.soundInputStream)
+            audioSequencer.add(it.delayMillis, soundAudioTrack.soundInputStream)
         }
         audioSequencer.play()
         playing = false
     }
 
-    override fun stop(){
+    override fun stop() {
         audioSequencer.stop()
     }
 }

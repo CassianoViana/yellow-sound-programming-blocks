@@ -5,25 +5,34 @@ import java.util.List;
 
 public class AudioMixer {
 
-    private final int totalSamples;
-    private int musicSeconds;
+    private int totalSamples;
+    private long musicMilliseconds;
     private List<byte[]> sounds;
-    private float volumeReduction = 1f;
+    private float volumeFactor = 1f;
 
-    public AudioMixer(int musicSeconds, int sampleRate, float volumeReduction) {
-        this.musicSeconds = musicSeconds;
-        this.volumeReduction = volumeReduction;
+    public AudioMixer() {
         sounds = new ArrayList<>();
-        totalSamples = musicSeconds * sampleRate;
     }
 
-    public void addSound(float second, byte[] sound) {
+    public AudioMixer(long musicMilliseconds, int sampleRate, float volumeFactor) {
+        this();
+        this.setup(musicMilliseconds, sampleRate, volumeFactor);
+    }
+
+    public void setup(long musicMilliseconds, int sampleRate, float volumeFactor) {
+        this.musicMilliseconds = musicMilliseconds;
+        this.volumeFactor = volumeFactor;
+        sounds.clear();
+        totalSamples = (int) ((musicMilliseconds / 1000) * sampleRate);
+    }
+
+    public void addSound(long momentInMillis, byte[] sound) {
         byte[] expandedSound = new byte[totalSamples];
         int i = 0;
         int isound = 0;
         while (i < totalSamples) {
             expandedSound[i] = 0;
-            if (i >= second * totalSamples / musicSeconds) {
+            if (i >= (momentInMillis * totalSamples) / (musicMilliseconds / 1000)) {
                 if (isound < sound.length)
                     expandedSound[i] = sound[isound++];
             }
@@ -40,7 +49,7 @@ public class AudioMixer {
             for (int isound = 0; isound < sounds.size(); isound++) {
                 mixedSample += (float) sounds.get(isound)[isample] / 128;
             }
-            mixedSample *= volumeReduction;
+            mixedSample *= volumeFactor;
             // hard clipping
             if (mixedSample > 1.0f) mixedSample = 1;
             if (mixedSample < -1.0f) mixedSample = -1;
