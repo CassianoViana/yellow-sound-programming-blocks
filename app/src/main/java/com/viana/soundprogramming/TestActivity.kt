@@ -6,6 +6,9 @@ import android.os.Environment
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.viana.soundprogramming.sound.*
+import org.apache.commons.io.IOUtils
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class TestActivity : AppCompatActivity() {
 
@@ -22,19 +25,16 @@ class TestActivity : AppCompatActivity() {
 
     fun play(view: View) {
         Thread({
-            val wav = Environment.getExternalStorageDirectory().absolutePath + "/abacate.pcm"
-            val sequencer = AudioSequencer()
-            sequencer.add(resources.openRawResource(R.raw.drum1))
-            sequencer.add(resources.openRawResource(R.raw.drum1))
+            val audioMixer = AudioMixer(10, 44100 * 2, 1f)
+            audioMixer.addSound(0f, IOUtils.toByteArray(resources.openRawResource(R.raw.falta_informar_parametro_repita)))
+            audioMixer.addSound(2f, IOUtils.toByteArray(resources.openRawResource(R.raw.drum1)))
+            audioMixer.addSound(3f, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
+
+            val mixed: InputStream = ByteArrayInputStream(audioMixer.mixAddedSounds())
 
             audioTrackPlayer.start()
-            audioTrackPlayer.playWav(wav)
-            for (i in 1 until 10) {
-                audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.drum1))
-                audioTrackPlayer.addInterval(1)
-                audioTrackPlayer.playInputStream(resources.openRawResource(R.raw.drum2))
-            }
-            audioTrackPlayer.stop()
+            audioTrackPlayer.playInputStream(mixed)
+            /*audioTrackPlayer.stop()*/
         }).start()
     }
 

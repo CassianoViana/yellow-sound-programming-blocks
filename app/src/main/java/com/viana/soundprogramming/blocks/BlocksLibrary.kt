@@ -14,32 +14,41 @@ class BlocksLibrary {
         blocks[91] = EndBlock()
 
         blocks[55] = LoopBlock()
-        blocks[59] = LoopSpinnerBlock()
+        blocks[361] = LoopParamBlock(2)
+        blocks[357] = LoopParamBlock(3)
+        blocks[355] = LoopParamBlock(4)
+        blocks[345] = LoopParamBlock(5)
 
         blocks[61] = VolumeBlock()
         blocks[79] = SpeedBlock()
 
         blocks[93] = IfBlock()
-        blocks[103] = HasStartBlock()
-        blocks[107] = StarBlock()
+
+        blocks[109] = IfParamBlock(IfParamBlock.Type.HAS_CIRCLE)
+        blocks[117] = IfParamBlock(IfParamBlock.Type.HAS_SQUARE)
+        blocks[121] = IfParamBlock(IfParamBlock.Type.HAS_STAR)
+
+        blocks[333] = PresenceBlock(PresenceBlock.Type.CIRCLE)
+        blocks[339] = PresenceBlock(PresenceBlock.Type.SQUARE)
+        blocks[107] = PresenceBlock(PresenceBlock.Type.STAR)
 
         blocks[279] = RecordBlock()
 
-        blocks[205] = SoundBlock.Builder().setSoundId(R.raw.drum1).build()
-        blocks[211] = SoundBlock.Builder().setSoundId(R.raw.drum2).build()
-        blocks[213] = SoundBlock.Builder().setSoundId(R.raw.snaredrum101).build()
-        blocks[217] = SoundBlock.Builder().setSoundId(R.raw.snaredrum102).build()
-        blocks[227] = SoundBlock.Builder().setSoundId(R.raw.snaredrum51).build()
-        blocks[229] = SoundBlock.Builder().setSoundId(R.raw.snaredrum52).build()
-        blocks[233] = SoundBlock.Builder().setSoundId(R.raw.conga1).build()
-        blocks[241] = SoundBlock.Builder().setSoundId(R.raw.conga2).build()
-        blocks[271] = SoundBlock.Builder().setSoundId(R.raw.tambourine1).build()
+        blocks[157] = SoundBlock.Builder().setSoundId(R.raw.surdo).build()
+        blocks[167] = SoundBlock.Builder().setSoundId(R.raw.caixa).build()
+        blocks[171] = SoundBlock.Builder().setSoundId(R.raw.bumbo).build()
+        blocks[173] = SoundBlock.Builder().setSoundId(R.raw.prato_ataque).build()
+        blocks[179] = SoundBlock.Builder().setSoundId(R.raw.prato_conducao).build()
+        blocks[181] = SoundBlock.Builder().setSoundId(R.raw.tom1).build()
+        blocks[185] = SoundBlock.Builder().setSoundId(R.raw.chimbal).build()
 
     }
 
     fun getTopCodeBlock(topCode: TopCode): Block? {
         val block = blocks[topCode.code]
         block?.topCode = topCode
-        return block
+        block?.active = true
+        return block?.copy()
+
     }
 }

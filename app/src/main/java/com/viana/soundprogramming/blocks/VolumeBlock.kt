@@ -1,6 +1,5 @@
 package com.viana.soundprogramming.blocks
 
-import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 
 class VolumeBlock : Block() {

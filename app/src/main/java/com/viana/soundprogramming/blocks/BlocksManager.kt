@@ -16,29 +16,19 @@ class BlocksManager : TopCodesReader.Listener {
     }
 
     private fun updateBlocksList(blocks: List<Block>) {
-        if (blocksUpdateAnalyzer.blocksChanged(blocks))
+        if (blocksUpdateAnalyzer.blocksChanged(blocks)) {
             blocks.toMutableList()
-                    .apply {
-                        addAll(repeatRepeatableBlocks(blocks))
-                    }
                     .apply {
                         listeners.forEach {
                             it.updateBlocksList(this)
                         }
                     }
+        }
     }
 
     fun addListener(blocksManagerListener: Listener): BlocksManager {
         listeners.add(blocksManagerListener)
         return this
-    }
-
-    private fun repeatRepeatableBlocks(blocks: List<Block>): List<Block> {
-        val repeatableBlocks = blocks.filterIsInstance(RepeatableBlock::class.java)
-        val loopBlocks = blocks.filterIsInstance(LoopBlock::class.java)
-        return loopBlocks.flatMap {
-            it.repeatBlocks(repeatableBlocks)
-        }
     }
 
     interface Listener {
@@ -79,8 +69,8 @@ class BlocksChangesAnalyzerByPositionAndCount : BlocksChangesAnalyzer {
 class BlocksChangesAnalyzerByBlocksPropsList : BlocksChangesAnalyzer {
 
     class BlocksProps(private val x: Int, private val y: Int, private val degree: Int) {
-        private val inconsiderableMovPxs = 20
-        private val inconsiderableMovDegrees = 4
+        private val inconsiderableMovPxs = 40
+        private val inconsiderableMovDegrees = 10
         override fun equals(other: Any?): Boolean {
             val positionToCompare = other as BlocksProps
             if (Math.abs(this.x - positionToCompare.x) > inconsiderableMovPxs)

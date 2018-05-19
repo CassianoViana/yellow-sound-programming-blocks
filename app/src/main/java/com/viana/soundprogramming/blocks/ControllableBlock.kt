@@ -1,5 +1,4 @@
 package com.viana.soundprogramming.blocks
 
-class StarBlock : Block() {
+abstract class ControllableBlock : Block()
 
-}

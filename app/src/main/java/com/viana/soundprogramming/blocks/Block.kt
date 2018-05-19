@@ -20,7 +20,9 @@ open class Block {
     val paint: Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     var active: Boolean = true
     var rect = Rect()
+    var intersectionRect = Rect()
     var degree: Float = 0f
+    var isRepetitionBlock: Boolean = false
 
     var topCode: TopCode? = null
         set(topCode) {
@@ -37,10 +39,15 @@ open class Block {
                 code = it.code
                 degree = Math.toDegrees(Math.abs(it.orientation.toDouble())).toFloat()
                 rect = Rect(left, top, right, bottom)
+                intersectionRect = buildSyntaxIntersectionRect()
             }
         }
 
     open fun execute() {
+    }
+
+    open fun buildSyntaxIntersectionRect(): Rect {
+        return Rect()
     }
 
     open fun draw(canvas: Canvas?) {
@@ -48,6 +55,10 @@ open class Block {
         paint.color = Color.WHITE
         paint.textSize = 20f
         canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
+
+        paint.color = Color.CYAN
+        paint.alpha = 50
+        canvas?.drawRect(intersectionRect, paint)
     }
 
     open fun intersects(block: Block): Boolean {
@@ -64,7 +75,7 @@ open class Block {
     }
 
     open fun copy(): Block {
-        val block = Block()
+        val block = this.javaClass.newInstance()
         fillWithProperties(block)
         return block
     }
@@ -98,6 +109,10 @@ open class Block {
 
     override fun hashCode(): Int {
         return code
+    }
+
+    open fun validate(blocks: List<Block>) {
+
     }
 
 }

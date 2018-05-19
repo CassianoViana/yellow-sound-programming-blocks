@@ -10,7 +10,7 @@ object ProgrammingVibrator {
         vibrator = appInstance.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
     fun vibrate(time: Long) {
-        prepare()
-        vibrator?.vibrate(time)
+        /*prepare()
+        vibrator?.vibrate(time)*/
     }
 }

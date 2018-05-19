@@ -18,6 +18,7 @@ import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.core.MusicBuilderImpl
+import com.viana.soundprogramming.exceptions.SoundSyntaxError
 import com.viana.soundprogramming.sound.BlocksRecorder
 import com.viana.soundprogramming.sound.Speaker
 import com.viana.soundprogramming.timeline.Timeline
@@ -135,6 +136,10 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                                     override fun ready(music: Music) {
                                         this@SoundProgrammingActivity.music = music
                                     }
+
+                                    override fun error(e: SoundSyntaxError) {
+                                        Speaker.instance.say(e.explanationResId)
+                                    }
                                 }
                         )
                     }
@@ -146,7 +151,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
                 ProgrammingVibrator.vibrate(10)
-                music?.play()
+                music?.play(timelineTimer)
             }
         })
     }

@@ -28,7 +28,7 @@ class BoardSurfaceView
     override var timeline: Timeline? = null
     override var widthFloat = 0f
     override var heightFloat = 0f
-    private var blocks: List<Block> = listOf()
+    override var blocks: List<Block> = listOf()
 
     init {
         setBackgroundColor(Color.TRANSPARENT)

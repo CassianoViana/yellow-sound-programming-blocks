@@ -2,6 +2,7 @@ package com.viana.soundprogramming.core
 
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.board.Board
+import com.viana.soundprogramming.exceptions.SoundSyntaxError
 
 interface MusicBuilder {
 
@@ -15,7 +16,7 @@ interface MusicBuilder {
 
     interface OnMusicReadyListener {
         fun ready(music: Music)
-
+        fun error(e: SoundSyntaxError)
     }
 
 }

@@ -4,7 +4,6 @@ import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.timeline.TimelineTimer
-import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import java.io.InputStream
 import java.util.*
 
@@ -14,7 +13,7 @@ abstract class Sound {
     var volumeLeft: Float = 0f
     var volumeRight: Float = 0f
 
-    abstract fun play()
+    abstract fun play(timer: TimelineTimer)
 
     interface Builder {
         fun build(soundBlock: SoundBlock): Sound
@@ -71,18 +70,21 @@ abstract class Sound {
 
         override fun build(soundBlock: SoundBlock): Sound {
             val soundId = soundBlock.soundId
-            val sound = SoundSoundPool(soundId!!)
-            val volume = calculateVolumeByDiameter(soundBlock)
-            sound.volume = volume
-            if (musicBuilder.isWiredHeadsetOn()) {
-                sound.volumeLeft = calculateVolumeLeft(soundBlock) * volume
-                sound.volumeRight = calculateVolumeRight(soundBlock) * volume
-            } else {
-                sound.volumeLeft = volume
-                sound.volumeRight = volume
+            soundId?.let {
+                val sound = SoundSoundPool(soundId)
+                val volume = calculateVolumeByDiameter(soundBlock)
+                sound.volume = volume
+                if (musicBuilder.isWiredHeadsetOn()) {
+                    sound.volumeLeft = calculateVolumeLeft(soundBlock) * volume
+                    sound.volumeRight = calculateVolumeRight(soundBlock) * volume
+                } else {
+                    sound.volumeLeft = volume
+                    sound.volumeRight = volume
+                }
+                sound.delayMillis = calculatePlayMoment(soundBlock)
+                return sound
             }
-            sound.delayMillis = calculatePlayMoment(soundBlock)
-            return sound
+            return SoundSoundPool(0)
         }
     }
 
@@ -112,15 +114,14 @@ abstract class Sound {
 
 class SoundSoundPool(private val soundId: Int) : Sound() {
     private val timer = Timer()
-    var timelineTimer: TimelineTimer? = null
     var delayMillis: Long = 500
-    override fun play() {
+    override fun play(timelineTimer: TimelineTimer) {
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             timer.schedule(object : TimerTask() {
                 override fun run() {
-                    if (!timelineTimer!!.cancelled) {
+                    if (!timelineTimer.cancelled) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
-                        ProgrammingVibrator.vibrate((volume * 5).toLong())
+                        //ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
                 }
             }, delayMillis)
@@ -128,7 +129,7 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
 }
 
 class SoundAudioTrack(var soundInputStream: InputStream) : Sound() {
-    override fun play() {
+    override fun play(timer: TimelineTimer) {
 
     }
 }

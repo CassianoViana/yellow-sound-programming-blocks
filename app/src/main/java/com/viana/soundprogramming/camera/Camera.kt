@@ -44,9 +44,11 @@ class Camera(
 
     private fun readBitmap(reader: ImageReader) {
         val image = reader.acquireLatestImage()
-        val bitmap = bitmapReader.readImage(image)
-        image.close()
-        onEachFrameListener?.newFrame(bitmap)
+        image?.let {
+            val bitmap = bitmapReader.readImage(image)
+            image.close()
+            onEachFrameListener?.newFrame(bitmap)
+        }
     }
 
     @SuppressLint("MissingPermission")

@@ -6,7 +6,7 @@ import com.viana.soundprogramming.appInstance
 import com.viana.soundprogramming.sound.SoundManager
 import java.io.InputStream
 
-open class SoundBlock : RepeatableBlock() {
+open class SoundBlock : ControllableBlock() {
 
     var soundId: Int? = null
     var soundStream: InputStream? = null
@@ -22,6 +22,12 @@ open class SoundBlock : RepeatableBlock() {
         val block = SoundBlock()
         fillWithProperties(block)
         return block
+    }
+
+    override fun fillWithProperties(block: Block) {
+        (block as SoundBlock).soundId = soundId
+        block.soundStream = soundStream
+        super.fillWithProperties(block)
     }
 
     class Builder {

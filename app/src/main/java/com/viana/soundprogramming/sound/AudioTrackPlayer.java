@@ -53,14 +53,26 @@ public class AudioTrackPlayer {
     }
 
     public void start() {
-        audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO, ENCODING_PCM_16_BIT, minBufferSize, AudioTrack.MODE_STREAM);
-        audioTrack.play();
-        audioTrack.setVolume(1f);
+        if (audioTrack == null) {
+            audioTrack = new AudioTrack(
+                    AudioManager.STREAM_MUSIC, SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO, ENCODING_PCM_16_BIT, minBufferSize, AudioTrack.MODE_STREAM);
+            audioTrack.play();
+            audioTrack.setVolume(1f);
+        }
     }
 
     public void stop() {
         audioTrack.stop();
+    }
+
+    public void stopImmediately() {
+        audioTrack.pause();
+        audioTrack.flush();
+    }
+
+    public void release() {
         audioTrack.release();
+        audioTrack = null;
     }
 
     private void discardWavHeader(InputStream fin) throws IOException {
@@ -69,3 +81,8 @@ public class AudioTrackPlayer {
         buffer.rewind();
     }
 }
+
+
+
+
+

@@ -6,6 +6,7 @@ import android.util.Log
 import com.viana.soundprogramming.appInstance
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
+import com.viana.soundprogramming.exceptions.SoundSyntaxError
 
 class MusicBuilderImpl : MusicBuilder {
 
@@ -24,16 +25,43 @@ class MusicBuilderImpl : MusicBuilder {
 
     override fun build(blocks: List<Block>, board: Board, onMusicReadyListener: MusicBuilder.OnMusicReadyListener) {
         Thread({
-            this.board = board
-            this.blocks = blocks
-            music = MusicSoundPool(this)
-            calculateSpeed()
-            calculateGlobalVolume()
-            defineMusicBeginEnd()
-            buildSounds()
-            onMusicReadyListener.ready(music)
-            Log.i("Sounds", music.sounds.size.toString())
+            try {
+                this.board = board
+                music = MusicAudioTrack(this)
+                blocks.toMutableList()
+                this.blocks = blocks.toMutableList().apply {
+                    addAll(repeatRepeatableBlocks(blocks))
+                }
+                muteFalseTestBlocks()
+                calculateSpeed()
+                calculateGlobalVolume()
+                defineMusicBeginEnd()
+                buildSounds()
+                onMusicReadyListener.ready(music)
+                Log.i("Sounds", music.sounds.size.toString())
+            } catch (e: SoundSyntaxError) {
+                onMusicReadyListener.error(e)
+            }
         }).start()
+    }
+
+    private fun repeatRepeatableBlocks(blocks: List<Block>): List<Block> {
+        val repeatableBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
+        val loopParamBlocks = blocks.filterIsInstance(LoopParamBlock::class.java)
+        val loopBlocks = blocks.filterIsInstance(LoopBlock::class.java)
+        return loopBlocks.flatMap {
+            it.repeatBlocks(repeatableBlocks, loopParamBlocks)
+        }
+    }
+
+    private fun muteFalseTestBlocks() {
+        val ifBlocks = blocks.filterIsInstance(IfBlock::class.java)
+        val ifTargetBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
+        val ifParamBlocks = blocks.filterIsInstance(IfParamBlock::class.java)
+        val presenceBlock = blocks.filterIsInstance(PresenceBlock::class.java)
+        ifBlocks.forEach {
+            it.muteFalseTestBlocks(ifTargetBlocks, ifParamBlocks, presenceBlock)
+        }
     }
 
     private fun calculateSpeed() {
@@ -73,7 +101,7 @@ class MusicBuilderImpl : MusicBuilder {
                     .filter {
                         val isBeforeEnd = it.centerX < timeline.end
                         val isAfterStart = it.centerX > timeline.begin
-                        isAfterStart && isBeforeEnd
+                        (it.active && isAfterStart && isBeforeEnd) || it.isRepetitionBlock
                     }
             this.maxSoundBlockDiameter = soundBlocks.map { it.diameter }.max() ?: 0f
             if (soundBlocks.size == 1) {
