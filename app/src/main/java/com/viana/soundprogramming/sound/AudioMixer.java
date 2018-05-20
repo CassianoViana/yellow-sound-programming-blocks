@@ -61,6 +61,9 @@ public class AudioMixer {
             mixedSamples[isample] = (byte) (mixedSample * 128);
             isample++;
         }
+        for (int i = 0; i < mixedSamples.length; i++) {
+            System.out.print(mixedSamples[i]);
+        }
         return mixedSamples;
     }
 }

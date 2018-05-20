@@ -15,10 +15,9 @@ import com.viana.soundprogramming.core.MusicBuilderImpl
 import com.viana.soundprogramming.exceptions.SoundSyntaxError
 import com.viana.soundprogramming.sound.*
 import com.viana.soundprogramming.timeline.Timeline
+import com.viana.soundprogramming.util.readShorts
 import kotlinx.android.synthetic.main.activity_test.*
-import org.apache.commons.io.IOUtils
 import topcodes.TopCode
-import java.nio.ByteBuffer
 
 class TestActivity : AppCompatActivity() {
 
@@ -35,7 +34,6 @@ class TestActivity : AppCompatActivity() {
 
     fun play(view: View) {
         Thread({
-
             //playShorts()
             //playMixe()
             playMusic()
@@ -44,32 +42,25 @@ class TestActivity : AppCompatActivity() {
 
     private fun playShorts() {
         val inputStream = resources.openRawResource(R.raw.chimbal)
-        val shorts = ShortArray(44100 * 4)
 
-        val shortBuffer = ByteBuffer.wrap(IOUtils.toByteArray(inputStream)).asShortBuffer()
-
-        var i = 0;
-        val shortLength = 1
-        while (shortBuffer.remaining() > 0) {
-            shortBuffer.get(shorts, i * shortLength, shortLength)
-            i++
-        }
+        val shorts = readShorts(inputStream)
 
         audioTrackPlayer.start()
         audioTrackPlayer.playShortSamples(shorts)
         audioTrackPlayer.stop()
+        audioTrackPlayer.release()
     }
 
     private fun playMixe() {
-        val audioMixer = AudioMixer(10, 1f)
-        audioMixer.addSound(0f, IOUtils.toByteArray(resources.openRawResource(R.raw.falta_informar_parametro_repita)))
-        audioMixer.addSound(2.000f, IOUtils.toByteArray(resources.openRawResource(R.raw.drum1)))
-        audioMixer.addSound(3.000f, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
-        audioMixer.addSound(3.100f, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
-        audioMixer.addSound(3.500f, IOUtils.toByteArray(resources.openRawResource(R.raw.chimbal)))
+        val audioMixer = AudioMixerShort(10, 1f)
+        audioMixer.addSound(0f, readShorts(resources.openRawResource(R.raw.falta_informar_parametro_repita)))
+        audioMixer.addSound(2.000f, readShorts(resources.openRawResource(R.raw.drum1)))
+        audioMixer.addSound(3.000f, readShorts(resources.openRawResource(R.raw.chimbal)))
+        audioMixer.addSound(3.100f, readShorts(resources.openRawResource(R.raw.chimbal)))
+        audioMixer.addSound(3.500f, readShorts(resources.openRawResource(R.raw.chimbal)))
 
         audioTrackPlayer.start()
-        audioTrackPlayer.playByteSamples(audioMixer.mixAddedSounds())
+        audioTrackPlayer.playShortSamples(audioMixer.mixAddedSounds())
     }
 
     fun playMusic() {

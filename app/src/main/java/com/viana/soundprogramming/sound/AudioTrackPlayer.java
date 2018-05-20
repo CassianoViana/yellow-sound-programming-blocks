@@ -63,9 +63,9 @@ public class AudioTrackPlayer {
         audioTrack.write(bytes, 44, bytes.length - 44);
     }
 
-    public void onReachEnd(@Nullable byte[] bytes, final OnReachEndListener onReachEndListener) {
+    public void onReachEnd(@Nullable short[] samples, final OnReachEndListener onReachEndListener) {
 
-        float seconds = (float) bytes.length / SAMPLE_RATE_IN_HZ / 2;
+        float seconds = (float) samples.length / SAMPLE_RATE_IN_HZ;
         int frames = (int) (SAMPLE_RATE_IN_HZ * (seconds - 0.3));
 
         audioTrack.setNotificationMarkerPosition(frames);
@@ -100,16 +100,20 @@ public class AudioTrackPlayer {
     }
 
     public void stop() {
-        if (audioTrack != null) {
-            audioTrack.stop();
-        }
+        if (audioTrack != null)
+            if (audioTrack.getState() != AudioTrack.STATE_UNINITIALIZED)
+                if (audioTrack.getPlayState() != AudioTrack.PLAYSTATE_STOPPED) {
+                    audioTrack.stop();
+                }
     }
 
     public void stopImmediately() {
-        if (audioTrack != null) {
-            audioTrack.pause();
-            audioTrack.flush();
-        }
+        if (audioTrack != null)
+            if (audioTrack.getState() != AudioTrack.STATE_UNINITIALIZED)
+                if (audioTrack.getPlayState() != AudioTrack.PLAYSTATE_PAUSED) {
+                    audioTrack.pause();
+                    audioTrack.flush();
+                }
     }
 
     public void release() {

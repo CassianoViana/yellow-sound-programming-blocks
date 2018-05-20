@@ -5,7 +5,6 @@ import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.timeline.TimelineTimer
-import java.io.InputStream
 import java.util.*
 
 abstract class Sound {
@@ -99,7 +98,7 @@ abstract class Sound {
         override val minVolume = 0.2f
 
         override fun build(soundBlock: SoundBlock): Sound {
-            val sound = SoundAudioTrack(soundBlock.soundStream!!)
+            val sound = SoundAudioTrack(soundBlock.soundShortArray!!)
             val volume = calculateVolumeByDiameter(soundBlock)
             sound.volume = volume
             if (musicBuilder.isWiredHeadsetOn()) {
@@ -131,7 +130,7 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
     }
 }
 
-class SoundAudioTrack(var soundInputStream: InputStream) : Sound() {
+class SoundAudioTrack(var soundShortArray: ShortArray) : Sound() {
     override fun play(timer: TimelineTimer) {
 
     }

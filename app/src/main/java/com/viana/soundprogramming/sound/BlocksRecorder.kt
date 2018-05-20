@@ -4,6 +4,7 @@ import com.viana.soundprogramming.R
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.blocks.SoundBlock
+import com.viana.soundprogramming.util.readShorts
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import java.util.*
@@ -52,6 +53,7 @@ class BlocksRecorder : BlocksManager.Listener {
                         recording = false
                         it.soundId = producedSoundId
                         it.soundStream = BufferedInputStream(FileInputStream(recordedFilePath))
+                        it.soundShortArray = readShorts(FileInputStream(recordedFilePath))
                         onRecordCompletedListener.recordCompleted(it)
                     }
                 }
