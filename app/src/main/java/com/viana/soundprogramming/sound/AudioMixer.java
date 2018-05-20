@@ -1,38 +1,42 @@
 package com.viana.soundprogramming.sound;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class AudioMixer {
 
-    private int totalSamples;
-    private long musicMilliseconds;
+    private int totalBytes;
+    private float seconds;
     private List<byte[]> sounds;
     private float volumeFactor = 1f;
+    private static final int SAMPLE_RATE = 44100;
 
     public AudioMixer() {
         sounds = new ArrayList<>();
     }
 
-    public AudioMixer(long musicMilliseconds, int sampleRate, float volumeFactor) {
+    public AudioMixer(long seconds, float volumeFactor) {
         this();
-        this.setup(musicMilliseconds, sampleRate, volumeFactor);
+        this.setup(seconds, volumeFactor);
     }
 
-    public void setup(long musicMilliseconds, int sampleRate, float volumeFactor) {
-        this.musicMilliseconds = musicMilliseconds;
+    public void setup(float seconds, float volumeFactor) {
+        this.seconds = seconds;
         this.volumeFactor = volumeFactor;
         sounds.clear();
-        totalSamples = (int) ((musicMilliseconds / 1000) * sampleRate);
+        totalBytes = (int) (this.seconds * SAMPLE_RATE * 2);
     }
 
-    public void addSound(long momentInMillis, byte[] sound) {
-        byte[] expandedSound = new byte[totalSamples];
+    public void addSound(float second, byte[] sound) {
+        Log.i("AudioMixer", "second: " + second);
+        byte[] expandedSound = new byte[totalBytes];
         int i = 0;
         int isound = 0;
-        while (i < totalSamples) {
+        while (i < totalBytes) {
             expandedSound[i] = 0;
-            if (i >= (momentInMillis * totalSamples) / (musicMilliseconds / 1000)) {
+            if (i >= second * ((float) totalBytes / seconds)) {
                 if (isound < sound.length)
                     expandedSound[i] = sound[isound++];
             }
@@ -42,9 +46,9 @@ public class AudioMixer {
     }
 
     public byte[] mixAddedSounds() {
-        byte mixedSamples[] = new byte[totalSamples];
+        byte mixedSamples[] = new byte[totalBytes];
         int isample = 0;
-        while (isample < totalSamples) {
+        while (isample < totalBytes) {
             float mixedSample = 0;
             for (int isound = 0; isound < sounds.size(); isound++) {
                 mixedSample += (float) sounds.get(isound)[isample] / 128;

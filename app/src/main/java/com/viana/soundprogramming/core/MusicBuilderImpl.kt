@@ -35,8 +35,8 @@ class MusicBuilderImpl : MusicBuilder {
                 muteFalseTestBlocks()
                 calculateSpeed()
                 calculateGlobalVolume()
-                defineMusicBeginEnd()
                 buildSounds()
+                defineMusicBeginEnd()
                 onMusicReadyListener.ready(music)
                 Log.i("Sounds", music.sounds.size.toString())
             } catch (e: SoundSyntaxError) {
@@ -79,41 +79,28 @@ class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun defineMusicBeginEnd() {
-        val beginBlocks = blocks.filter { it.javaClass == BeginBlock::class.java }
-        val endBlocks = blocks.filter { it.javaClass == EndBlock::class.java }
-        if (beginBlocks.isEmpty())
-            board.timeline?.resetBegin()
-        if (endBlocks.isEmpty())
-            board.timeline?.resetEnd()
-        val blocks = mutableListOf<Block>()
-        blocks.addAll(beginBlocks)
-        blocks.addAll(endBlocks)
-        blocks.forEach {
-            it.board = board
-            it.execute()
+        val soundBlocks = blocks.filter { it.javaClass == SoundBlock::class.java }
+        val mostLeft = soundBlocks.minBy { it.centerX }
+        val mostRight = soundBlocks.maxBy { it.centerX }
+        mostLeft?.let {
+            board.timeline?.begin = it.centerX.toFloat()
+        }
+        mostRight?.let {
+            board.timeline?.end = it.centerX.toFloat() + 200
         }
     }
 
     private fun buildSounds() {
-        board.timeline?.let { timeline ->
-            val soundBlocks = blocks
-                    .filterIsInstance(SoundBlock::class.java)
-                    .filter {
-                        val isBeforeEnd = it.centerX < timeline.end
-                        val isAfterStart = it.centerX > timeline.begin
-                        (it.active && isAfterStart && isBeforeEnd) || it.isRepetitionBlock
-                    }
-            this.maxSoundBlockDiameter = soundBlocks.map { it.diameter }.max() ?: 0f
-            if (soundBlocks.size == 1) {
-                minSoundBlockDiameter = 0f
-            } else {
-                this.minSoundBlockDiameter = soundBlocks.map { it.diameter }.min() ?: 0f
-            }
-            music.sounds = soundBlocks
-                    .map {
-                        music.soundBuilder.build(it)
-                    }
+        val soundBlocks = blocks
+                .filterIsInstance(SoundBlock::class.java)
+                .filter { it.active }
+        this.maxSoundBlockDiameter = soundBlocks.map { it.diameter }.max() ?: 0f
+        if (soundBlocks.size == 1) {
+            minSoundBlockDiameter = 0f
+        } else {
+            this.minSoundBlockDiameter = soundBlocks.map { it.diameter }.min() ?: 0f
         }
+        music.sounds = soundBlocks.map { music.soundBuilder.build(it) }
     }
 
 }

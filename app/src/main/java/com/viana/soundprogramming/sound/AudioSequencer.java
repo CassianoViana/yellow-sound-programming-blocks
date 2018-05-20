@@ -17,12 +17,12 @@ public class AudioSequencer {
     }
 
     public void setup(int secondsToTraverseWidth) {
-        audioMixer.setup(secondsToTraverseWidth, 44100 * 2, 1);
+        audioMixer.setup((float) secondsToTraverseWidth / 1000, 1);
     }
 
     public void add(long millisecond, InputStream soundStream) {
         try {
-            audioMixer.addSound((int) millisecond, IOUtils.toByteArray(soundStream));
+            audioMixer.addSound((float) millisecond / 1000, IOUtils.toByteArray(soundStream));
             soundStream.reset();
         } catch (IOException e) {
             e.printStackTrace();

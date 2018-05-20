@@ -12,4 +12,10 @@
     <Button android:text="load" android:onClick="load"/>
     <Button android:text="play record" android:onClick="playRecord"/>
 
+    <View
+        android:id="@+id/timelineView"
+        android:layout_width="10dp"
+        android:layout_height="match_parent"
+        android:background="@drawable/temporal_line" />
+
 </GridLayout>

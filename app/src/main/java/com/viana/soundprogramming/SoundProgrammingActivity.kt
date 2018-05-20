@@ -134,8 +134,8 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                                 boardSurfaceView,
                                 object : MusicBuilder.OnMusicReadyListener {
                                     override fun ready(music: Music) {
+                                        this@SoundProgrammingActivity.music?.stop()
                                         this@SoundProgrammingActivity.music = music
-                                        ProgrammingVibrator.vibrate(10)
                                         music.play()
                                     }
 
@@ -152,7 +152,8 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         boardSurfaceView
                 .timeline?.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
-
+                /*ProgrammingVifbrator.vibrate(10)
+                music?.play()*/
             }
         })
     }

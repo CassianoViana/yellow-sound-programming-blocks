@@ -1,5 +1,6 @@
 package com.viana.soundprogramming.sound
 
+import android.util.Log
 import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
@@ -109,6 +110,7 @@ abstract class Sound {
                 sound.volumeRight = volume
             }
             sound.delayMillis = calculatePlayMoment(soundBlock)
+            Log.i("playMoment", "centerx: ${soundBlock.centerX}, moment: ${sound.delayMillis}")
             return sound
         }
     }

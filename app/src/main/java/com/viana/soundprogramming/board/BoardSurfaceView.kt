@@ -2,10 +2,7 @@ package com.viana.soundprogramming.board
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.PixelFormat
-import android.graphics.PorterDuff
+import android.graphics.*
 import android.util.AttributeSet
 import android.util.Log
 import android.view.SurfaceHolder
@@ -29,6 +26,7 @@ class BoardSurfaceView
     override var widthFloat = 0f
     override var heightFloat = 0f
     override var blocks: List<Block> = listOf()
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
@@ -79,6 +77,7 @@ class BoardSurfaceView
             super.draw(canvas)
             clear(canvas)
             drawBlocks(canvas, blocks)
+            drawTimelineRange(canvas)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -90,6 +89,13 @@ class BoardSurfaceView
 
     private fun drawBlocks(canvas: Canvas, blocks: List<Block>) {
         blocks.forEach { it.draw(canvas) }
+    }
+
+    private fun drawTimelineRange(canvas: Canvas) {
+        paint.color = Color.RED
+        paint.alpha = 100
+        canvas.drawRect(Rect(timeline?.begin?.toInt() ?: 0, 0, timeline?.end?.toInt()
+                ?: 10, width), paint)
     }
 
     override fun updateBlocksList(blocks: List<Block>) {

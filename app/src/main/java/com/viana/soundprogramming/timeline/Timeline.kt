@@ -14,13 +14,13 @@ class Timeline(
         var board: Board,
         parent: Activity,
         timelineView: View,
-        var count: Long = 0,
-        val secondsToTraverseWidth: Double = 2.0
+        val secondsToTraverseWidth: Double = 4.0
 ) : StateMachine.Listener {
 
     private val listeners = mutableListOf<Listener>()
     var timer: TimelineTimer = TimelineTimer()
-    private val timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
+    private var timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
+    var cycleInterval: Long = 0
 
     var begin: Float = 0f
         set(value) {
@@ -49,9 +49,8 @@ class Timeline(
         Log.i("Timeline", "Timer scheduled")
         stopTimer()
         timer = TimelineTimer()
-        val percentageToTraverse = (end - begin) / board.widthFloat
-        val cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
-        if (cycleInterval > 0) {
+        updateCycleInterval()
+        if (this.cycleInterval > 0) {
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
                     timelineAnimator.transition(begin, end, cycleInterval)
@@ -60,6 +59,13 @@ class Timeline(
                     }
                 }
             }, 0, cycleInterval)
+        }
+    }
+
+    private fun updateCycleInterval() {
+        if (speedFactor > 0) {
+            val percentageToTraverse = (end - begin) / board.widthFloat
+            cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
         }
     }
 

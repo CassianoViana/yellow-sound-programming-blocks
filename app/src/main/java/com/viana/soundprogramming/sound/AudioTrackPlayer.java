@@ -4,6 +4,8 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -18,7 +20,8 @@ public class AudioTrackPlayer {
     private final int minBufferSize;
     private final int bufferSize;
     private AudioTrack audioTrack;
-    private final byte[] audioData;
+    private byte[] audioData;
+    private float speedFactor = 1f;
 
     public AudioTrackPlayer() {
         minBufferSize = AudioTrack.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO, ENCODING_PCM_16_BIT);
@@ -52,27 +55,68 @@ public class AudioTrackPlayer {
         bis.close();
     }
 
+    public void playShortSamples(@Nullable short[] shorts) {
+        audioTrack.write(shorts, 0, shorts.length);
+    }
+
+    public void playByteSamples(@Nullable byte[] bytes) {
+        audioTrack.write(bytes, 44, bytes.length - 44);
+    }
+
+    public void onReachEnd(@Nullable byte[] bytes, final OnReachEndListener onReachEndListener) {
+
+        float seconds = (float) bytes.length / SAMPLE_RATE_IN_HZ / 2;
+        int frames = (int) (SAMPLE_RATE_IN_HZ * (seconds - 0.3));
+
+        audioTrack.setNotificationMarkerPosition(frames);
+        //audioTrack.setPositionNotificationPeriod(frames);
+        audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+
+            @Override
+            public void onMarkerReached(AudioTrack audioTrack) {
+                onReachEndListener.reachedTheEnd();
+            }
+
+
+            @Override
+            public void onPeriodicNotification(AudioTrack audioTrack) {
+
+            }
+        });
+    }
+
     public void start() {
         if (audioTrack == null) {
             audioTrack = new AudioTrack(
-                    AudioManager.STREAM_MUSIC, SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO, ENCODING_PCM_16_BIT, minBufferSize, AudioTrack.MODE_STREAM);
+                    AudioManager.STREAM_MUSIC,
+                    SAMPLE_RATE_IN_HZ, CHANNEL_OUT_MONO,
+                    ENCODING_PCM_16_BIT,
+                    minBufferSize,
+                    AudioTrack.MODE_STREAM);
             audioTrack.play();
             audioTrack.setVolume(1f);
+            audioTrack.setPlaybackRate((int) (44100 * speedFactor));
         }
     }
 
     public void stop() {
-        audioTrack.stop();
+        if (audioTrack != null) {
+            audioTrack.stop();
+        }
     }
 
     public void stopImmediately() {
-        audioTrack.pause();
-        audioTrack.flush();
+        if (audioTrack != null) {
+            audioTrack.pause();
+            audioTrack.flush();
+        }
     }
 
     public void release() {
-        audioTrack.release();
-        audioTrack = null;
+        if (audioTrack != null) {
+            audioTrack.release();
+            audioTrack = null;
+        }
     }
 
     private void discardWavHeader(InputStream fin) throws IOException {
@@ -80,9 +124,21 @@ public class AudioTrackPlayer {
         fin.read(buffer.array(), buffer.arrayOffset(), buffer.capacity());
         buffer.rewind();
     }
+
+
+    public void setSpeedFactor(float speedFactor) {
+        this.speedFactor = speedFactor;
+    }
+
+    public int getSessionId() {
+        return audioTrack.getAudioSessionId();
+    }
+
+
+    public interface OnReachEndListener {
+        void reachedTheEnd();
+    }
 }
-
-
 
 
 
