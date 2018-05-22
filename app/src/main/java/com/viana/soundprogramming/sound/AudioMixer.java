@@ -26,7 +26,7 @@ public class AudioMixer {
         this.seconds = seconds;
         this.volumeFactor = volumeFactor;
         sounds.clear();
-        totalBytes = (int) (this.seconds * SAMPLE_RATE * 2);
+        totalBytes = (int) (this.seconds * SAMPLE_RATE);
     }
 
     public void addSound(float second, byte[] sound) {

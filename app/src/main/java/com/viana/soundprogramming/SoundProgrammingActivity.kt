@@ -129,31 +129,32 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .addListener(blocksRecorder)
                 .addListener(object : BlocksManager.Listener {
                     override fun updateBlocksList(blocks: List<Block>) {
-                        musicBuilder.build(
-                                blocks,
-                                boardSurfaceView,
-                                object : MusicBuilder.OnMusicReadyListener {
-                                    override fun ready(music: Music) {
-                                        this@SoundProgrammingActivity.music?.stop()
-                                        this@SoundProgrammingActivity.music = music
-                                        music.play()
+                        Thread({
+                            musicBuilder.build(
+                                    blocks,
+                                    boardSurfaceView,
+                                    object : MusicBuilder.OnMusicReadyListener {
+                                        override fun ready(music: Music) {
+                                            //this@SoundProgrammingActivity.music?.stop()
+                                            this@SoundProgrammingActivity.music = music
+                                            //music.play()
+                                        }
+                                        override fun error(e: SoundSyntaxError) {
+                                            Speaker.instance.say(e.explanationResId)
+                                        }
                                     }
-
-                                    override fun error(e: SoundSyntaxError) {
-                                        Speaker.instance.say(e.explanationResId)
-                                    }
-                                }
-                        )
+                            )
+                        }).start()
                     }
                 })
         stateMachine
                 .addListener(this)
                 .addListener(boardSurfaceView.timeline)
         boardSurfaceView
-                .timeline?.addListener(object : Timeline.Listener {
+                .timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
-                /*ProgrammingVifbrator.vibrate(10)
-                music?.play()*/
+                /*ProgrammingVifbrator.vibrate(10)*/
+                music?.play()
             }
         })
     }
@@ -200,6 +201,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
             override fun run() {
                 blocksRecorder.record(object : BlocksRecorder.OnRecordCompletedListener {
                     override fun recordCompleted(soundBlock: SoundBlock) {
+                        blocksManager.updateBlockSoundSoundId(soundBlock.code, soundBlock.soundId)
                         Speaker.instance.say(R.raw.a_peca_foi_gravada)
                     }
                 })

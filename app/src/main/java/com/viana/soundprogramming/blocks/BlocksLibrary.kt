@@ -5,13 +5,11 @@ import topcodes.TopCode
 
 class BlocksLibrary {
 
-    private val blocks: MutableMap<Int, Block> = mutableMapOf()
+    val blocks: MutableMap<Int, Block> = mutableMapOf()
 
     init {
         blocks[31] = PlayBlock()
         blocks[47] = PauseBlock()
-        blocks[87] = BeginBlock()
-        blocks[91] = EndBlock()
 
         blocks[55] = LoopBlock()
         blocks[361] = LoopParamBlock(2)

@@ -82,7 +82,7 @@ class TestActivity : AppCompatActivity() {
         val blocks = listOfNotNull(soundBlockA, soundBlockB, soundBlockC)
 
         val board = object : Board {
-            override var timeline: Timeline? = null
+            override lateinit var timeline: Timeline
             override var widthFloat: Float = 1000f
             override var heightFloat: Float = 200f
             override var blocks: List<Block> = blocks

@@ -26,15 +26,15 @@ abstract class Sound {
         val minVolume: Float
 
         fun calculateVolumeLeft(soundBlock: SoundBlock): Float {
-            val end = musicBoard.timeline?.end!!
-            val begin = musicBoard.timeline?.begin!!
+            val end = musicBoard.timeline.end
+            val begin = musicBoard.timeline.begin
             val deltaBeginEnd = end - begin
             return (deltaBeginEnd - (soundBlock.centerX - begin)) / deltaBeginEnd
         }
 
         fun calculateVolumeRight(soundBlock: SoundBlock): Float {
-            val end = musicBoard.timeline?.end!!
-            val begin = musicBoard.timeline?.begin!!
+            val end = musicBoard.timeline.end
+            val begin = musicBoard.timeline.begin
             val deltaBeginEnd = end - begin
             return (deltaBeginEnd - (end - soundBlock.centerX)) / deltaBeginEnd
         }
@@ -56,10 +56,10 @@ abstract class Sound {
         }
 
         fun calculatePlayMoment(soundBlock: SoundBlock): Long =
-                musicBoard.timeline?.let {
+                musicBoard.timeline.let {
                     (it.secondsToTraverseWidth / it.speedFactor * 1000 *
                             (soundBlock.centerX - it.begin) / musicBoard.widthFloat).toLong()
-                } ?: 0
+                }
     }
 
     class SoundPoolSoundBuilder(override var musicBuilder: MusicBuilder) : Builder {
@@ -71,21 +71,18 @@ abstract class Sound {
 
         override fun build(soundBlock: SoundBlock): Sound {
             val soundId = soundBlock.soundId
-            soundId?.let {
-                val sound = SoundSoundPool(soundId)
-                val volume = calculateVolumeByDiameter(soundBlock)
-                sound.volume = volume
-                if (musicBuilder.isWiredHeadsetOn()) {
-                    sound.volumeLeft = calculateVolumeLeft(soundBlock) * volume
-                    sound.volumeRight = calculateVolumeRight(soundBlock) * volume
-                } else {
-                    sound.volumeLeft = volume
-                    sound.volumeRight = volume
-                }
-                sound.delayMillis = calculatePlayMoment(soundBlock)
-                return sound
+            val sound = SoundSoundPool(soundId)
+            val volume = calculateVolumeByDiameter(soundBlock)
+            sound.volume = volume
+            if (musicBuilder.isWiredHeadsetOn()) {
+                sound.volumeLeft = calculateVolumeLeft(soundBlock) * volume
+                sound.volumeRight = calculateVolumeRight(soundBlock) * volume
+            } else {
+                sound.volumeLeft = volume
+                sound.volumeRight = volume
             }
-            return SoundSoundPool(0)
+            sound.delayMillis = calculatePlayMoment(soundBlock)
+            return sound
         }
     }
 
@@ -117,11 +114,11 @@ abstract class Sound {
 
 class SoundSoundPool(private val soundId: Int) : Sound() {
     private val timer = Timer()
-    override fun play(timelineTimer: TimelineTimer) {
+    override fun play(timer: TimelineTimer) {
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
-            timer.schedule(object : TimerTask() {
+            this.timer.schedule(object : TimerTask() {
                 override fun run() {
-                    if (!timelineTimer.cancelled) {
+                    if (!timer.cancelled) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
                         //ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
@@ -132,6 +129,5 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
 
 class SoundAudioTrack(var soundShortArray: ShortArray) : Sound() {
     override fun play(timer: TimelineTimer) {
-
     }
 }

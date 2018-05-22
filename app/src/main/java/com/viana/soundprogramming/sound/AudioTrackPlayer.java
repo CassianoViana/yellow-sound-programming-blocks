@@ -3,6 +3,7 @@ package com.viana.soundprogramming.sound;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
+import android.util.Log;
 
 import org.jetbrains.annotations.Nullable;
 
@@ -66,21 +67,20 @@ public class AudioTrackPlayer {
     public void onReachEnd(@Nullable short[] samples, final OnReachEndListener onReachEndListener) {
 
         float seconds = (float) samples.length / SAMPLE_RATE_IN_HZ;
-        int frames = (int) (SAMPLE_RATE_IN_HZ * (seconds - 0.3));
+        int frames = (int) (SAMPLE_RATE_IN_HZ * (seconds - 0.5));
 
         audioTrack.setNotificationMarkerPosition(frames);
-        //audioTrack.setPositionNotificationPeriod(frames);
+        audioTrack.setPositionNotificationPeriod(frames);
         audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
 
             @Override
             public void onMarkerReached(AudioTrack audioTrack) {
+                Log.i("AudioTrackPlayer", "onReachEndListener.reachedTheEnd();");
                 onReachEndListener.reachedTheEnd();
             }
 
-
             @Override
             public void onPeriodicNotification(AudioTrack audioTrack) {
-
             }
         });
     }

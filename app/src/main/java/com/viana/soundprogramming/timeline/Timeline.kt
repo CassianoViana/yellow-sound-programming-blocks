@@ -20,7 +20,7 @@ class Timeline(
     private val listeners = mutableListOf<Listener>()
     var timer: TimelineTimer = TimelineTimer()
     private var timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
-    var cycleInterval: Long = 0
+    var cycleInterval: Long = 4000
 
     var begin: Float = 0f
         set(value) {
@@ -67,6 +67,10 @@ class Timeline(
             val percentageToTraverse = (end - begin) / board.widthFloat
             cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
         }
+    }
+
+    fun calculatePxsPerSecond(): Float {
+        return (board.widthFloat / secondsToTraverseWidth / speedFactor).toFloat()
     }
 
     private fun stopTimer() {

@@ -6,7 +6,7 @@ import com.viana.soundprogramming.timeline.Timeline
 
 interface Board {
 
-    var timeline: Timeline?
+    var timeline: Timeline
     var widthFloat: Float
     var heightFloat: Float
     var blocks: List<Block>

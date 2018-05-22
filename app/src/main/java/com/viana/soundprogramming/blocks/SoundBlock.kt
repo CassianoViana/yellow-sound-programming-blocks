@@ -9,9 +9,11 @@ import java.io.InputStream
 
 open class SoundBlock : ControllableBlock() {
 
-    var soundId: Int? = null
-    var soundStream: InputStream? = null
-    var soundShortArray: ShortArray? = null
+    var soundId: Int = 0
+    lateinit var soundStream: InputStream
+    lateinit var soundShortArray: ShortArray
+
+    fun getDurationInSeconds() = soundShortArray.size.toFloat() / 44100 / 2
 
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)

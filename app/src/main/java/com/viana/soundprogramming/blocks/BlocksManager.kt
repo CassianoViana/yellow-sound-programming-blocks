@@ -34,6 +34,11 @@ class BlocksManager : TopCodesReader.Listener {
     interface Listener {
         fun updateBlocksList(blocks: List<Block>)
     }
+
+    fun updateBlockSoundSoundId(code: Int, soundId: Int) {
+        (blocksLibrary.blocks[code] as SoundBlock).soundId = soundId
+    }
+
 }
 
 interface BlocksChangesAnalyzer {

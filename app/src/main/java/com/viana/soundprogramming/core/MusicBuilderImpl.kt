@@ -27,7 +27,7 @@ class MusicBuilderImpl : MusicBuilder {
         Thread({
             try {
                 this.board = board
-                music = MusicAudioTrack(this)
+                music = MusicSoundPool(this)
                 blocks.toMutableList()
                 this.blocks = blocks.toMutableList().apply {
                     addAll(repeatRepeatableBlocks(blocks))
@@ -37,6 +37,8 @@ class MusicBuilderImpl : MusicBuilder {
                 calculateGlobalVolume()
                 buildSounds()
                 defineMusicBeginEnd()
+                (board as BlocksManager.Listener).updateBlocksList(blocks)
+                music.prepare()
                 onMusicReadyListener.ready(music)
                 Log.i("Sounds", music.sounds.size.toString())
             } catch (e: SoundSyntaxError) {
@@ -67,7 +69,7 @@ class MusicBuilderImpl : MusicBuilder {
     private fun calculateSpeed() {
         val speedBlock: Block? = blocks.firstOrNull { it.javaClass == SpeedBlock::class.java }
         speedBlock?.let {
-            (it as SpeedBlock).calculateSpeed(board)
+            (it as SpeedBlock).calculateSpeed(board.timeline)
         }
     }
 
@@ -79,14 +81,15 @@ class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun defineMusicBeginEnd() {
-        val soundBlocks = blocks.filter { it.javaClass == SoundBlock::class.java }
+        val soundBlocks = blocks.filterIsInstance(SoundBlock::class.java)
         val mostLeft = soundBlocks.minBy { it.centerX }
         val mostRight = soundBlocks.maxBy { it.centerX }
         mostLeft?.let {
-            board.timeline?.begin = it.centerX.toFloat()
+            board.timeline.begin = it.centerX.toFloat() - 30
         }
         mostRight?.let {
-            board.timeline?.end = it.centerX.toFloat() + 200
+            val lastPadding = (it.centerX - mostLeft?.centerX!!) / soundBlocks.size
+            board.timeline.end = it.centerX.toFloat() + if (lastPadding == 0) 100 else lastPadding
         }
     }
 

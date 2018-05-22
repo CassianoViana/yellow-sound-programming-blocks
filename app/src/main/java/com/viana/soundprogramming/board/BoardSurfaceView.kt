@@ -22,7 +22,7 @@ class BoardSurfaceView
         Board,
         BlocksManager.Listener {
 
-    override var timeline: Timeline? = null
+    override lateinit var timeline: Timeline
     override var widthFloat = 0f
     override var heightFloat = 0f
     override var blocks: List<Block> = listOf()
@@ -41,12 +41,12 @@ class BoardSurfaceView
     }
 
     fun start() {
-        timeline?.scheduleTimer()
-        timeline?.start()
+        timeline.scheduleTimer()
+        timeline.start()
     }
 
     fun stop() {
-        timeline?.stop()
+        timeline.stop()
     }
 
     override fun surfaceCreated(surfaceHolder: SurfaceHolder) {
@@ -94,8 +94,7 @@ class BoardSurfaceView
     private fun drawTimelineRange(canvas: Canvas) {
         paint.color = Color.RED
         paint.alpha = 100
-        canvas.drawRect(Rect(timeline?.begin?.toInt() ?: 0, 0, timeline?.end?.toInt()
-                ?: 10, width), paint)
+        canvas.drawRect(Rect(timeline.begin.toInt(), 0, timeline.end.toInt(), width), paint)
     }
 
     override fun updateBlocksList(blocks: List<Block>) {

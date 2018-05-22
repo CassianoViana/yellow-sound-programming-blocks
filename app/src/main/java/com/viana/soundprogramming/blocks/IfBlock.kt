@@ -10,7 +10,7 @@ class IfBlock : Block() {
             val diameter = it.diameter
             val left = (centerX - diameter).toInt()
             val right = (centerX + diameter).toInt()
-            val bottom = (centerY + diameter * 3).toInt()
+            val bottom = (centerY + diameter * 6).toInt()
             rect = Rect(left, top, right, bottom)
         }
         return rect
