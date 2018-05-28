@@ -8,12 +8,12 @@ class StateMachine : BlocksManager.Listener {
         PLAYING,
         PAUSED,
         RECORDING,
-        EXPLAINING;
+        HELPING;
     }
 
     private val listeners = mutableListOf<Listener>()
 
-    private var state: State = State.PLAYING
+    var state: State = State.PLAYING
         set(value) {
             val changed = value != field
             field = value
@@ -42,6 +42,12 @@ class StateMachine : BlocksManager.Listener {
         val pauseBlock = blocks.firstOrNull { it.javaClass == PauseBlock::class.java }
         if (pauseBlock != null) {
             state = State.PAUSED
+            return
+        }
+
+        val helpBlock = blocks.firstOrNull { it.javaClass == HelpBlock::class.java }
+        if (helpBlock != null) {
+            state = State.HELPING
             return
         }
     }

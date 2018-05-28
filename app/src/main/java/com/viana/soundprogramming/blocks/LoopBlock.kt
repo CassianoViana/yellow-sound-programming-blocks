@@ -1,6 +1,5 @@
 package com.viana.soundprogramming.blocks
 
-import android.graphics.Canvas
 import android.graphics.Rect
 import com.viana.soundprogramming.exceptions.LoopBlockNeedsParamError
 
@@ -15,16 +14,17 @@ class LoopBlock : Block() {
             val diameter = it.diameter
             val left = (centerX - diameter).toInt()
             val right = (centerX + diameter).toInt()
-            val bottom = (centerY + diameter * 3).toInt()
+            val bottom = (centerY + diameter * 4).toInt()
             rect = Rect(left, top, right, bottom)
         }
         return rect
     }
 
-    fun repeatBlocks(loopTargetBlocks: List<ControllableBlock>, loopParamBlocks: List<LoopParamBlock>): List<Block> {
+    fun repeatBlocks(loopTargetBlocks: List<ControllableBlock>,
+                     loopParamBlocks: List<LoopParamBlock>): List<Block> {
         filterTargetBlocks(loopTargetBlocks)
         calculateNumberOfRepetitions(loopParamBlocks)
-        return buildClones(loopTargetBlocks)
+        return buildClones()
     }
 
     private fun filterTargetBlocks(blocks: List<ControllableBlock>) {
@@ -42,23 +42,30 @@ class LoopBlock : Block() {
         }
     }
 
-    private fun buildClones(blocks: List<ControllableBlock>): MutableList<Block> {
+    private fun buildClones(): MutableList<Block> {
         var i = 0
         val repeatingBlocks = mutableListOf<Block>()
-        val x = diameter.toInt()
+        val distToAdd = 100f
         while (++i < numberOfRepetitions) {
             repeatingBlocks.addAll(targetBlocks.map { repeatableBlock ->
                 repeatableBlock.copy().apply {
                     isRepetitionBlock = true
-                    move(repeatableBlock.centerX + i * x, centerY)
+                    move(repeatableBlock.centerX + i * distToAdd.toInt(), centerY)
                 }
             })
         }
         return repeatingBlocks
     }
 
-    override fun draw(canvas: Canvas?) {
-        super.draw(canvas)
+    fun moveFollowingToRight(blocks: List<Block>, loopBlock: LoopBlock, repeatedBlocks: List<Block>) {
+        val lastRepeatedBlock = repeatedBlocks.maxBy { it.centerX }
+        lastRepeatedBlock?.let {
+            val diff = lastRepeatedBlock.centerX - loopBlock.centerX
+            val following = blocks.filter { it.centerX > (loopBlock.centerX + 30) && !repeatedBlocks.contains(it) }
+            following.forEach {
+                if (it !is NotMovableBlock)
+                    it.move(it.centerX + diff, it.centerY)
+            }
+        }
     }
-
 }

@@ -2,7 +2,7 @@ package com.viana.soundprogramming.blocks
 
 import com.viana.soundprogramming.core.MusicBuilder
 
-class VolumeBlock : Block() {
+class VolumeBlock : Block(), NotMovableBlock {
     fun calculateVolume(musicBuilder: MusicBuilder) {
         var degree = this.degree
         degree += 180

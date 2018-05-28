@@ -26,12 +26,16 @@ class BlocksRecorder : BlocksManager.Listener {
     override fun updateBlocksList(blocks: List<Block>) {
         if (busy || !waitingForRecordableBlockApproximation) return
         blocks.firstOrNull {
-            it.diameter > 150
+            it.diameter > 120
         }?.apply {
             busy = true
             if (this !is SoundBlock) {
                 Speaker.instance.say(R.raw.essa_peca_nao_pode_ser_gravada)
             } else if (!recording) {
+                if (soundBlockEnteredToBeRecorded != null) {
+                    if (soundBlockEnteredToBeRecorded?.code == this.code)
+                        return
+                }
                 soundBlockEnteredToBeRecorded = this
                 readyToStartRecord(code)
             }
@@ -52,11 +56,20 @@ class BlocksRecorder : BlocksManager.Listener {
                         /*it.soundStream = BufferedInputStream(FileInputStream(recordedFilePath))
                         it.soundShortArray = readShorts(FileInputStream(recordedFilePath))*/
                         onRecordCompletedListener.recordCompleted(it)
+                        freeBlockToBeRecordedAgainAfter(10000)
                     }
                 }
                 recordSeconds(2, it.code)
             }
         }
+    }
+
+    private fun freeBlockToBeRecordedAgainAfter(i: Long) {
+        Timer().schedule(object : TimerTask() {
+            override fun run() {
+                soundBlockEnteredToBeRecorded = null
+            }
+        }, i)
     }
 
     fun addListener(listener: Listener) {

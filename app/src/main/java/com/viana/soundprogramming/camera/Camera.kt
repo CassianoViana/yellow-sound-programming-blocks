@@ -146,7 +146,7 @@ class Camera(
                 }
             }
 
-        }, 0, 600)
+        }, 0, 200)
         /*cameraSession.setRepeatingRequest(captureRequest,
                 value, backgroundHandler)*/
     }

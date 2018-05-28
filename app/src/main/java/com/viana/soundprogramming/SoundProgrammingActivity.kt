@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.viana.soundprogramming.blocks.Block
@@ -18,7 +17,7 @@ import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.core.MusicBuilderImpl
-import com.viana.soundprogramming.exceptions.SoundSyntaxError
+import com.viana.soundprogramming.exceptions.SoundProgrammingError
 import com.viana.soundprogramming.sound.BlocksRecorder
 import com.viana.soundprogramming.sound.Speaker
 import com.viana.soundprogramming.timeline.Timeline
@@ -45,6 +44,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     private val musicBuilder = MusicBuilderImpl()
     private val blocksRecorder = BlocksRecorder()
     private val stateMachine = StateMachine()
+    private val helper = Helper()
     private var music: Music? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,6 +53,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         prepareCamera()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
+        prepareStateMachineListeners()
         prepareBlocksRecorder()
         Speaker.instance.load()
         managePermissionSound(this)
@@ -73,11 +74,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         stopCamera()
     }
 
-    fun onClickStartStop(view: View) {
-        ProgrammingVibrator.vibrate(30)
-        if (!camera.isCameraOpen) startCamera() else stopCamera()
-    }
-
     fun onClickTest(view: View?) {
         startActivity(Intent(this, TestActivity::class.java))
     }
@@ -92,7 +88,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         }
         camera.onOpenCameraListener = object : OnOpenCameraListener {
             override fun cameraOpened() {
-                Speaker.instance.say(R.raw.vamos_programar)
+                Speaker.instance.say(R.raw.msg_olaaa_vamos_programar_bateria)
                 boardSurfaceView.start()
             }
         }
@@ -127,36 +123,43 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .addListener(boardSurfaceView)
                 .addListener(stateMachine)
                 .addListener(blocksRecorder)
+                .addListener(helper)
                 .addListener(object : BlocksManager.Listener {
                     override fun updateBlocksList(blocks: List<Block>) {
-                        Thread({
-                            musicBuilder.build(
-                                    blocks,
-                                    boardSurfaceView,
-                                    object : MusicBuilder.OnMusicReadyListener {
-                                        override fun ready(music: Music) {
-                                            //this@SoundProgrammingActivity.music?.stop()
-                                            this@SoundProgrammingActivity.music = music
-                                            //music.play()
+                        if (stateMachine.state == StateMachine.State.PLAYING)
+                            Thread({
+                                musicBuilder.build(
+                                        blocks,
+                                        boardSurfaceView,
+                                        object : MusicBuilder.OnMusicReadyListener {
+                                            override fun ready(music: Music) {
+                                                //this@SoundProgrammingActivity.music?.stop()
+                                                this@SoundProgrammingActivity.music = music
+                                                //music.play()
+                                            }
+
+                                            override fun error(e: SoundProgrammingError) {
+                                                Speaker.instance.say(e.explanationResId)
+                                            }
                                         }
-                                        override fun error(e: SoundSyntaxError) {
-                                            Speaker.instance.say(e.explanationResId)
-                                        }
-                                    }
-                            )
-                        }).start()
+                                )
+                            }).start()
                     }
                 })
-        stateMachine
-                .addListener(this)
-                .addListener(boardSurfaceView.timeline)
         boardSurfaceView
                 .timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
-                /*ProgrammingVifbrator.vibrate(10)*/
+                ProgrammingVibrator.vibrate(10)
                 music?.play()
             }
         })
+    }
+
+    private fun prepareStateMachineListeners() {
+        stateMachine
+                .addListener(this)
+                .addListener(boardSurfaceView.timeline)
+                .addListener(helper)
     }
 
     private fun prepareBlocksRecorder() {
@@ -171,26 +174,27 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     override fun stateChanged(state: StateMachine.State) {
-        when (state) {
-            StateMachine.State.PLAYING -> {
-                Speaker.instance.say(R.raw.a_musica_comecou)
-                btnStartStop.background = ContextCompat
-                        .getDrawable(this, R.drawable.button_stop)
-                btnStartStop.setText(R.string.stop)
-                blocksRecorder.waitingForRecordableBlockApproximation = false
-            }
-            StateMachine.State.PAUSED -> {
-                Speaker.instance.say(R.raw.a_musica_foi_interrompida)
-                btnStartStop.background = ContextCompat
-                        .getDrawable(this, R.drawable.button_start)
-                btnStartStop.setText(R.string.start)
-                blocksRecorder.waitingForRecordableBlockApproximation = false
-            }
-            StateMachine.State.RECORDING -> {
-                Speaker.instance.say(R.raw.modo_gravacao)
-                blocksRecorder.waitingForRecordableBlockApproximation = true
-            }
-            else -> {
+        runOnUiThread {
+            when (state) {
+                StateMachine.State.HELPING -> {
+                    Speaker.instance.say(R.raw.modo_ajuda)
+                    blocksRecorder.waitingForRecordableBlockApproximation = false
+                }
+                StateMachine.State.PLAYING -> {
+                    Speaker.instance.say(R.raw.modo_solta_o_som)
+
+                    blocksRecorder.waitingForRecordableBlockApproximation = false
+                }
+                StateMachine.State.PAUSED -> {
+                    Speaker.instance.say(R.raw.modo_parar)
+                    blocksRecorder.waitingForRecordableBlockApproximation = false
+                }
+                StateMachine.State.RECORDING -> {
+                    Speaker.instance.say(R.raw.modo_gravar)
+                    blocksRecorder.waitingForRecordableBlockApproximation = true
+                }
+                else -> {
+                }
             }
         }
     }

@@ -1,5 +1,3 @@
 package com.viana.soundprogramming.blocks
 
-class RecordBlock : Block() {
-
-}
+class RecordBlock : Block(), NotMovableBlock

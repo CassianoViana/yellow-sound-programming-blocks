@@ -1,5 +1,5 @@
 package com.viana.soundprogramming.blocks
 
-class PlayBlock : Block() {
+class PlayBlock : Block(), NotMovableBlock {
 
 }

@@ -12,7 +12,7 @@ import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.core.MusicBuilderImpl
-import com.viana.soundprogramming.exceptions.SoundSyntaxError
+import com.viana.soundprogramming.exceptions.SoundProgrammingError
 import com.viana.soundprogramming.sound.*
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.util.readShorts
@@ -101,7 +101,7 @@ class TestActivity : AppCompatActivity() {
                 music.play()
             }
 
-            override fun error(e: SoundSyntaxError) {
+            override fun error(e: SoundProgrammingError) {
             }
         })
     }

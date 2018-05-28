@@ -9,12 +9,12 @@ import com.viana.soundprogramming.StateMachine
 import com.viana.soundprogramming.board.Board
 import java.util.*
 
-
 class Timeline(
         var board: Board,
         parent: Activity,
         timelineView: View,
-        val secondsToTraverseWidth: Double = 4.0
+        val secondsToTraverseWidth: Double = 4.0,
+        var countLoops: Int = 0
 ) : StateMachine.Listener {
 
     private val listeners = mutableListOf<Listener>()
@@ -53,9 +53,12 @@ class Timeline(
         if (this.cycleInterval > 0) {
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
-                    timelineAnimator.transition(begin, end, cycleInterval)
-                    listeners.forEach {
-                        it.onHitStart(timer)
+                    if (speedFactor > 0) {
+                        timelineAnimator.transition(begin, end, cycleInterval)
+                        listeners.forEach {
+                            countLoops++
+                            it.onHitStart(timer)
+                        }
                     }
                 }
             }, 0, cycleInterval)
@@ -83,14 +86,6 @@ class Timeline(
 
     interface Listener {
         fun onHitStart(timelineTimer: TimelineTimer)
-    }
-
-    fun resetBegin() {
-        begin = 0f
-    }
-
-    fun resetEnd() {
-        end = board.widthFloat
     }
 
     fun start() {

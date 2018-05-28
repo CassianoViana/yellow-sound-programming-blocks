@@ -1,6 +1,6 @@
 package com.viana.soundprogramming.blocks
 
-class PresenceBlock(var type: Type) : Block() {
+class PresenceBlock(var type: Type) : Block(), NotMovableBlock {
 
     constructor() : this(Type.CIRCLE)
 

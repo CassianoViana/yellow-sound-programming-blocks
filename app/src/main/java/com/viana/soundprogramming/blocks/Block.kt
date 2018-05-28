@@ -1,12 +1,10 @@
 package com.viana.soundprogramming.blocks
 
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Rect
+import android.graphics.*
 import com.viana.soundprogramming.board.Board
 import topcodes.TopCode
 
+interface NotMovableBlock
 open class Block {
     var code: Int = 0
     var left: Int = 0
@@ -23,6 +21,8 @@ open class Block {
     var intersectionRect = Rect()
     var degree: Float = 0f
     var isRepetitionBlock: Boolean = false
+    var bitmap: Bitmap? = null
+    var soundHelpResId: Int = 0
 
     var topCode: TopCode? = null
         set(topCode) {
@@ -51,6 +51,9 @@ open class Block {
     }
 
     open fun draw(canvas: Canvas?) {
+        bitmap?.let {
+            canvas?.drawBitmap(bitmap, left.toFloat(), top.toFloat(), paint)
+        }
         topCode?.draw(canvas)
         paint.color = Color.WHITE
         paint.textSize = 20f
@@ -99,11 +102,10 @@ open class Block {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-
         other as Block
-
         if (code != other.code) return false
-
+        if (centerX != other.centerX) return false
+        if (centerY != other.centerY) return false
         return true
     }
 
@@ -111,8 +113,8 @@ open class Block {
         return code
     }
 
-    open fun validate(blocks: List<Block>) {
-
+    open fun setHelpMessage(soundHelpResId: Int): Block {
+        this.soundHelpResId = soundHelpResId
+        return this
     }
-
 }

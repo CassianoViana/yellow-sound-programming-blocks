@@ -10,6 +10,5 @@ abstract class Music(var soundBuilder: Sound.Builder) {
 
     open fun stop() {}
 
-
     abstract fun prepare()
 }

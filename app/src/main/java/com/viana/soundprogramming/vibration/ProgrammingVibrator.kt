@@ -7,8 +7,10 @@ import com.viana.soundprogramming.appInstance
 object ProgrammingVibrator {
     private var vibrator: Vibrator? = null
     private fun prepare() {
-        vibrator = appInstance.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (vibrator == null)
+            vibrator = appInstance.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     }
+
     fun vibrate(time: Long) {
         /*prepare()
         vibrator?.vibrate(time)*/

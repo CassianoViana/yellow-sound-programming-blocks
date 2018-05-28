@@ -3,7 +3,7 @@ package com.viana.soundprogramming.blocks
 import android.util.Log
 import com.viana.soundprogramming.timeline.Timeline
 
-class SpeedBlock : Block() {
+class SpeedBlock : Block(), NotMovableBlock {
 
     fun calculateSpeed(timeline: Timeline) {
         var degree = this.degree

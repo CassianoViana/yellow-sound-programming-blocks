@@ -5,6 +5,7 @@ import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.timeline.TimelineTimer
+import com.viana.soundprogramming.vibration.ProgrammingVibrator
 import java.util.*
 
 abstract class Sound {
@@ -21,8 +22,7 @@ abstract class Sound {
 
         var musicBoard: Board
         var musicBuilder: MusicBuilder
-        val minGlobalVolume: Float
-        var variantVolume: Float
+        var volumeVariation: Float
         val minVolume: Float
 
         fun calculateVolumeLeft(soundBlock: SoundBlock): Float {
@@ -43,16 +43,7 @@ abstract class Sound {
             val maxDiameter = musicBuilder.maxSoundBlockDiameter
             val minDiameter = musicBuilder.minSoundBlockDiameter
             if (maxDiameter - minDiameter <= 10) return musicBuilder.maxVolume
-            return (minVolume + variantVolume * ((soundBlock.diameter - minDiameter) / (maxDiameter - minDiameter))) * musicBuilder.maxVolume
-        }
-
-        fun calculateVolumeByDegree(soundBlock: SoundBlock): Float {
-            var degree = soundBlock.degree
-            degree += 180
-            if (degree > 360)
-                degree -= 360
-            val volume = Math.abs(degree) / 360
-            return volume * (musicBuilder.maxVolume - minGlobalVolume)
+            return (minVolume + volumeVariation * ((soundBlock.diameter - minDiameter) / (maxDiameter - minDiameter))) * musicBuilder.maxVolume
         }
 
         fun calculatePlayMoment(soundBlock: SoundBlock): Long =
@@ -65,8 +56,7 @@ abstract class Sound {
     class SoundPoolSoundBuilder(override var musicBuilder: MusicBuilder) : Builder {
 
         override var musicBoard: Board = musicBuilder.board
-        override val minGlobalVolume = 0f
-        override var variantVolume = 0.8f
+        override var volumeVariation = 0.8f
         override val minVolume = 0.2f
 
         override fun build(soundBlock: SoundBlock): Sound {
@@ -90,8 +80,7 @@ abstract class Sound {
             override var musicBuilder: MusicBuilder) : Builder {
 
         override var musicBoard = musicBuilder.board
-        override val minGlobalVolume = 0f
-        override var variantVolume = 0.8f
+        override var volumeVariation = 0.8f
         override val minVolume = 0.2f
 
         override fun build(soundBlock: SoundBlock): Sound {
@@ -120,7 +109,7 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
                 override fun run() {
                     if (!timer.cancelled) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
-                        //ProgrammingVibrator.vibrate((volume * 5).toLong())
+                        ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
                 }
             }, delayMillis)

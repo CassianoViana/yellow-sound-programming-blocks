@@ -16,7 +16,7 @@ class IfBlock : Block() {
         return rect
     }
 
-    fun muteFalseTestBlocks(ifTargetBlocks: List<ControllableBlock>, ifParamBlocks: List<IfParamBlock>, presenceBlocks: List<PresenceBlock>) {
+    fun findFalseTestBlocks(ifTargetBlocks: List<ControllableBlock>, ifParamBlocks: List<IfParamBlock>, presenceBlocks: List<PresenceBlock>): List<Block> {
         filterTargetBlocks(ifTargetBlocks)
         val intersectedParams = ifParamBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
         val intersectedSoundBlocks = ifTargetBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
@@ -36,6 +36,7 @@ class IfBlock : Block() {
                 it.active = presenceBlocks.any { it.type == PresenceBlock.Type.STAR }
             }
         }
+        return intersectedSoundBlocks.filter { !it.active }
     }
 
     private fun filterTargetBlocks(ifTargetBlocks: List<ControllableBlock>) {
