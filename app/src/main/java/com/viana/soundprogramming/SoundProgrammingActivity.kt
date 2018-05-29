@@ -51,6 +51,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_programming)
         prepareCamera()
+        Speaker.instance.load()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
         prepareTimelineListener()
@@ -129,8 +130,10 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .addListener(helper)
                 .addListener(object : BlocksManager.Listener {
                     override fun updateBlocksList(blocks: List<Block>) {
-                        boardBlocks = blocks.toMutableList()
-                        buildMusic()
+                        if (stateMachine.state == StateMachine.State.PLAYING) {
+                            boardBlocks = blocks.toMutableList()
+                            buildMusic()
+                        }
                     }
                 })
     }

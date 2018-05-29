@@ -13,7 +13,7 @@ class StateMachine : BlocksManager.Listener {
 
     private val listeners = mutableListOf<Listener>()
 
-    private var state: State = State.PAUSED
+    var state: State = State.PAUSED
         set(value) {
             val changed = value != field
             val previous = field

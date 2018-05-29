@@ -48,13 +48,14 @@ class LoopBlock : Block() {
         var i = 0
         val repeatingBlocks = mutableListOf<Block>()
         val distToAdd = diameter * 3
-        while (++i < numberOfRepetitions) {
+        while (i < numberOfRepetitions) {
             repeatingBlocks.addAll(targetBlocks.map { repeatableBlock ->
                 repeatableBlock.copy().apply {
                     isRepetitionBlock = true
                     move(repeatableBlock.centerX + i * distToAdd.toInt(), centerY)
                 }
             })
+            i++
         }
         return repeatingBlocks
     }
