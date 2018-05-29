@@ -1,6 +1,5 @@
 package com.viana.soundprogramming
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -46,6 +45,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     private val stateMachine = StateMachine()
     private val helper = Helper()
     private var music: Music? = null
+    private var boardBlocks = mutableListOf<Block>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,9 +53,9 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         prepareCamera()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
+        prepareTimelineListener()
         prepareStateMachineListeners()
         prepareBlocksRecorder()
-        Speaker.instance.load()
         managePermissionSound(this)
         managePermissionVibrate(this)
         managePermissionDirectory(this)
@@ -75,7 +75,10 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     fun onClickTest(view: View?) {
-        startActivity(Intent(this, TestActivity::class.java))
+        stopCamera()
+        camera.flashLightOn = !camera.flashLightOn
+        camera.openCamera()
+        //startActivity(Intent(this, TestActivity::class.java))
     }
 
     private fun prepareCamera() {
@@ -89,7 +92,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         camera.onOpenCameraListener = object : OnOpenCameraListener {
             override fun cameraOpened() {
                 Speaker.instance.say(R.raw.msg_olaaa_vamos_programar_bateria)
-                boardSurfaceView.start()
             }
         }
     }
@@ -105,8 +107,9 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun startCamera() {
-        camera.flashLightOn = false
+        camera.flashLightOn = true
         camera.openCamera()
+        boardSurfaceView.start()
     }
 
     private fun stopCamera() {
@@ -126,26 +129,13 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .addListener(helper)
                 .addListener(object : BlocksManager.Listener {
                     override fun updateBlocksList(blocks: List<Block>) {
-                        if (stateMachine.state == StateMachine.State.PLAYING)
-                            Thread({
-                                musicBuilder.build(
-                                        blocks,
-                                        boardSurfaceView,
-                                        object : MusicBuilder.OnMusicReadyListener {
-                                            override fun ready(music: Music) {
-                                                //this@SoundProgrammingActivity.music?.stop()
-                                                this@SoundProgrammingActivity.music = music
-                                                //music.play()
-                                            }
-
-                                            override fun error(e: SoundProgrammingError) {
-                                                Speaker.instance.say(e.explanationResId)
-                                            }
-                                        }
-                                )
-                            }).start()
+                        boardBlocks = blocks.toMutableList()
+                        buildMusic()
                     }
                 })
+    }
+
+    private fun prepareTimelineListener() {
         boardSurfaceView
                 .timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
@@ -160,6 +150,26 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .addListener(this)
                 .addListener(boardSurfaceView.timeline)
                 .addListener(helper)
+                .addListener(blocksRecorder)
+    }
+
+    private fun buildMusic() {
+        if (boardBlocks.isNotEmpty()) {
+            musicBuilder.build(boardBlocks,
+                    boardSurfaceView,
+                    object : MusicBuilder.OnMusicReadyListener {
+                        override fun ready(builtMusic: Music) {
+                            music?.stop()
+                            music = builtMusic
+                            boardSurfaceView.timeline.scheduleTimer()
+                        }
+
+                        override fun error(e: SoundProgrammingError) {
+                            e.printStackTrace()
+                            Speaker.instance.say(e.explanationResId)
+                        }
+                    })
+        }
     }
 
     private fun prepareBlocksRecorder() {
@@ -173,43 +183,36 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
             startAfterDelay(100)
     }
 
-    override fun stateChanged(state: StateMachine.State) {
+    override fun stateChanged(state: StateMachine.State, previous: StateMachine.State) {
         runOnUiThread {
             when (state) {
-                StateMachine.State.HELPING -> {
-                    Speaker.instance.say(R.raw.modo_ajuda)
-                    blocksRecorder.waitingForRecordableBlockApproximation = false
-                }
+                StateMachine.State.HELPING -> Speaker.instance.say(R.raw.modo_ajuda)
                 StateMachine.State.PLAYING -> {
-                    Speaker.instance.say(R.raw.modo_solta_o_som)
-
-                    blocksRecorder.waitingForRecordableBlockApproximation = false
+                    music?.let {
+                        if (it.sounds.isNotEmpty()) {
+                            Speaker.instance.say(R.raw.modo_solta_o_som)
+                        }
+                    }
                 }
                 StateMachine.State.PAUSED -> {
                     Speaker.instance.say(R.raw.modo_parar)
-                    blocksRecorder.waitingForRecordableBlockApproximation = false
                 }
-                StateMachine.State.RECORDING -> {
-                    Speaker.instance.say(R.raw.modo_gravar)
-                    blocksRecorder.waitingForRecordableBlockApproximation = true
-                }
-                else -> {
-                }
+                StateMachine.State.RECORDING -> Speaker.instance.say(R.raw.modo_gravar)
             }
         }
     }
 
     override fun readyToStartRecord(code: Int) {
-        Speaker.instance.say(R.raw.pronto_a_peca_foi_selecionada)
+        Speaker.instance.say(R.raw.gravando_em_321)
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 blocksRecorder.record(object : BlocksRecorder.OnRecordCompletedListener {
                     override fun recordCompleted(soundBlock: SoundBlock) {
                         blocksManager.updateBlockSoundSoundId(soundBlock.code, soundBlock.soundId)
-                        Speaker.instance.say(R.raw.a_peca_foi_gravada)
+                        Speaker.instance.say(R.raw.gravacao_muito_bem)
                     }
                 })
             }
-        }, 7500)
+        }, 14000)
     }
 }

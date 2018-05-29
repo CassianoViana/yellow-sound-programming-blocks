@@ -13,12 +13,13 @@ class StateMachine : BlocksManager.Listener {
 
     private val listeners = mutableListOf<Listener>()
 
-    var state: State = State.PLAYING
+    private var state: State = State.PAUSED
         set(value) {
             val changed = value != field
+            val previous = field
             field = value
             if (changed) {
-                listeners.forEach { it.stateChanged(state) }
+                listeners.forEach { it.stateChanged(state, previous) }
             }
         }
 
@@ -58,6 +59,6 @@ class StateMachine : BlocksManager.Listener {
     }
 
     interface Listener {
-        fun stateChanged(state: State) {}
+        fun stateChanged(state: State, previous: State) {}
     }
 }

@@ -4,6 +4,8 @@ import android.graphics.Rect
 
 class LoopParamBlock(var numberOfRepetitions: Byte) : Block() {
 
+    constructor():this(0)
+
     override fun fillWithProperties(block: Block) {
         super.fillWithProperties(block)
         (block as LoopParamBlock).numberOfRepetitions = numberOfRepetitions

@@ -4,11 +4,20 @@ import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.sound.Speaker
 
-class Helper : BlocksManager.Listener {
+class Helper : BlocksManager.Listener, StateMachine.Listener {
+
+    private var helping: Boolean = false
+
     override fun updateBlocksList(blocks: List<Block>) {
-        val blockToExplain = blocks.firstOrNull { it.diameter > 120 }
-        blockToExplain?.let {
-            Speaker.instance.say(it.soundHelpResId)
+        if (helping) {
+            val blockToExplain = blocks.firstOrNull { it.diameter > 60 }
+            blockToExplain?.let {
+                Speaker.instance.say(it.soundHelpResId)
+            }
         }
+    }
+
+    override fun stateChanged(state: StateMachine.State, previous: StateMachine.State) {
+        this.helping = state == StateMachine.State.HELPING
     }
 }

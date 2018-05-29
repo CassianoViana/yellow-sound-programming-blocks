@@ -11,7 +11,29 @@ class BlocksManager : TopCodesReader.Listener {
     private val blocksUpdateAnalyzer = BlocksChangesAnalyzerByBlocksPropsList()
 
     override fun topCodesChanged(topCodes: List<TopCode>) {
-        updateBlocksList(topCodes.mapNotNull { blocksLibrary.getTopCodeBlock(it) })
+        val blocks = topCodes.mapNotNull { blocksLibrary.getTopCodeBlock(it) }
+        updateBlocksList(removeOutsideBlocks(blocks))
+    }
+
+    private fun removeOutsideBlocks(blocks: List<Block>): List<Block> {
+        val cornerBlocks = blocks.filterIsInstance(CornerBlock::class.java)
+        if (cornerBlocks.isEmpty())
+            return blocks
+
+        var maxX = Integer.MAX_VALUE
+        var minX = 0
+        var maxY = Integer.MAX_VALUE
+        var minY = 0
+
+        cornerBlocks.maxBy { it.centerX }.let { maxX = it?.centerX ?: 0 }
+        cornerBlocks.maxBy { it.centerY }.let { maxY = it?.centerY ?: 0 }
+        cornerBlocks.minBy { it.centerX }.let { minX = it?.centerX ?: 0 }
+        cornerBlocks.minBy { it.centerY }.let { minY = it?.centerY ?: 0 }
+
+        return blocks.toMutableList()
+                .apply {
+                    removeAll { it.centerX > maxX || it.centerX < minX || it.centerY < minY || it.centerY > maxY }
+                }.toList()
     }
 
     private fun updateBlocksList(blocks: List<Block>) {
@@ -46,10 +68,16 @@ class BlocksManager : TopCodesReader.Listener {
 }
 
 interface BlocksChangesAnalyzer {
-    fun checkIfBlocksChanged(blocks: List<Block>, listener: Listener): Boolean
+    fun checkIfBlocksChanged(blocks: List<Block>, listener: Listener)
 
     interface Listener {
         fun changed(changed: Boolean, blocks: List<Block>)
+    }
+}
+
+class AlwaysTrueBlocksChangeAnalyzer : BlocksChangesAnalyzer {
+    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener) {
+        listener.changed(true, blocks)
     }
 }
 
@@ -57,7 +85,7 @@ class BlocksChangesAnalyzerByBlocksPropsList : BlocksChangesAnalyzer {
 
     class BlocksProps(private val x: Int, private val y: Int, private val degree: Int, private val code: Int) {
         private val inconsiderableMovPxs = 40
-        private val inconsiderableMovDegrees = 10
+        private val inconsiderableMovDegrees = 20
         override fun equals(other: Any?): Boolean {
             val positionToCompare = other as BlocksProps
             if (Math.abs(this.x - positionToCompare.x) > inconsiderableMovPxs)
@@ -80,7 +108,7 @@ class BlocksChangesAnalyzerByBlocksPropsList : BlocksChangesAnalyzer {
     }
 
     private var blocksProps: List<BlocksProps> = listOf()
-    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener): Boolean {
+    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener) {
         val blocksProps = blocks.map { BlocksProps(it.centerX, it.centerY, it.degree.toInt(), it.code) }
         val blocksWereUpdated = blocksProps.size != this.blocksProps.size || !this.blocksProps.containsAll(blocksProps)
         if (blocksWereUpdated) {
@@ -88,7 +116,6 @@ class BlocksChangesAnalyzerByBlocksPropsList : BlocksChangesAnalyzer {
             this.blocksProps = blocksProps
         }
         listener.changed(blocksWereUpdated, blocks)
-        return blocksWereUpdated
     }
 
 }
@@ -124,7 +151,7 @@ class BlocksChangesAnalyzerByBlocksPropsListAndTime : BlocksChangesAnalyzer {
 
     private val analysisRequestBlocks: MutableList<BlocksUpdateAnalysisRequest> = mutableListOf()
 
-    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener): Boolean {
+    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener) {
         val updateAnalysisRequest = BlocksUpdateAnalysisRequest(blocks)
 
         val firstRequest = analysisRequestBlocks.isEmpty()
@@ -135,8 +162,6 @@ class BlocksChangesAnalyzerByBlocksPropsListAndTime : BlocksChangesAnalyzer {
         if (analysisRequestBlocks.size > 5) {
             analysisRequestBlocks.removeAt(analysisRequestBlocks.size - 1)
         }
-
-        return false
     }
 
     private fun scheduleAnalysisRequest(blocksUpdateAnalysisRequest: BlocksUpdateAnalysisRequest, listener: BlocksChangesAnalyzer.Listener, timeInMillis: Long) {
@@ -160,7 +185,6 @@ class BlocksChangesAnalyzerByBlocksPropsListAndTime : BlocksChangesAnalyzer {
         }, timeInMillis)
     }
 }
-
 
 class BlocksChangesAnalyzerByBlocksPropsListModa : BlocksChangesAnalyzer {
 
@@ -198,17 +222,12 @@ class BlocksChangesAnalyzerByBlocksPropsListModa : BlocksChangesAnalyzer {
         }
     }
 
-    private val analysisRequestBlocks = mutableListOf<BlocksUpdateAnalysisRequest>()
     private val blocksUpdatesFrequency = HashMap<BlocksUpdateAnalysisRequest, Int>()
 
-    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener): Boolean {
-
-
+    var count = 0L
+    override fun checkIfBlocksChanged(blocks: List<Block>, listener: BlocksChangesAnalyzer.Listener) {
         val blocksUpdateAnalysisRequest = BlocksUpdateAnalysisRequest(blocks)
-
         val frequency: Int? = blocksUpdatesFrequency[blocksUpdateAnalysisRequest]
         blocksUpdatesFrequency[blocksUpdateAnalysisRequest] = frequency ?: 0 + 1
-
-        return false
     }
 }

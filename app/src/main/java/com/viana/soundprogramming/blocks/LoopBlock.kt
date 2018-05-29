@@ -1,6 +1,7 @@
 package com.viana.soundprogramming.blocks
 
 import android.graphics.Rect
+import android.util.Log
 import com.viana.soundprogramming.exceptions.LoopBlockNeedsParamError
 
 class LoopBlock : Block() {
@@ -35,6 +36,7 @@ class LoopBlock : Block() {
         val paramBlock: LoopParamBlock? = loopParamBlocks.firstOrNull { Rect.intersects(intersectionRect, it.rect) }
         if (paramBlock != null) {
             this.numberOfRepetitions = paramBlock.numberOfRepetitions
+            Log.i("LoopBlock", "repetitions= ${this.numberOfRepetitions}")
         } else {
             this.numberOfRepetitions = 0
             if (targetBlocks.isNotEmpty())
@@ -45,7 +47,7 @@ class LoopBlock : Block() {
     private fun buildClones(): MutableList<Block> {
         var i = 0
         val repeatingBlocks = mutableListOf<Block>()
-        val distToAdd = 100f
+        val distToAdd = diameter * 3
         while (++i < numberOfRepetitions) {
             repeatingBlocks.addAll(targetBlocks.map { repeatableBlock ->
                 repeatableBlock.copy().apply {
@@ -61,7 +63,7 @@ class LoopBlock : Block() {
         val lastRepeatedBlock = repeatedBlocks.maxBy { it.centerX }
         lastRepeatedBlock?.let {
             val diff = lastRepeatedBlock.centerX - loopBlock.centerX
-            val following = blocks.filter { it.centerX > (loopBlock.centerX + 30) && !repeatedBlocks.contains(it) }
+            val following = blocks.filter { it.centerX > (loopBlock.centerX) && !repeatedBlocks.contains(it) }
             following.forEach {
                 if (it !is NotMovableBlock)
                     it.move(it.centerX + diff, it.centerY)

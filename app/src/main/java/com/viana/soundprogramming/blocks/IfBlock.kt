@@ -1,6 +1,7 @@
 package com.viana.soundprogramming.blocks
 
 import android.graphics.Rect
+import com.viana.soundprogramming.exceptions.IfBlockNeedsParamError
 
 class IfBlock : Block() {
 
@@ -20,6 +21,8 @@ class IfBlock : Block() {
         filterTargetBlocks(ifTargetBlocks)
         val intersectedParams = ifParamBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
         val intersectedSoundBlocks = ifTargetBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
+        if(intersectedParams.isEmpty() && intersectedSoundBlocks.isNotEmpty())
+            throw IfBlockNeedsParamError()
 
         if (intersectedParams.any { it.type == IfParamBlock.Type.HAS_CIRCLE }) {
             intersectedSoundBlocks.forEach {

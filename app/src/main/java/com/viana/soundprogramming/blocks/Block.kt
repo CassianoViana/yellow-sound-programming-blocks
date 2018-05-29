@@ -23,6 +23,7 @@ open class Block {
     var isRepetitionBlock: Boolean = false
     var bitmap: Bitmap? = null
     var soundHelpResId: Int = 0
+    var originalCenterX: Int = 0
 
     var topCode: TopCode? = null
         set(topCode) {
@@ -34,6 +35,7 @@ open class Block {
                 right = (it.centerX + radius).toInt()
                 bottom = (it.centerY + radius).toInt()
                 centerX = it.centerX.toInt()
+                originalCenterX = it.centerX.toInt()
                 centerY = it.centerY.toInt()
                 diameter = it.diameter
                 code = it.code
@@ -55,11 +57,11 @@ open class Block {
             canvas?.drawBitmap(bitmap, left.toFloat(), top.toFloat(), paint)
         }
         topCode?.draw(canvas)
-        paint.color = Color.WHITE
-        paint.textSize = 20f
-        canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
+        //paint.color = Color.WHITE
+        //paint.textSize = 20f
+        //canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
 
-        paint.color = Color.CYAN
+        paint.color = Color.YELLOW
         paint.alpha = 50
         canvas?.drawRect(intersectionRect, paint)
     }
@@ -85,6 +87,7 @@ open class Block {
 
     open fun fillWithProperties(block: Block) {
         block.board = board
+        block.soundHelpResId = soundHelpResId
         block.topCode = topCode?.copy()
     }
 

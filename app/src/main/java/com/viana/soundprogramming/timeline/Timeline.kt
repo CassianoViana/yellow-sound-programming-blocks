@@ -58,6 +58,7 @@ class Timeline(
                         listeners.forEach {
                             countLoops++
                             it.onHitStart(timer)
+                            Log.i("onHitStart", "Speed = $speedFactor")
                         }
                     }
                 }
@@ -96,13 +97,12 @@ class Timeline(
         speedFactor = 0F
     }
 
-    override fun stateChanged(state: StateMachine.State) {
+    override fun stateChanged(state: StateMachine.State, previous: StateMachine.State) {
         when (state) {
             StateMachine.State.PLAYING -> start()
             StateMachine.State.PAUSED -> stop()
             StateMachine.State.RECORDING -> stop()
-            else -> {
-            }
+            StateMachine.State.HELPING -> stop()
         }
     }
 }
