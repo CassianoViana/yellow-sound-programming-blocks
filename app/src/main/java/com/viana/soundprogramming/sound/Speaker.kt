@@ -22,19 +22,19 @@ class Speaker {
         add(R.raw.gravando_em_321, 10)
         add(R.raw.gravacao_ahh_a_peca_nao_pode_ser_gravada, 10)
 
-        add(R.raw.alerta_falta_uma_peca_repita, 20)
-        add(R.raw.alerta_falta_uma_peca_se, 20)
+        add(R.raw.alerta_falta_parametro_repita, 20)
+        add(R.raw.alerta_falta_parametro_se, 20)
         add(R.raw.alerta_tabuleiro_nao_esta_centralizado, 20)
 
         add(R.raw.ajuda_bumbo, 10)
         add(R.raw.ajuda_caixa, 10)
-        add(R.raw.ajuda_chimbau, 10)
+        add(R.raw.ajuda_chimbal, 10)
         add(R.raw.ajuda_surdo, 10)
         add(R.raw.ajuda_prato_ataque, 10)
-        add(R.raw.ajuda_prato_de_conducao, 10)
+        add(R.raw.ajuda_prato_conducao, 10)
         add(R.raw.ajuda_tom, 10)
 
-        add(R.raw.ajuda_repita, 10)
+        add(R.raw.ajuda_peca_repita, 10)
         add(R.raw.ajuda_se, 10)
 
         add(R.raw.ajuda_numero_2, 4)
@@ -56,7 +56,7 @@ class Speaker {
     }
 
     fun say(resId: Int) {
-        say(resId, delays[resId]!!)
+        say(resId, delays[resId] ?: 5)
     }
 
     private fun say(resId: Int, time: Long) {
@@ -77,5 +77,8 @@ object MyMediaPlayer {
     fun play(resId: Int) {
         val mediaPlayer = MediaPlayer.create(appInstance, resId)
         mediaPlayer.start()
+        mediaPlayer.setOnCompletionListener {
+            mediaPlayer.release()
+        }
     }
 }

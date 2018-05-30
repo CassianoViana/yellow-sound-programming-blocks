@@ -9,6 +9,8 @@ class BlocksLibrary {
     val blocks: MutableMap<Int, Block> = mutableMapOf()
 
     init {
+        blocks[339] = LockBlock()
+
         blocks[713] = CornerBlock()
         blocks[613] = CornerBlock()
         blocks[617] = CornerBlock()
@@ -19,13 +21,13 @@ class BlocksLibrary {
         blocks[279] = RecordBlock()
         blocks[341] = HelpBlock()
 
-        blocks[333] = PresenceBlock(PresenceBlock.Type.CIRCLE).setHelpMessage(R.raw.circulo)
+        blocks[333] = PresenceBlock(PresenceBlock.Type.CIRCLE).setHelpMessage(R.raw.ajuda_circulo)
         blocks[107] = PresenceBlock(PresenceBlock.Type.STAR).setHelpMessage(R.raw.ajuda_estrela)
 
         blocks[61] = VolumeBlock()
         blocks[79] = SpeedBlock()
 
-        blocks[55] = LoopBlock().setHelpMessage(R.raw.ajuda_repita)
+        blocks[55] = LoopBlock().setHelpMessage(R.raw.ajuda_peca_repita)
         blocks[361] = LoopParamBlock(2).setHelpMessage(R.raw.ajuda_numero_2)
         blocks[357] = LoopParamBlock(3).setHelpMessage(R.raw.ajuda_numero_3)
         blocks[355] = LoopParamBlock(4).setHelpMessage(R.raw.ajuda_numero_4)
@@ -61,7 +63,7 @@ class BlocksLibrary {
                 .setSoundId(R.raw.prato_conducao)
                 .setDrawable(R.drawable.button_stop, appInstance.resources)
                 .build()
-                .setHelpMessage(R.raw.ajuda_prato_de_conducao)
+                .setHelpMessage(R.raw.ajuda_prato_conducao)
         blocks[181] = SoundBlock.Builder()
                 .setSoundId(R.raw.tom1)
                 .setDrawable(R.drawable.button_stop, appInstance.resources)
@@ -71,7 +73,7 @@ class BlocksLibrary {
                 .setSoundId(R.raw.chimbal)
                 .setDrawable(R.drawable.button_stop, appInstance.resources)
                 .build()
-                .setHelpMessage(R.raw.ajuda_chimbau)
+                .setHelpMessage(R.raw.ajuda_chimbal)
 
     }
 

@@ -10,7 +10,7 @@ class Helper : BlocksManager.Listener, StateMachine.Listener {
 
     override fun updateBlocksList(blocks: List<Block>) {
         if (helping) {
-            val blockToExplain = blocks.firstOrNull { it.diameter > 60 }
+            val blockToExplain = blocks.firstOrNull { it.diameter > 90 }
             blockToExplain?.let {
                 Speaker.instance.say(it.soundHelpResId)
             }

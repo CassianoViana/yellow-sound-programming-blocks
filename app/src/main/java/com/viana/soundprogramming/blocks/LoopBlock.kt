@@ -45,9 +45,9 @@ class LoopBlock : Block() {
     }
 
     private fun buildClones(): MutableList<Block> {
-        var i = 0
+        var i = 1
         val repeatingBlocks = mutableListOf<Block>()
-        val distToAdd = diameter * 3
+        val distToAdd = diameter * 2
         while (i < numberOfRepetitions) {
             repeatingBlocks.addAll(targetBlocks.map { repeatableBlock ->
                 repeatableBlock.copy().apply {

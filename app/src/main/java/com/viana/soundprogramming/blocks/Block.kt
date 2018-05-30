@@ -57,9 +57,9 @@ open class Block {
             canvas?.drawBitmap(bitmap, left.toFloat(), top.toFloat(), paint)
         }
         topCode?.draw(canvas)
-        //paint.color = Color.WHITE
-        //paint.textSize = 20f
-        //canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
+        paint.color = Color.WHITE
+        paint.textSize = 40f
+        canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
 
         paint.color = Color.YELLOW
         paint.alpha = 50
@@ -76,7 +76,8 @@ open class Block {
     }
 
     override fun toString(): String {
-        return "X=$centerX, Y=$centerY, degree=$degree, diameter=$diameter"
+        //return "X=$centerX, Y=$centerY, degree=$degree, diameter=$diameter"
+        return "d=$diameter"
     }
 
     open fun copy(): Block {

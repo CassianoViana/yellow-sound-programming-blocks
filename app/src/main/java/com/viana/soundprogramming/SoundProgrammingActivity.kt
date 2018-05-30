@@ -5,13 +5,9 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.viana.soundprogramming.blocks.Block
-import com.viana.soundprogramming.blocks.BlocksManager
-import com.viana.soundprogramming.blocks.SoundBlock
-import com.viana.soundprogramming.blocks.TopCodesReader
+import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.OnEachFrameListener
-import com.viana.soundprogramming.camera.OnOpenCameraListener
 import com.viana.soundprogramming.camera.ScreenUtil
 import com.viana.soundprogramming.core.Music
 import com.viana.soundprogramming.core.MusicBuilder
@@ -65,6 +61,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
 
     override fun onResume() {
         super.onResume()
+        Speaker.instance.say(R.raw.msg_olaaa_vamos_programar_bateria)
         ScreenUtil.fullscreen(window)
         startAfterDelay(1000)
     }
@@ -86,13 +83,8 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         boardSurfaceView.prepare(this, timelineView)
         camera = Camera(this, surfaceView)
         camera.onEachFrameListener = object : OnEachFrameListener {
-            override fun newFrame(bitmap: Bitmap) {
+            override fun onNewFrame(bitmap: Bitmap) {
                 topCodesReader.read(bitmap)
-            }
-        }
-        camera.onOpenCameraListener = object : OnOpenCameraListener {
-            override fun cameraOpened() {
-                Speaker.instance.say(R.raw.msg_olaaa_vamos_programar_bateria)
             }
         }
     }
@@ -157,22 +149,24 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun buildMusic() {
-        if (boardBlocks.isNotEmpty()) {
-            musicBuilder.build(boardBlocks,
-                    boardSurfaceView,
-                    object : MusicBuilder.OnMusicReadyListener {
-                        override fun ready(builtMusic: Music) {
-                            music?.stop()
-                            music = builtMusic
-                            boardSurfaceView.timeline.scheduleTimer()
-                        }
+        val empty = boardBlocks.isEmpty()
+        val locked = boardBlocks.any { it.javaClass == LockBlock::class.java }
+        if (locked || empty)
+            return
+        musicBuilder.build(boardBlocks,
+                boardSurfaceView,
+                object : MusicBuilder.OnMusicReadyListener {
+                    override fun ready(builtMusic: Music) {
+                        music?.stop()
+                        music = builtMusic
+                        boardSurfaceView.timeline.scheduleTimer()
+                    }
 
-                        override fun error(e: SoundProgrammingError) {
-                            e.printStackTrace()
-                            Speaker.instance.say(e.explanationResId)
-                        }
-                    })
-        }
+                    override fun error(e: SoundProgrammingError) {
+                        e.printStackTrace()
+                        Speaker.instance.say(e.explanationResId)
+                    }
+                })
     }
 
     private fun prepareBlocksRecorder() {
@@ -216,6 +210,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                     }
                 })
             }
-        }, 14000)
+        }, 14500)
     }
 }

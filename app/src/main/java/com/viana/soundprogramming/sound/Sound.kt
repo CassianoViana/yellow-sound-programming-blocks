@@ -86,7 +86,7 @@ abstract class Sound {
         override val minVolume = 0.2f
 
         override fun build(soundBlock: SoundBlock): Sound {
-            val sound = SoundAudioTrack(soundBlock.soundShortArray!!)
+            val sound = SoundAudioTrack(soundBlock.soundShortArray)
             val volume = calculateVolumeByDiameter(soundBlock)
             sound.volume = volume
             if (musicBuilder.isWiredHeadsetOn()) {
@@ -111,7 +111,7 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
                 override fun run() {
                     if (musicId == MusicBuilder.currentMusicId) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
-                        ProgrammingVibrator.vibrate((volume * 5).toLong())
+                        //ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
                 }
             }, delayMillis)

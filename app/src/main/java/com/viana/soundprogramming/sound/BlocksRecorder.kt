@@ -19,7 +19,7 @@ class BlocksRecorder : BlocksManager.Listener, StateMachine.Listener {
     override fun updateBlocksList(blocks: List<Block>) {
         if (!waitingBlockToRecord) return
         blocks.firstOrNull {
-            it.diameter > 60
+            it.diameter > 90
         }?.apply {
             if (this !is SoundBlock) {
                 Speaker.instance.say(R.raw.gravacao_ahh_a_peca_nao_pode_ser_gravada)

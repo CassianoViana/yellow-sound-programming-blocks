@@ -53,8 +53,6 @@ class TestActivity : AppCompatActivity() {
 
     private fun playMixe() {
         val audioMixer = AudioMixerShort(10, 1f)
-        audioMixer.addSound(0f, readShorts(resources.openRawResource(R.raw.alerta_falta_uma_peca_repita)))
-        audioMixer.addSound(2.000f, readShorts(resources.openRawResource(R.raw.drum1)))
         audioMixer.addSound(3.000f, readShorts(resources.openRawResource(R.raw.chimbal)))
         audioMixer.addSound(3.100f, readShorts(resources.openRawResource(R.raw.chimbal)))
         audioMixer.addSound(3.500f, readShorts(resources.openRawResource(R.raw.chimbal)))

@@ -47,7 +47,7 @@ class Camera(
         image?.let {
             val bitmap = bitmapReader.readImage(image)
             image.close()
-            onEachFrameListener?.newFrame(bitmap)
+            onEachFrameListener?.onNewFrame(bitmap)
         }
     }
 
@@ -185,7 +185,7 @@ class Camera(
 }
 
 interface OnEachFrameListener {
-    fun newFrame(bitmap: Bitmap)
+    fun onNewFrame(bitmap: Bitmap)
 }
 
 interface OnOpenCameraListener {

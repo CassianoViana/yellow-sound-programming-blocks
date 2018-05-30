@@ -12,7 +12,7 @@ object ProgrammingVibrator {
     }
 
     fun vibrate(time: Long) {
-        /*prepare()
-        vibrator?.vibrate(time)*/
+        prepare()
+        vibrator?.vibrate(time)
     }
 }
