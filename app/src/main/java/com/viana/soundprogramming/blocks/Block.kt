@@ -77,7 +77,8 @@ open class Block {
 
     override fun toString(): String {
         //return "X=$centerX, Y=$centerY, degree=$degree, diameter=$diameter"
-        return "d=$diameter"
+        //return "d=$diameter"
+        return "a=$degree"
     }
 
     open fun copy(): Block {

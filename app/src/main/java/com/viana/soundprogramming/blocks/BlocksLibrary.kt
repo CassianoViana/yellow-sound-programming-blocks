@@ -21,6 +21,9 @@ class BlocksLibrary {
         blocks[279] = RecordBlock()
         blocks[341] = HelpBlock()
 
+        blocks[87] = ModuleBlock()
+        blocks[91] = ModuleBlock()
+
         blocks[333] = PresenceBlock(PresenceBlock.Type.CIRCLE).setHelpMessage(R.raw.ajuda_circulo)
         blocks[107] = PresenceBlock(PresenceBlock.Type.STAR).setHelpMessage(R.raw.ajuda_estrela)
 

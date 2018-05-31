@@ -4,8 +4,6 @@ import android.graphics.Rect
 
 class ModuleBlock : Block() {
 
-    private var targetBlocks: List<ControllableBlock> = mutableListOf()
-
     override fun buildSyntaxIntersectionRect(): Rect {
         var rect = Rect()
         topCode?.let {
@@ -18,12 +16,17 @@ class ModuleBlock : Block() {
         return rect
     }
 
-    fun disableSomeBlocks(blocks: List<ControllableBlock>) {
-        filterTargetBlocks(blocks)
-        targetBlocks.forEach { active = (it.board?.timeline?.countLoops ?: 0 % 2 == 0) }
-    }
+    fun affect(loopParamBlocks: List<LoopParamBlock>, repeatableBlocks: List<ControllableBlock>) {
+        val soundBlocksAffecteds = repeatableBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
+        val loopParamsAffected = repeatableBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
 
-    private fun filterTargetBlocks(blocks: List<ControllableBlock>) {
-        targetBlocks = blocks.filter { Rect.intersects(intersectionRect, it.rect) }
+        loopParamBlocks.forEach { loopParamBlock ->
+            loopParamsAffected.filter {
+                Rect.intersects(loopParamBlock.intersectionRect, it.rect)
+            }.forEach {
+                it.module = loopParamBlock.numberOfRepetitions
+            }
+        }
+
     }
 }

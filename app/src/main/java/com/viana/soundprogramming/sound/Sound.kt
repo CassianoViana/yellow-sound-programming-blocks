@@ -5,7 +5,7 @@ import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
 import com.viana.soundprogramming.timeline.TimelineTimer
-import com.viana.soundprogramming.vibration.ProgrammingVibrator
+import com.viana.soundprogramming.timeline.countLoops
 import java.util.*
 
 abstract class Sound {
@@ -15,6 +15,7 @@ abstract class Sound {
     var volumeRight: Float = 0f
     var delayMillis: Long = 500
     var musicId: UUID? = null
+    var module: Byte = 1
 
     abstract fun play(timer: TimelineTimer)
 
@@ -64,6 +65,7 @@ abstract class Sound {
             val soundId = soundBlock.soundId
             val sound = SoundSoundPool(soundId)
             sound.musicId = MusicBuilder.currentMusicId
+            sound.module = soundBlock.module
             val volume = calculateVolumeByDiameter(soundBlock)
             sound.volume = volume
             if (musicBuilder.isWiredHeadsetOn()) {
@@ -109,7 +111,7 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             this.timer.schedule(object : TimerTask() {
                 override fun run() {
-                    if (musicId == MusicBuilder.currentMusicId) {
+                    if (musicId == MusicBuilder.currentMusicId && countLoops % module == 0) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
                         //ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }

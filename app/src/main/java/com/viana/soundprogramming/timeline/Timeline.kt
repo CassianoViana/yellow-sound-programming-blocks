@@ -9,12 +9,13 @@ import com.viana.soundprogramming.StateMachine
 import com.viana.soundprogramming.board.Board
 import java.util.*
 
+var countLoops: Int = 0
+
 class Timeline(
         var board: Board,
         parent: Activity,
         timelineView: View,
-        val secondsToTraverseWidth: Double = 4.0,
-        var countLoops: Int = 0
+        val secondsToTraverseWidth: Double = 4.0
 ) : StateMachine.Listener {
 
     private val listeners = mutableListOf<Listener>()
@@ -48,6 +49,7 @@ class Timeline(
     fun scheduleTimer() {
         Log.i("Timeline", "Timer scheduled")
         stopTimer()
+        countLoops = 0
         timer = TimelineTimer()
         updateCycleInterval()
         if (this.cycleInterval > 0) {

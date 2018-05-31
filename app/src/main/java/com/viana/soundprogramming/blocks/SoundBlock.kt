@@ -12,6 +12,7 @@ import java.io.InputStream
 
 open class SoundBlock : ControllableBlock() {
 
+    override var module: Byte = 1
     var soundId: Int = 0
     lateinit var soundStream: InputStream
     lateinit var soundShortArray: ShortArray

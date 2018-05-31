@@ -36,6 +36,7 @@ class MusicBuilderImpl : MusicBuilder {
             calculateSpeed()
             calculateGlobalVolume()
             removeFalseTestBlocks()
+            computeModuleBlocks(blocks)
             repeatRepeatableBlocks(blocks)
             buildSounds()
             defineMusicBeginEnd()
@@ -65,6 +66,13 @@ class MusicBuilderImpl : MusicBuilder {
             it.moveFollowingToRight(blocks, it, repeatedBlocks)
             repeatedBlocks
         })
+    }
+
+    private fun computeModuleBlocks(blocks: List<Block>){
+        val repeatableBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
+        val moduleBlocks = blocks.filterIsInstance(ModuleBlock::class.java)
+        val loopParamBlocks = blocks.filterIsInstance(LoopParamBlock::class.java)
+        moduleBlocks.forEach { it.affect(loopParamBlocks, repeatableBlocks) }
     }
 
     private fun removeFalseTestBlocks() {
