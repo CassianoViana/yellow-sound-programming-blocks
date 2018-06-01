@@ -123,10 +123,37 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 .addListener(object : BlocksManager.Listener {
                     override fun updateBlocksList(blocks: List<Block>) {
                         if (stateMachine.state == StateMachine.State.PLAYING) {
+                            val onlyPresenceBlocksWereAddedOrRemoved = onlyPresenceBlocksWereAddedOrRemoved(blocks)
+                            if (onlyPresenceBlocksWereAddedOrRemoved) {
+                                updateCurrentMusicSoundsAffectedByIfTests(blocks)
+                            }
                             boardBlocks = blocks.toMutableList()
-                            buildMusic()
+                            if (!onlyPresenceBlocksWereAddedOrRemoved) {
+                                buildMusic()
+                            }
+
                         }
                     }
+
+                    private fun onlyPresenceBlocksWereAddedOrRemoved(blocks: List<Block>): Boolean {
+                        val newPresenceBlocks = blocks.filter { it is PresenceBlock }
+                        val oldPresenceBlocks = boardBlocks.filter { it is PresenceBlock }
+                        val newNotPresenceBlocks = blocks.filter { it !is PresenceBlock }
+                        val oldNotPresenceBlocks = boardBlocks.filter { it !is PresenceBlock }
+                        return oldPresenceBlocks.size != newPresenceBlocks.size && newNotPresenceBlocks.size == oldNotPresenceBlocks.size
+                    }
+
+                    private fun updateCurrentMusicSoundsAffectedByIfTests(blocks: List<Block>) {
+                        val presenceBlocksSituation = blocks.filterIsInstance(PresenceBlock::class.java).map { it.type }
+                        music?.let { music ->
+                            music.sounds
+                                    .filter { it.conditionType != null }
+                                    .forEach {
+                                        it.ifConditionSatisfied = presenceBlocksSituation.contains(it.conditionType)
+                                    }
+                        }
+                    }
+
                 })
     }
 

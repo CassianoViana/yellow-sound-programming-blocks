@@ -39,8 +39,8 @@ class BlocksLibrary {
 
         blocks[93] = IfBlock().setHelpMessage(R.raw.ajuda_se)
 
-        blocks[109] = IfParamBlock(IfParamBlock.Type.HAS_CIRCLE)
-        blocks[121] = IfParamBlock(IfParamBlock.Type.HAS_STAR)
+        blocks[109] = IfParamBlock(PresenceBlock.Type.CIRCLE)
+        blocks[121] = IfParamBlock(PresenceBlock.Type.STAR)
 
         blocks[157] = SoundBlock.Builder()
                 .setSoundId(R.raw.surdo)

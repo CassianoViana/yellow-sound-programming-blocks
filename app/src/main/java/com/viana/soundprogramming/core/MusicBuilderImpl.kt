@@ -79,9 +79,9 @@ class MusicBuilderImpl : MusicBuilder {
         val ifBlocks = blocks.filterIsInstance(IfBlock::class.java)
         val ifTargetBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
         val ifParamBlocks = blocks.filterIsInstance(IfParamBlock::class.java)
-        val presenceBlock = blocks.filterIsInstance(PresenceBlock::class.java)
+        val presenceBlocks = blocks.filterIsInstance(PresenceBlock::class.java)
         val falseBlocks = ifBlocks.flatMap {
-            it.findFalseTestBlocks(ifTargetBlocks, ifParamBlocks, presenceBlock)
+            it.findFalseTestBlocks(ifTargetBlocks, ifParamBlocks, presenceBlocks)
         }
         blocks.removeAll { falseBlocks.contains(it) }
     }
@@ -112,7 +112,6 @@ class MusicBuilderImpl : MusicBuilder {
     private fun buildSounds() {
         val soundBlocks = blocks
                 .filterIsInstance(SoundBlock::class.java)
-                .filter { it.active }
                 .sortedBy { it.centerX }
         this.maxSoundBlockDiameter = soundBlocks.map { it.diameter }.max() ?: 0f
         if (soundBlocks.size == 1) {

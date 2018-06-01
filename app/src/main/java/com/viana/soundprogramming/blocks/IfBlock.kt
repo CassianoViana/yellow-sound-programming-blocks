@@ -18,31 +18,21 @@ class IfBlock : Block() {
     }
 
     fun findFalseTestBlocks(ifTargetBlocks: List<ControllableBlock>, ifParamBlocks: List<IfParamBlock>, presenceBlocks: List<PresenceBlock>): List<Block> {
-        filterTargetBlocks(ifTargetBlocks)
+        filterTargetBlocks()
         val intersectedParams = ifParamBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
         val intersectedSoundBlocks = ifTargetBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
-        if(intersectedParams.isEmpty() && intersectedSoundBlocks.isNotEmpty())
+        if (intersectedParams.isEmpty() && intersectedSoundBlocks.isNotEmpty())
             throw IfBlockNeedsParamError()
-
-        if (intersectedParams.any { it.type == IfParamBlock.Type.HAS_CIRCLE }) {
-            intersectedSoundBlocks.forEach {
-                it.active = presenceBlocks.any { it.type == PresenceBlock.Type.CIRCLE }
-            }
-        }
-        if (intersectedParams.any { it.type == IfParamBlock.Type.HAS_SQUARE }) {
-            intersectedSoundBlocks.forEach {
-                it.active = presenceBlocks.any { it.type == PresenceBlock.Type.SQUARE }
-            }
-        }
-        if (intersectedParams.any { it.type == IfParamBlock.Type.HAS_STAR }) {
-            intersectedSoundBlocks.forEach {
-                it.active = presenceBlocks.any { it.type == PresenceBlock.Type.STAR }
+        intersectedParams.forEach { param ->
+            intersectedSoundBlocks.forEach { intersectedSoundBlock ->
+                intersectedSoundBlock.conditionType = param.type
+                intersectedSoundBlock.ifConditionSatisfied = presenceBlocks.map { it.type }.contains(param.type)
             }
         }
         return intersectedSoundBlocks.filter { !it.active }
     }
 
-    private fun filterTargetBlocks(ifTargetBlocks: List<ControllableBlock>) {
+    private fun filterTargetBlocks() {
 
     }
 

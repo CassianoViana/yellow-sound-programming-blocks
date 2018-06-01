@@ -3,12 +3,9 @@ package com.viana.soundprogramming.blocks
 import android.graphics.Rect
 
 
-class IfParamBlock(var type: Type) : Block() {
-    enum class Type {
-        HAS_STAR, HAS_CIRCLE, HAS_SQUARE
-    }
+class IfParamBlock(var type: PresenceBlock.Type) : Block() {
 
-    constructor() : this(Type.HAS_CIRCLE)
+    constructor() : this(PresenceBlock.Type.CIRCLE)
 
     override fun fillWithProperties(block: Block) {
         super.fillWithProperties(block)

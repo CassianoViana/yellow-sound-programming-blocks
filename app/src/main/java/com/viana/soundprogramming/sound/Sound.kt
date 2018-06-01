@@ -1,6 +1,7 @@
 package com.viana.soundprogramming.sound
 
 import android.util.Log
+import com.viana.soundprogramming.blocks.PresenceBlock
 import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
@@ -16,6 +17,8 @@ abstract class Sound {
     var delayMillis: Long = 500
     var musicId: UUID? = null
     var module: Byte = 1
+    var conditionType: PresenceBlock.Type? = null
+    var ifConditionSatisfied: Boolean = true
 
     abstract fun play(timer: TimelineTimer)
 
@@ -64,6 +67,8 @@ abstract class Sound {
         override fun build(soundBlock: SoundBlock): Sound {
             val soundId = soundBlock.soundId
             val sound = SoundSoundPool(soundId)
+            sound.conditionType = soundBlock.conditionType
+            sound.ifConditionSatisfied = soundBlock.ifConditionSatisfied
             sound.musicId = MusicBuilder.currentMusicId
             sound.module = soundBlock.module
             val volume = calculateVolumeByDiameter(soundBlock)
@@ -112,7 +117,7 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             this.timer.schedule(object : TimerTask() {
                 override fun run() {
-                    if (musicId == MusicBuilder.currentMusicId && countLoops % module == 0) {
+                    if (musicId == MusicBuilder.currentMusicId && countLoops % module == 0 && ifConditionSatisfied) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
                         //ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
