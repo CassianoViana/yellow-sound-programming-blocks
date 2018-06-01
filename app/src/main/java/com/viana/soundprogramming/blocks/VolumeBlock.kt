@@ -11,5 +11,4 @@ class VolumeBlock : Block(), NotMovableBlock {
         val volume = Math.abs(degree) / 360
         musicBuilder.maxVolume = 1 - volume
     }
-
 }

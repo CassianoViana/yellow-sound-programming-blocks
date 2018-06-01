@@ -68,7 +68,7 @@ class MusicBuilderImpl : MusicBuilder {
         })
     }
 
-    private fun computeModuleBlocks(blocks: List<Block>){
+    private fun computeModuleBlocks(blocks: List<Block>) {
         val repeatableBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
         val moduleBlocks = blocks.filterIsInstance(ModuleBlock::class.java)
         val loopParamBlocks = blocks.filterIsInstance(LoopParamBlock::class.java)
@@ -113,6 +113,7 @@ class MusicBuilderImpl : MusicBuilder {
         val soundBlocks = blocks
                 .filterIsInstance(SoundBlock::class.java)
                 .filter { it.active }
+                .sortedBy { it.centerX }
         this.maxSoundBlockDiameter = soundBlocks.map { it.diameter }.max() ?: 0f
         if (soundBlocks.size == 1) {
             minSoundBlockDiameter = 0f

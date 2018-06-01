@@ -100,7 +100,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun startCamera() {
-        camera.flashLightOn = true
+        camera.flashLightOn = false
         camera.openCamera()
         boardSurfaceView.start()
     }

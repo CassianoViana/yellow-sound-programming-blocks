@@ -1,5 +1,7 @@
 package com.viana.soundprogramming.blocks
 
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Rect
 import android.util.Log
 import com.viana.soundprogramming.exceptions.LoopBlockNeedsParamError
@@ -19,6 +21,16 @@ class LoopBlock : Block() {
             rect = Rect(left, top, right, bottom)
         }
         return rect
+    }
+
+    override fun draw(canvas: Canvas?) {
+        bitmap?.let {
+            canvas?.drawBitmap(bitmap, left.toFloat(), top.toFloat(), paint)
+        }
+
+        paint.color = Color.YELLOW
+        paint.alpha = 50
+        canvas?.drawRect(intersectionRect, paint)
     }
 
     fun repeatBlocks(loopTargetBlocks: List<ControllableBlock>,

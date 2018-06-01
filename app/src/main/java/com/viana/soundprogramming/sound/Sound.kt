@@ -108,6 +108,7 @@ abstract class Sound {
 class SoundSoundPool(private val soundId: Int) : Sound() {
     private val timer = Timer()
     override fun play(timer: TimelineTimer) {
+        Log.i("playMoment", "$delayMillis")
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             this.timer.schedule(object : TimerTask() {
                 override fun run() {
