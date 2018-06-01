@@ -5,14 +5,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import com.viana.soundprogramming.blocks.*
+import com.viana.soundprogramming.blocks.BlocksManager
+import com.viana.soundprogramming.blocks.SoundBlock
+import com.viana.soundprogramming.blocks.TopCodesReader
 import com.viana.soundprogramming.camera.Camera
 import com.viana.soundprogramming.camera.OnEachFrameListener
 import com.viana.soundprogramming.camera.ScreenUtil
-import com.viana.soundprogramming.core.Music
-import com.viana.soundprogramming.core.MusicBuilder
-import com.viana.soundprogramming.core.MusicBuilderImpl
-import com.viana.soundprogramming.exceptions.SoundProgrammingError
 import com.viana.soundprogramming.sound.BlocksRecorder
 import com.viana.soundprogramming.sound.Speaker
 import com.viana.soundprogramming.timeline.Timeline
@@ -34,19 +32,18 @@ const val REQUEST_CODE_VIBRATE_PERMISSION = 400
 class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, BlocksRecorder.Listener {
 
     private lateinit var camera: Camera
+    private lateinit var musicManager: MusicManager
     private val topCodesReader = TopCodesReader()
     private val blocksManager = BlocksManager()
-    private val musicBuilder = MusicBuilderImpl()
     private val blocksRecorder = BlocksRecorder()
     private val stateMachine = StateMachine()
     private val helper = Helper()
-    private var music: Music? = null
-    private var boardBlocks = mutableListOf<Block>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sound_programming)
         prepareCamera()
+        prepareMusicManager()
         Speaker.instance.load()
         prepareTopCodeListeners()
         prepareBlocksManagerListeners()
@@ -80,13 +77,17 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun prepareCamera() {
-        boardSurfaceView.prepare(this, timelineView)
+        board.prepare(this, timelineView)
         camera = Camera(this, surfaceView)
         camera.onEachFrameListener = object : OnEachFrameListener {
             override fun onNewFrame(bitmap: Bitmap) {
                 topCodesReader.read(bitmap)
             }
         }
+    }
+
+    private fun prepareMusicManager() {
+        musicManager = MusicManager(stateMachine, board)
     }
 
     private fun startAfterDelay(delay: Long) {
@@ -102,11 +103,11 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     private fun startCamera() {
         camera.flashLightOn = false
         camera.openCamera()
-        boardSurfaceView.start()
+        board.start()
     }
 
     private fun stopCamera() {
-        boardSurfaceView.stop()
+        board.stop()
         camera.closeCamera()
     }
 
@@ -116,53 +117,19 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
 
     private fun prepareBlocksManagerListeners() {
         blocksManager
-                .addListener(boardSurfaceView)
+                .addListener(board)
                 .addListener(stateMachine)
                 .addListener(blocksRecorder)
                 .addListener(helper)
-                .addListener(object : BlocksManager.Listener {
-                    override fun updateBlocksList(blocks: List<Block>) {
-                        if (stateMachine.state == StateMachine.State.PLAYING) {
-                            val onlyPresenceBlocksWereAddedOrRemoved = onlyPresenceBlocksWereAddedOrRemoved(blocks)
-                            if (onlyPresenceBlocksWereAddedOrRemoved) {
-                                updateCurrentMusicSoundsAffectedByIfTests(blocks)
-                            }
-                            boardBlocks = blocks.toMutableList()
-                            if (!onlyPresenceBlocksWereAddedOrRemoved) {
-                                buildMusic()
-                            }
-
-                        }
-                    }
-
-                    private fun onlyPresenceBlocksWereAddedOrRemoved(blocks: List<Block>): Boolean {
-                        val newPresenceBlocks = blocks.filter { it is PresenceBlock }
-                        val oldPresenceBlocks = boardBlocks.filter { it is PresenceBlock }
-                        val newNotPresenceBlocks = blocks.filter { it !is PresenceBlock }
-                        val oldNotPresenceBlocks = boardBlocks.filter { it !is PresenceBlock }
-                        return oldPresenceBlocks.size != newPresenceBlocks.size && newNotPresenceBlocks.size == oldNotPresenceBlocks.size
-                    }
-
-                    private fun updateCurrentMusicSoundsAffectedByIfTests(blocks: List<Block>) {
-                        val presenceBlocksSituation = blocks.filterIsInstance(PresenceBlock::class.java).map { it.type }
-                        music?.let { music ->
-                            music.sounds
-                                    .filter { it.conditionType != null }
-                                    .forEach {
-                                        it.ifConditionSatisfied = presenceBlocksSituation.contains(it.conditionType)
-                                    }
-                        }
-                    }
-
-                })
+                .addListener(musicManager)
     }
 
     private fun prepareTimelineListener() {
-        boardSurfaceView
+        board
                 .timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer) {
                 ProgrammingVibrator.vibrate(5)
-                music?.play()
+                musicManager.music?.play()
             }
         })
     }
@@ -170,30 +137,9 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     private fun prepareStateMachineListeners() {
         stateMachine
                 .addListener(this)
-                .addListener(boardSurfaceView.timeline)
+                .addListener(board.timeline)
                 .addListener(helper)
                 .addListener(blocksRecorder)
-    }
-
-    private fun buildMusic() {
-        val empty = boardBlocks.isEmpty()
-        val locked = boardBlocks.any { it.javaClass == LockBlock::class.java }
-        if (locked || empty)
-            return
-        musicBuilder.build(boardBlocks,
-                boardSurfaceView,
-                object : MusicBuilder.OnMusicReadyListener {
-                    override fun ready(builtMusic: Music) {
-                        music?.stop()
-                        music = builtMusic
-                        boardSurfaceView.timeline.scheduleTimer()
-                    }
-
-                    override fun error(e: SoundProgrammingError) {
-                        e.printStackTrace()
-                        Speaker.instance.say(e.explanationResId)
-                    }
-                })
     }
 
     private fun prepareBlocksRecorder() {
@@ -212,7 +158,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
             when (state) {
                 StateMachine.State.HELPING -> Speaker.instance.say(R.raw.modo_ajuda)
                 StateMachine.State.PLAYING -> {
-                    music?.let {
+                    musicManager.music?.let {
                         if (it.sounds.isNotEmpty()) {
                             Speaker.instance.say(R.raw.modo_solta_o_som)
                         }
