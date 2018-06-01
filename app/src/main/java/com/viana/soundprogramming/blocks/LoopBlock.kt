@@ -76,7 +76,10 @@ class LoopBlock : Block() {
         val lastRepeatedBlock = repeatedBlocks.maxBy { it.centerX }
         lastRepeatedBlock?.let {
             val diff = lastRepeatedBlock.centerX - loopBlock.centerX
-            val following = blocks.filter { it.centerX > (loopBlock.centerX) && !repeatedBlocks.contains(it) }
+            val following = blocks.filter {
+                val gapToNotMoveFirstRepeatedBlock = 30//px
+                it.centerX > (loopBlock.centerX) + gapToNotMoveFirstRepeatedBlock && !repeatedBlocks.contains(it)
+            }
             following.forEach {
                 if (it !is NotMovableBlock)
                     it.move(it.centerX + diff, it.centerY)

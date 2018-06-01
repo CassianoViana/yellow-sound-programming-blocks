@@ -32,6 +32,7 @@ class MusicBuilderImpl : MusicBuilder {
             this.board = board
             music = MusicSoundPool(this)
             this.blocks = blocks.toMutableList()
+            defineMusicBegin()
             checkIfIsInsideCorners()
             calculateSpeed()
             calculateGlobalVolume()
@@ -39,7 +40,7 @@ class MusicBuilderImpl : MusicBuilder {
             computeModuleBlocks(blocks)
             repeatRepeatableBlocks(blocks)
             buildSounds()
-            defineMusicBeginEnd()
+            defineMusicEnd()
             (board as BlocksManager.Listener).updateBlocksList(this.blocks)
             music.prepare()
             onMusicReadyListener.ready(music)
@@ -96,13 +97,18 @@ class MusicBuilderImpl : MusicBuilder {
                 .firstOrNull()?.calculateVolume(this)
     }
 
-    private fun defineMusicBeginEnd() {
+    private fun defineMusicBegin() {
         val soundBlocks = blocks.filterIsInstance(SoundBlock::class.java)
         val mostLeft = soundBlocks.minBy { it.centerX }
-        val mostRight = soundBlocks.maxBy { it.centerX }
         mostLeft?.let {
             board.timeline.begin = it.centerX.toFloat() - 30
         }
+    }
+
+    private fun defineMusicEnd() {
+        val soundBlocks = blocks.filterIsInstance(SoundBlock::class.java)
+        val mostLeft = soundBlocks.minBy { it.centerX }
+        val mostRight = soundBlocks.maxBy { it.centerX }
         mostRight?.let {
             val lastPadding = (it.centerX - mostLeft?.centerX!!) / soundBlocks.size
             board.timeline.end = it.centerX.toFloat() + if (lastPadding == 0) 100 else lastPadding

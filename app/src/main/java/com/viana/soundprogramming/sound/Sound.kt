@@ -104,7 +104,6 @@ abstract class Sound {
                 sound.volumeRight = volume
             }
             sound.delayMillis = calculatePlayMoment(soundBlock)
-            Log.i("playMoment", "centerx: ${soundBlock.centerX}, moment: ${sound.delayMillis}")
             return sound
         }
     }
@@ -113,12 +112,13 @@ abstract class Sound {
 class SoundSoundPool(private val soundId: Int) : Sound() {
     private val timer = Timer()
     override fun play(timer: TimelineTimer) {
-        Log.i("playMoment", "$delayMillis")
+        Log.i("playMoment", "$delayMillis, $soundId ")
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             this.timer.schedule(object : TimerTask() {
                 override fun run() {
                     if (musicId == MusicBuilder.currentMusicId && countLoops % module == 0 && ifConditionSatisfied) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
+                        Log.i("play", "$delayMillis, $soundId ")
                         //ProgrammingVibrator.vibrate((volume * 5).toLong())
                     }
                 }
