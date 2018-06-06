@@ -20,6 +20,8 @@ class MusicManager(
     private var boardBlocks = mutableListOf<Block>()
 
     override fun updateBlocksList(blocks: List<Block>) {
+        val locked = blocks.any { it.javaClass == LockBlock::class.java }
+        if (locked) return
         if (stateMachine.state == StateMachine.State.PLAYING) {
             val onlyPresenceBlocksWereAddedOrRemoved = onlyPresenceBlocksWereAddedOrRemoved(blocks)
             boardBlocks = blocks.toMutableList()
@@ -51,10 +53,6 @@ class MusicManager(
     }
 
     private fun buildMusic() {
-        val empty = boardBlocks.isEmpty()
-        val locked = boardBlocks.any { it.javaClass == LockBlock::class.java }
-        if (locked || empty)
-            return
         musicBuilder.build(boardBlocks,
                 board,
                 object : MusicBuilder.OnMusicReadyListener {

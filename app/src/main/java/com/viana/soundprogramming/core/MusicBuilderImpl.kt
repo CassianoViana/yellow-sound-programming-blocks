@@ -32,15 +32,14 @@ class MusicBuilderImpl : MusicBuilder {
             this.board = board
             music = MusicSoundPool(this)
             this.blocks = blocks.toMutableList()
-            defineMusicBegin()
+            defineMusicBeginEnd()
             checkIfIsInsideCorners()
             calculateSpeed()
             calculateGlobalVolume()
-            removeFalseTestBlocks()
+            computeIfBlocks()
             computeModuleBlocks(blocks)
             repeatRepeatableBlocks(blocks)
             buildSounds()
-            defineMusicEnd()
             (board as BlocksManager.Listener).updateBlocksList(this.blocks)
             music.prepare()
             onMusicReadyListener.ready(music)
@@ -76,15 +75,14 @@ class MusicBuilderImpl : MusicBuilder {
         moduleBlocks.forEach { it.affect(loopParamBlocks, repeatableBlocks) }
     }
 
-    private fun removeFalseTestBlocks() {
+    private fun computeIfBlocks() {
         val ifBlocks = blocks.filterIsInstance(IfBlock::class.java)
         val ifTargetBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
         val ifParamBlocks = blocks.filterIsInstance(IfParamBlock::class.java)
         val presenceBlocks = blocks.filterIsInstance(PresenceBlock::class.java)
-        val falseBlocks = ifBlocks.flatMap {
-            it.findFalseTestBlocks(ifTargetBlocks, ifParamBlocks, presenceBlocks)
+        ifBlocks.forEach {
+            it.computeIfBlocks(ifTargetBlocks, ifParamBlocks, presenceBlocks)
         }
-        blocks.removeAll { falseBlocks.contains(it) }
     }
 
     private fun calculateSpeed() {
@@ -97,22 +95,13 @@ class MusicBuilderImpl : MusicBuilder {
                 .firstOrNull()?.calculateVolume(this)
     }
 
-    private fun defineMusicBegin() {
-        val soundBlocks = blocks.filterIsInstance(SoundBlock::class.java)
-        val mostLeft = soundBlocks.minBy { it.centerX }
-        mostLeft?.let {
-            board.timeline.begin = it.centerX.toFloat() - 30
-        }
-    }
-
-    private fun defineMusicEnd() {
-        val soundBlocks = blocks.filterIsInstance(SoundBlock::class.java)
-        val mostLeft = soundBlocks.minBy { it.centerX }
-        val mostRight = soundBlocks.maxBy { it.centerX }
-        mostRight?.let {
-            val lastPadding = (it.centerX - mostLeft?.centerX!!) / soundBlocks.size
-            board.timeline.end = it.centerX.toFloat() + if (lastPadding == 0) 100 else lastPadding
-        }
+    private fun defineMusicBeginEnd() {
+        board.timeline.begin = blocks.filterIsInstance(CornerBlock::class.java)
+                .filter { it.positions.contains(CornerBlock.Type.LEFT) }
+                .map { it.centerX + it.diameter / 1.2 }.average().toFloat()
+        board.timeline.end = blocks.filterIsInstance(CornerBlock::class.java)
+                .filter { it.positions.contains(CornerBlock.Type.RIGHT) }
+                .map { it.centerX - it.diameter / 1.2 }.average().toFloat()
     }
 
     private fun buildSounds() {

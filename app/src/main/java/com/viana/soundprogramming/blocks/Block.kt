@@ -59,7 +59,7 @@ open class Block {
         topCode?.draw(canvas)
         paint.color = Color.WHITE
         paint.textSize = 40f
-        canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
+        //canvas?.drawText(this.toString(), left.toFloat(), top.toFloat(), paint)
 
         paint.color = Color.YELLOW
         paint.alpha = 50

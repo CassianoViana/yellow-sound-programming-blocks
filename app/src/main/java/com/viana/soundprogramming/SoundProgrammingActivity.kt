@@ -183,6 +183,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                     }
                 })
             }
-        }, 14500)
+        }, 15000)
     }
 }

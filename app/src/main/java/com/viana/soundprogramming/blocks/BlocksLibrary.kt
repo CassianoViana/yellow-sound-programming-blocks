@@ -9,20 +9,19 @@ class BlocksLibrary {
     val blocks: MutableMap<Int, Block> = mutableMapOf()
 
     init {
-        blocks[339] = LockBlock()
+        blocks[87] = LockBlock()
 
-        blocks[713] = CornerBlock()
-        blocks[613] = CornerBlock()
-        blocks[617] = CornerBlock()
-        blocks[681] = CornerBlock()
+        blocks[713] = CornerBlock().setPositions(CornerBlock.Type.TOP, CornerBlock.Type.LEFT)
+        blocks[617] = CornerBlock().setPositions(CornerBlock.Type.TOP, CornerBlock.Type.RIGHT)
+        blocks[613] = CornerBlock().setPositions(CornerBlock.Type.BOTTOM, CornerBlock.Type.LEFT)
+        blocks[681] = CornerBlock().setPositions(CornerBlock.Type.BOTTOM, CornerBlock.Type.RIGHT)
 
         blocks[31] = PlayBlock()
         blocks[47] = PauseBlock()
         blocks[279] = RecordBlock()
         blocks[341] = HelpBlock()
 
-        blocks[87] = ModuleBlock()
-        blocks[91] = ModuleBlock()
+        blocks[117] = ModuleBlock()
 
         blocks[333] = PresenceBlock(PresenceBlock.Type.CIRCLE).setHelpMessage(R.raw.ajuda_circulo)
         blocks[107] = PresenceBlock(PresenceBlock.Type.STAR).setHelpMessage(R.raw.ajuda_estrela)
