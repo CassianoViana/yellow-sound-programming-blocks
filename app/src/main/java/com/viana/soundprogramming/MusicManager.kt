@@ -59,7 +59,7 @@ class MusicManager(
                     override fun ready(builtMusic: Music) {
                         music?.stop()
                         music = builtMusic
-                        board.timeline.scheduleTimer()
+                        //board.timeline.scheduleTimer()
                     }
 
                     override fun error(e: SoundProgrammingError) {

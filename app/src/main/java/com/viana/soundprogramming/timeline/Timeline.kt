@@ -11,6 +11,8 @@ import java.util.*
 
 var countLoops: Int = 0
 
+var scheduleLocked: Boolean = false
+
 class Timeline(
         var board: Board,
         parent: Activity,
@@ -37,7 +39,10 @@ class Timeline(
 
     var speedFactor: Float = 1.00F
         set(value) {
-            field = value
+            if (Math.abs(field - value) > 0.2) {
+                scheduleLocked = false
+                field = value
+            }
             if (field == 0f) {
                 stopTimer()
                 timelineAnimator.stop()
@@ -47,6 +52,9 @@ class Timeline(
         }
 
     fun scheduleTimer() {
+        if (scheduleLocked) return
+        scheduleLocked = true
+
         Log.i("Timeline", "Timer scheduled")
         stopTimer()
         countLoops = 0

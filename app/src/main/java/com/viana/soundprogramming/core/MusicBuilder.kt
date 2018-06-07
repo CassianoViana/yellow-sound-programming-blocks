@@ -10,6 +10,8 @@ interface MusicBuilder {
     var maxVolume: Float
     var maxSoundBlockDiameter: Float
     var minSoundBlockDiameter: Float
+    var minY: Int
+    var maxY: Int
     var board: Board
     var music: Music
 

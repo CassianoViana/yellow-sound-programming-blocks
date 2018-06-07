@@ -32,7 +32,7 @@ class BlocksManager : TopCodesReader.Listener {
 
         return blocks.toMutableList()
                 .apply {
-                    removeAll { it.centerX > maxX || it.centerX < minX || it.centerY < minY || it.centerY > maxY }
+                    removeAll { it.centerX > maxX || it.centerX < minX || it.centerY < minY - 100 || it.centerY > maxY }
                 }.toList()
     }
 

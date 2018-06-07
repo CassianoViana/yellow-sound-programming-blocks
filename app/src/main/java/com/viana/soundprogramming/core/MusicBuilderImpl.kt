@@ -6,7 +6,6 @@ import android.util.Log
 import com.viana.soundprogramming.appInstance
 import com.viana.soundprogramming.blocks.*
 import com.viana.soundprogramming.board.Board
-import com.viana.soundprogramming.exceptions.BaseOutOfCornersError
 import com.viana.soundprogramming.exceptions.SoundProgrammingError
 import java.util.*
 
@@ -18,6 +17,9 @@ class MusicBuilderImpl : MusicBuilder {
 
     override lateinit var board: Board
     override lateinit var music: Music
+
+    override var minY: Int = 0
+    override var maxY: Int = 0
 
     override var maxVolume: Float = 1f
     override var maxSoundBlockDiameter: Float = 1f
@@ -33,9 +35,9 @@ class MusicBuilderImpl : MusicBuilder {
             music = MusicSoundPool(this)
             this.blocks = blocks.toMutableList()
             defineMusicBeginEnd()
-            checkIfIsInsideCorners()
             calculateSpeed()
             calculateGlobalVolume()
+            normalizeDiameters()
             computeIfBlocks()
             computeModuleBlocks(blocks)
             repeatRepeatableBlocks(blocks)
@@ -51,19 +53,13 @@ class MusicBuilderImpl : MusicBuilder {
         }
     }
 
-    private fun checkIfIsInsideCorners() {
-        if (blocks.filterIsInstance(CornerBlock::class.java).size < 2)
-            throw BaseOutOfCornersError()
-
-    }
-
     private fun repeatRepeatableBlocks(blocks: List<Block>) {
         val repeatableBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
         val loopParamBlocks = blocks.filterIsInstance(LoopParamBlock::class.java)
-        val loopBlocks = blocks.filterIsInstance(LoopBlock::class.java)
-        this.blocks.addAll(loopBlocks.flatMap {
-            val repeatedBlocks = it.repeatBlocks(repeatableBlocks, loopParamBlocks)
-            it.moveFollowingToRight(blocks, it, repeatedBlocks)
+        //val loopBlocks = blocks.filterIsInstance(LoopBlock::class.java)
+        this.blocks.addAll(loopParamBlocks.flatMap {
+            val repeatedBlocks = it.repeatBlocks(repeatableBlocks)
+            //it.moveFollowingToRight(blocks, it, repeatedBlocks)
             repeatedBlocks
         })
     }
@@ -76,12 +72,12 @@ class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun computeIfBlocks() {
-        val ifBlocks = blocks.filterIsInstance(IfBlock::class.java)
+        //val ifBlocks = blocks.filterIsInstance(IfBlock::class.java)
         val ifTargetBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
         val ifParamBlocks = blocks.filterIsInstance(IfParamBlock::class.java)
         val presenceBlocks = blocks.filterIsInstance(PresenceBlock::class.java)
-        ifBlocks.forEach {
-            it.computeIfBlocks(ifTargetBlocks, ifParamBlocks, presenceBlocks)
+        ifParamBlocks.forEach {
+            it.computeIfBlocks(ifTargetBlocks, presenceBlocks)
         }
     }
 
@@ -95,13 +91,28 @@ class MusicBuilderImpl : MusicBuilder {
                 .firstOrNull()?.calculateVolume(this)
     }
 
+    private fun normalizeDiameters() {
+        val controllableBlocks = blocks.filter { it is ControllableBlock || it is LoopParamBlock }
+        val averageDiameter = controllableBlocks.map { it.diameter }.average()
+        controllableBlocks.forEach { it.diameter = averageDiameter.toFloat() }
+    }
+
     private fun defineMusicBeginEnd() {
-        board.timeline.begin = blocks.filterIsInstance(CornerBlock::class.java)
+        val cornerBlocks = blocks.filterIsInstance(CornerBlock::class.java)
+        board.timeline.begin = cornerBlocks
                 .filter { it.positions.contains(CornerBlock.Type.LEFT) }
-                .map { it.centerX + it.diameter / 1.2 }.average().toFloat()
-        board.timeline.end = blocks.filterIsInstance(CornerBlock::class.java)
+                .map { it.centerX + it.diameter / 1.5 }.average().toFloat()
+        board.timeline.end = cornerBlocks
                 .filter { it.positions.contains(CornerBlock.Type.RIGHT) }
-                .map { it.centerX - it.diameter / 1.2 }.average().toFloat()
+                .map { it.centerX - it.diameter / 1.5 }.average().toFloat()
+
+        minY = cornerBlocks
+                .filter { it.positions.contains(CornerBlock.Type.TOP) }
+                .map { it.centerY }.average().toInt()
+
+        maxY = cornerBlocks
+                .filter { it.positions.contains(CornerBlock.Type.BOTTOM) }
+                .map { it.centerY - it.diameter * 3 }.average().toInt()
     }
 
     private fun buildSounds() {

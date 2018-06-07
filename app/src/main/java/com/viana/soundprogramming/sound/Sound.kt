@@ -51,6 +51,11 @@ abstract class Sound {
             return (minVolume + volumeVariation * ((soundBlock.diameter - minDiameter) / (maxDiameter - minDiameter))) * musicBuilder.maxVolume
         }
 
+        fun calculateVolumeByY(soundBlock: SoundBlock): Float {
+            val diff: Int = Math.abs(musicBuilder.maxY - musicBuilder.minY)
+            return ((Math.abs(soundBlock.centerY - musicBuilder.minY)).toFloat() / diff)
+        }
+
         fun calculatePlayMoment(soundBlock: SoundBlock): Long =
                 musicBoard.timeline.let {
                     (it.secondsToTraverseWidth / it.speedFactor * 1000 *
@@ -71,7 +76,7 @@ abstract class Sound {
             sound.ifConditionSatisfied = soundBlock.ifConditionSatisfied
             sound.musicId = MusicBuilder.currentMusicId
             sound.module = soundBlock.module
-            val volume = calculateVolumeByDiameter(soundBlock)
+            val volume = calculateVolumeByY(soundBlock)
             sound.volume = volume
             if (musicBuilder.isWiredHeadsetOn()) {
                 sound.volumeLeft = calculateVolumeLeft(soundBlock) * volume
@@ -94,7 +99,7 @@ abstract class Sound {
 
         override fun build(soundBlock: SoundBlock): Sound {
             val sound = SoundAudioTrack(soundBlock.soundShortArray)
-            val volume = calculateVolumeByDiameter(soundBlock)
+            val volume = calculateVolumeByY(soundBlock)
             sound.volume = volume
             if (musicBuilder.isWiredHeadsetOn()) {
                 sound.volumeLeft = calculateVolumeLeft(soundBlock) * volume
@@ -116,7 +121,8 @@ class SoundSoundPool(private val soundId: Int) : Sound() {
         if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
             this.timer.schedule(object : TimerTask() {
                 override fun run() {
-                    if (musicId == MusicBuilder.currentMusicId && countLoops % module == 0 && ifConditionSatisfied) {
+                    //musicId == MusicBuilder.currentMusicId &&
+                    if (countLoops % module == 0 && ifConditionSatisfied) {
                         SoundManager.instance.play(soundId, volumeLeft, volumeRight)
                         Log.i("play", "$delayMillis, $soundId ")
                         //ProgrammingVibrator.vibrate((volume * 5).toLong())
