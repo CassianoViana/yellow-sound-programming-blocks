@@ -15,7 +15,6 @@ class SpeedBlock : Block(), NotMovableBlock {
             val speedFactor = Math.abs(degree) / 180
             var fl = 2f - speedFactor
             if (fl < 0.5) fl = 0.5f
-            Log.i("SpeedBlock", "speed: $fl")
             timeline.speedFactor = fl
         }
     }

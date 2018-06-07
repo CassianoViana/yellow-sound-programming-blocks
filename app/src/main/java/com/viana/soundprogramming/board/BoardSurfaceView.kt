@@ -36,8 +36,18 @@ class BoardSurfaceView
         widthFloat = width.toFloat()
     }
 
+    private var raiaIndex: Int = 0
+
     fun prepare(parent: Activity, timelineView: View) {
         timeline = Timeline(this, parent, timelineView)
+        /*timeline.addListener(object : Timeline.Listener {
+            override fun onHitStart(timelineTimer: TimelineTimer, i: Int) {
+                Thread({
+                    raiaIndex = i
+                    updateAndDraw()
+                }).start()
+            }
+        })*/
     }
 
     fun start() {
@@ -78,9 +88,20 @@ class BoardSurfaceView
             clear(canvas)
             drawBlocks(canvas, blocks)
             drawTimelineRange(canvas)
+            //drawRaia(canvas, raiaIndex)
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    private fun drawRaia(canvas: Canvas, raiaIndex: Int) {
+        val raiaWidth = timeline.raiaWidth().toInt()
+        val left = timeline.begin + raiaIndex * raiaWidth
+        val right = left + raiaWidth
+        val rect = Rect(left.toInt(), 0, right.toInt(), height)
+        paint.color = Color.MAGENTA
+        paint.alpha = 50
+        canvas.drawRect(rect, paint)
     }
 
     private fun clear(canvas: Canvas) {
@@ -93,8 +114,8 @@ class BoardSurfaceView
 
     private fun drawTimelineRange(canvas: Canvas) {
         paint.color = Color.RED
-        paint.alpha = 100
-        canvas.drawRect(Rect(timeline.begin.toInt(), 0, timeline.end.toInt(), width), paint)
+        paint.alpha = 30
+        canvas.drawRect(Rect(timeline.begin.toInt(), 0, timeline.end.toInt(), height), paint)
     }
 
     override fun updateBlocksList(blocks: List<Block>) {

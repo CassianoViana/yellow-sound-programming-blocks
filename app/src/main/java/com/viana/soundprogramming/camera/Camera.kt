@@ -145,7 +145,7 @@ class Camera(
                     e.printStackTrace()
                 }
             }
-        }, 0, 500)
+        }, 0, 300)
         /*cameraSession.setRepeatingRequest(captureRequest,
                 value, backgroundHandler)*/
     }

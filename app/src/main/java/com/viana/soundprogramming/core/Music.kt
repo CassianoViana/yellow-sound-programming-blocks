@@ -6,7 +6,7 @@ abstract class Music(var soundBuilder: Sound.Builder) {
 
     var sounds = listOf<Sound>()
     open var speed: Float = 0f
-    abstract fun play()
+    abstract fun play(index: Int)
 
     open fun stop() {}
 

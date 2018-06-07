@@ -1,11 +1,9 @@
 package com.viana.soundprogramming.sound
 
-import android.util.Log
 import com.viana.soundprogramming.blocks.PresenceBlock
 import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
-import com.viana.soundprogramming.timeline.TimelineTimer
 import com.viana.soundprogramming.timeline.countLoops
 import java.util.*
 
@@ -19,8 +17,9 @@ abstract class Sound {
     var module: Byte = 1
     var conditionType: PresenceBlock.Type? = null
     var ifConditionSatisfied: Boolean = true
+    var index: Int = 0
 
-    abstract fun play(timer: TimelineTimer)
+    abstract fun play()
 
     interface Builder {
         fun build(soundBlock: SoundBlock): Sound
@@ -53,7 +52,7 @@ abstract class Sound {
 
         fun calculateVolumeByY(soundBlock: SoundBlock): Float {
             val diff: Int = Math.abs(musicBuilder.maxY - musicBuilder.minY)
-            return ((Math.abs(soundBlock.centerY - musicBuilder.minY)).toFloat() / diff)
+            return (minVolume + volumeVariation * (Math.abs(soundBlock.centerY - musicBuilder.minY)).toFloat() / diff) * musicBuilder.maxVolume
         }
 
         fun calculatePlayMoment(soundBlock: SoundBlock): Long =
@@ -61,6 +60,19 @@ abstract class Sound {
                     (it.secondsToTraverseWidth / it.speedFactor * 1000 *
                             (soundBlock.centerX - it.begin) / musicBoard.widthFloat).toLong()
                 }
+
+        fun calculatePlayIndex(soundBlock: SoundBlock): Int {
+            val raiaWidth = musicBoard.timeline.raiaWidth()
+            val begin = musicBoard.timeline.begin
+            var i = 0
+            while (i < 8) {
+                if (soundBlock.centerX > begin + i * raiaWidth && soundBlock.centerX < begin + (i + 1) * raiaWidth) {
+                    return i
+                }
+                i++
+            }
+            return 0
+        }
     }
 
     class SoundPoolSoundBuilder(override var musicBuilder: MusicBuilder) : Builder {
@@ -85,7 +97,8 @@ abstract class Sound {
                 sound.volumeLeft = volume
                 sound.volumeRight = volume
             }
-            sound.delayMillis = calculatePlayMoment(soundBlock)
+            //sound.delayMillis = calculatePlayMoment(soundBlock)
+            sound.index = calculatePlayIndex(soundBlock)
             return sound
         }
     }
@@ -115,24 +128,16 @@ abstract class Sound {
 }
 
 class SoundSoundPool(private val soundId: Int) : Sound() {
-    private val timer = Timer()
-    override fun play(timer: TimelineTimer) {
-        Log.i("playMoment", "$delayMillis, $soundId ")
-        if (delayMillis > 0 && delayMillis < Int.MAX_VALUE)
-            this.timer.schedule(object : TimerTask() {
-                override fun run() {
-                    //musicId == MusicBuilder.currentMusicId &&
-                    if (countLoops % module == 0 && ifConditionSatisfied) {
-                        SoundManager.instance.play(soundId, volumeLeft, volumeRight)
-                        Log.i("play", "$delayMillis, $soundId ")
-                        //ProgrammingVibrator.vibrate((volume * 5).toLong())
-                    }
-                }
-            }, delayMillis)
+    override fun play() {
+        //musicId == MusicBuilder.currentMusicId &&
+        if (countLoops % module == 0 && ifConditionSatisfied) {
+            SoundManager.instance.play(soundId, volumeLeft, volumeRight)
+            //ProgrammingVibrator.vibrate((volume * 5).toLong())
+        }
     }
 }
 
 class SoundAudioTrack(var soundShortArray: ShortArray) : Sound() {
-    override fun play(timer: TimelineTimer) {
+    override fun play() {
     }
 }

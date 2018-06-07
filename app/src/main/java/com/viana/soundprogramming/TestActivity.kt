@@ -96,9 +96,8 @@ class TestActivity : AppCompatActivity() {
         musicBuilder.build(blocks, board, object : MusicBuilder.OnMusicReadyListener {
             override fun ready(music: Music) {
                 //playMixe()
-                music.play()
+                music.play(0)
             }
-
             override fun error(e: SoundProgrammingError) {
             }
         })

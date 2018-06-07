@@ -45,7 +45,6 @@ class MusicBuilderImpl : MusicBuilder {
             (board as BlocksManager.Listener).updateBlocksList(this.blocks)
             music.prepare()
             onMusicReadyListener.ready(music)
-            Log.i("Sounds", music.sounds.size.toString())
         } catch (e: SoundProgrammingError) {
             music.sounds = listOf()
             e.printStackTrace()

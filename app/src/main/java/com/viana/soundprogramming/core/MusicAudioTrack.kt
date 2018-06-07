@@ -15,15 +15,12 @@ class MusicAudioTrack(val musicBuilder: MusicBuilder) : Music(Sound.SoundAudioTr
     private val audioTrackPlayer = AudioTrackPlayer()
     private lateinit var mixAddedSounds: ShortArray
 
-    override fun play() {
+    override fun play(index: Int) {
         play(mixAddedSounds)
     }
 
     override fun prepare() {
-
         val cycleInterval = musicBuilder.board.timeline.cycleInterval
-
-        Log.i("MusicAudioTrack", "play, interval $cycleInterval")
         val audioMixer = AudioMixerShort(cycleInterval / 1000, 0.9f)
         audioTrackPlayer.setSpeedFactor(musicBuilder.board.timeline.speedFactor)
 

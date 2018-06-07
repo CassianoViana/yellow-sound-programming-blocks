@@ -18,7 +18,6 @@ class SoundManager {
 
     constructor() {
         soundPool.setOnLoadCompleteListener { a: SoundPool, soundId: Int, c: Int ->
-            Log.i("SoundManager", "load sound $soundId, $c")
             if (failedNotReadySounds.contains(soundId)) {
                 play(soundId)
                 failedNotReadySounds.remove(soundId)
@@ -51,7 +50,6 @@ class SoundManager {
     }
 
     fun play(soundId: Int, volumeLeft: Float, volumeRight: Float) {
-        Log.i("play", "volumeLeft: $volumeLeft, volumeRight: $volumeRight")
         val playTryResult = soundPool.play(soundId, volumeLeft, volumeRight, 1, 0, 1f)
         tryAgainIfNotRead(playTryResult, soundId)
     }

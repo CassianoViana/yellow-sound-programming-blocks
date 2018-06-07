@@ -48,7 +48,6 @@ class LoopBlock : Block() {
         val paramBlock: LoopParamBlock? = loopParamBlocks.firstOrNull { Rect.intersects(intersectionRect, it.rect) }
         if (paramBlock != null) {
             this.numberOfRepetitions = paramBlock.numberOfRepetitions
-            Log.i("LoopBlock", "repetitions= ${this.numberOfRepetitions}")
         } else {
             this.numberOfRepetitions = 0
             if (targetBlocks.isNotEmpty())

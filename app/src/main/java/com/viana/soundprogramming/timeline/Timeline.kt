@@ -24,6 +24,7 @@ class Timeline(
     var timer: TimelineTimer = TimelineTimer()
     private var timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
     var cycleInterval: Long = 4000
+    fun raiaWidth() = (end - begin) / 8
 
     var begin: Float = 0f
         set(value) {
@@ -51,10 +52,9 @@ class Timeline(
             }
         }
 
-    fun scheduleTimer() {
+    private fun scheduleTimer() {
         if (scheduleLocked) return
         scheduleLocked = true
-
         Log.i("Timeline", "Timer scheduled")
         stopTimer()
         countLoops = 0
@@ -64,15 +64,13 @@ class Timeline(
             timer.scheduleAtFixedRate(object : TimerTask() {
                 override fun run() {
                     if (speedFactor > 0) {
-                        timelineAnimator.transition(begin, end, cycleInterval)
                         listeners.forEach {
-                            countLoops++
-                            it.onHitStart(timer)
-                            Log.i("onHitStart", "Speed = $speedFactor")
+                            it.onHitStart(timer, countLoops % 8)
                         }
+                        countLoops++
                     }
                 }
-            }, 0, cycleInterval)
+            }, 0, cycleInterval / 8)
         }
     }
 
@@ -96,7 +94,7 @@ class Timeline(
     }
 
     interface Listener {
-        fun onHitStart(timelineTimer: TimelineTimer)
+        fun onHitStart(timelineTimer: TimelineTimer, i: Int)
     }
 
     fun start() {
