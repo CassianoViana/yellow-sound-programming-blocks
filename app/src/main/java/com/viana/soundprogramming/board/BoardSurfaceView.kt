@@ -1,16 +1,14 @@
 package com.viana.soundprogramming.board
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.View
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.timeline.Timeline
+import com.viana.soundprogramming.timeline.TimelineTimer
 
 class BoardSurfaceView
 @JvmOverloads constructor(
@@ -38,16 +36,14 @@ class BoardSurfaceView
 
     private var raiaIndex: Int = 0
 
-    fun prepare(parent: Activity, timelineView: View) {
-        timeline = Timeline(this, parent, timelineView)
-        /*timeline.addListener(object : Timeline.Listener {
+    fun prepare() {
+        timeline = Timeline(this)
+        timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer, i: Int) {
-                Thread({
-                    raiaIndex = i
-                    updateAndDraw()
-                }).start()
+                raiaIndex = i
+                updateAndDraw()
             }
-        })*/
+        })
     }
 
     fun start() {
@@ -83,12 +79,11 @@ class BoardSurfaceView
 
     override fun draw(canvas: Canvas) {
         try {
-            Log.i("Board", "draw")
             super.draw(canvas)
-            clear(canvas)
-            drawBlocks(canvas, blocks)
-            drawTimelineRange(canvas)
-            //drawRaia(canvas, raiaIndex)
+            //clear(canvas)
+            //drawBlocks(canvas, blocks)
+            //drawTimelineRange(canvas)
+            drawRaia(canvas, raiaIndex)
         } catch (e: Exception) {
             e.printStackTrace()
         }

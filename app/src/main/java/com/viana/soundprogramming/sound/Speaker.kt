@@ -26,16 +26,16 @@ class Speaker {
         add(R.raw.alerta_falta_parametro_se, 20)
         add(R.raw.alerta_tabuleiro_nao_esta_centralizado, 20)
 
-        add(R.raw.ajuda_bumbo, 10)
-        add(R.raw.ajuda_caixa, 10)
-        add(R.raw.ajuda_chimbal, 10)
-        add(R.raw.ajuda_surdo, 10)
-        add(R.raw.ajuda_prato_ataque, 10)
-        add(R.raw.ajuda_prato_conducao, 10)
-        add(R.raw.ajuda_tom, 10)
+        add(R.raw.ajuda_bumbo, 5)
+        add(R.raw.ajuda_caixa, 5)
+        add(R.raw.ajuda_chimbal, 5)
+        add(R.raw.ajuda_surdo, 5)
+        add(R.raw.ajuda_prato_ataque, 5)
+        add(R.raw.ajuda_prato_conducao, 5)
+        add(R.raw.ajuda_tom, 5)
 
-        add(R.raw.ajuda_peca_repita, 10)
-        add(R.raw.ajuda_se, 10)
+        add(R.raw.ajuda_peca_repita, 5)
+        add(R.raw.ajuda_se, 5)
 
         add(R.raw.ajuda_numero_2, 4)
         add(R.raw.ajuda_numero_3, 4)
@@ -74,11 +74,11 @@ class Speaker {
 }
 
 object MyMediaPlayer {
+    private var mediaPlayer: MediaPlayer? = null
     fun play(resId: Int) {
-        val mediaPlayer = MediaPlayer.create(appInstance, resId)
-        mediaPlayer.start()
-        mediaPlayer.setOnCompletionListener {
-            mediaPlayer.release()
-        }
+        mediaPlayer?.reset()
+        mediaPlayer?.stop()
+        mediaPlayer = MediaPlayer.create(appInstance, resId)
+        mediaPlayer?.start()
     }
 }

@@ -24,12 +24,6 @@
 
     </RelativeLayout>
 
-    <View
-        android:id="@+id/timelineView"
-        android:layout_width="10dp"
-        android:layout_height="match_parent"
-        android:background="@drawable/temporal_line" />
-
     <LinearLayout
         android:id="@+id/buttons"
         android:orientation="vertical"
@@ -42,7 +36,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="onClickTest"
-            android:text="@string/test" />
+            android:text="@string/light" />
 
     </LinearLayout>
 

@@ -16,7 +16,6 @@ import com.viana.soundprogramming.exceptions.SoundProgrammingError
 import com.viana.soundprogramming.sound.*
 import com.viana.soundprogramming.timeline.Timeline
 import com.viana.soundprogramming.util.readShorts
-import kotlinx.android.synthetic.main.activity_test.*
 import topcodes.TopCode
 
 class TestActivity : AppCompatActivity() {
@@ -88,7 +87,7 @@ class TestActivity : AppCompatActivity() {
             override fun draw(canvas: Canvas) {}
         }
 
-        val timeline = Timeline(board, this, timelineView)
+        val timeline = Timeline(board)
         board.timeline = timeline
         timeline.board = board
 

@@ -15,14 +15,11 @@ var scheduleLocked: Boolean = false
 
 class Timeline(
         var board: Board,
-        parent: Activity,
-        timelineView: View,
         val secondsToTraverseWidth: Double = 4.0
 ) : StateMachine.Listener {
 
     private val listeners = mutableListOf<Listener>()
     var timer: TimelineTimer = TimelineTimer()
-    private var timelineAnimator = TimelineAnimatorValueAnimator(parent, timelineView)
     var cycleInterval: Long = 4000
     fun raiaWidth() = (end - begin) / 8
 
@@ -46,7 +43,6 @@ class Timeline(
             }
             if (field == 0f) {
                 stopTimer()
-                timelineAnimator.stop()
             } else {
                 scheduleTimer()
             }
@@ -76,8 +72,7 @@ class Timeline(
 
     private fun updateCycleInterval() {
         if (speedFactor > 0) {
-            val percentageToTraverse = (end - begin) / board.widthFloat
-            cycleInterval = ((secondsToTraverseWidth * percentageToTraverse / speedFactor) * 1000).toLong()
+            cycleInterval = ((secondsToTraverseWidth / speedFactor) * 1000).toLong()
         }
     }
 

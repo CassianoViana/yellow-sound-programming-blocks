@@ -1,6 +1,5 @@
 package com.viana.soundprogramming.blocks
 
-import android.util.Log
 import com.viana.soundprogramming.timeline.Timeline
 
 class SpeedBlock : Block(), NotMovableBlock {
@@ -12,9 +11,9 @@ class SpeedBlock : Block(), NotMovableBlock {
             degree -= 360
         val notStopped = timeline.speedFactor != 0f
         if (notStopped) {
-            val speedFactor = Math.abs(degree) / 180
-            var fl = 2f - speedFactor
-            if (fl < 0.5) fl = 0.5f
+            val speedFactor = Math.abs(degree) / 90
+            var fl = 4f - speedFactor
+            if (fl < 0.25) fl = 0.25f
             timeline.speedFactor = fl
         }
     }

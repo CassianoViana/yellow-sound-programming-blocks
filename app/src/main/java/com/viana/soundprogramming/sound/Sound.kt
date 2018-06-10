@@ -51,8 +51,10 @@ abstract class Sound {
         }
 
         fun calculateVolumeByY(soundBlock: SoundBlock): Float {
-            val diff: Int = Math.abs(musicBuilder.maxY - musicBuilder.minY)
-            return (minVolume + volumeVariation * (Math.abs(soundBlock.centerY - musicBuilder.minY)).toFloat() / diff) * musicBuilder.maxVolume
+            val diffBoardHeight: Int = Math.abs(musicBuilder.maxY - musicBuilder.minY)
+            var diffBlockYFromTop = soundBlock.centerY - musicBuilder.minY
+            if (diffBlockYFromTop < 20) diffBlockYFromTop = 0
+            return (minVolume + volumeVariation * diffBlockYFromTop / diffBoardHeight) * musicBuilder.maxVolume
         }
 
         fun calculatePlayMoment(soundBlock: SoundBlock): Long =
@@ -78,8 +80,8 @@ abstract class Sound {
     class SoundPoolSoundBuilder(override var musicBuilder: MusicBuilder) : Builder {
 
         override var musicBoard: Board = musicBuilder.board
-        override var volumeVariation = 0.8f
-        override val minVolume = 0.2f
+        override var volumeVariation = 1.0f
+        override val minVolume = 0.0f
 
         override fun build(soundBlock: SoundBlock): Sound {
             val soundId = soundBlock.soundId

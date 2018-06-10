@@ -77,7 +77,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun prepareCamera() {
-        board.prepare(this, timelineView)
+        board.prepare()
         camera = Camera(this, surfaceView)
         camera.onEachFrameListener = object : OnEachFrameListener {
             override fun onNewFrame(bitmap: Bitmap) {
@@ -183,6 +183,6 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                     }
                 })
             }
-        }, 15000)
+        }, 14700)
     }
 }
