@@ -17,7 +17,6 @@ class ModuleBlock : Block() {
     }
 
     fun affect(loopParamBlocks: List<LoopParamBlock>, repeatableBlocks: List<ControllableBlock>) {
-        val soundBlocksAffecteds = repeatableBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
         val loopParamsAffected = repeatableBlocks.filter { Rect.intersects(intersectionRect, it.rect) }
 
         loopParamBlocks.forEach { loopParamBlock ->

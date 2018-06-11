@@ -8,7 +8,6 @@ import android.view.SurfaceView
 import com.viana.soundprogramming.blocks.Block
 import com.viana.soundprogramming.blocks.BlocksManager
 import com.viana.soundprogramming.timeline.Timeline
-import com.viana.soundprogramming.timeline.TimelineTimer
 
 class BoardSurfaceView
 @JvmOverloads constructor(
@@ -38,12 +37,12 @@ class BoardSurfaceView
 
     fun prepare() {
         timeline = Timeline(this)
-        timeline.addListener(object : Timeline.Listener {
+        /*timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer, i: Int) {
                 raiaIndex = i
                 updateAndDraw()
             }
-        })
+        })*/
     }
 
     fun start() {

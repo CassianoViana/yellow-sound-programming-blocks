@@ -76,7 +76,10 @@ class BlocksLibrary {
                 .setDrawable(R.drawable.button_stop, appInstance.resources)
                 .build()
                 .setHelpMessage(R.raw.ajuda_chimbal)
-
+        blocks[91] = SoundBlock.Builder()
+                .setSoundId(R.raw.fx_17)
+                .setDrawable(R.drawable.button_stop, appInstance.resources)
+                .build()
     }
 
     fun getTopCodeBlock(topCode: TopCode): Block? {
