@@ -56,10 +56,8 @@ class MusicManager(
         musicBuilder.build(boardBlocks,
                 board,
                 object : MusicBuilder.OnMusicReadyListener {
-                    override fun ready(builtMusic: Music) {
-                        music?.stop()
-                        music = builtMusic
-                        //board.timeline.scheduleTimer()
+                    override fun ready(music: Music) {
+                        this@MusicManager.music = music
                     }
 
                     override fun error(e: SoundProgrammingError) {

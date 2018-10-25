@@ -23,7 +23,7 @@ class ModuleBlock : Block() {
             loopParamsAffected.filter {
                 Rect.intersects(loopParamBlock.intersectionRect, it.rect)
             }.forEach {
-                it.module = loopParamBlock.numberOfRepetitions
+                it.playOnEachXLoops = loopParamBlock.numberOfRepetitions
             }
         }
 

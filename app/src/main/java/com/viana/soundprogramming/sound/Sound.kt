@@ -4,7 +4,7 @@ import com.viana.soundprogramming.blocks.PresenceBlock
 import com.viana.soundprogramming.blocks.SoundBlock
 import com.viana.soundprogramming.board.Board
 import com.viana.soundprogramming.core.MusicBuilder
-import com.viana.soundprogramming.timeline.countLoops
+import com.viana.soundprogramming.timeline.countEachLoop
 import java.util.*
 
 abstract class Sound {
@@ -14,10 +14,10 @@ abstract class Sound {
     var volumeRight: Float = 0f
     var delayMillis: Long = 500
     var musicId: UUID? = null
-    var module: Byte = 1
+    var index: Int = 0
+    var playOnEachXLoops: Byte = 1
     var conditionType: PresenceBlock.Type? = null
     var ifConditionSatisfied: Boolean = true
-    var index: Int = 0
 
     abstract fun play()
 
@@ -89,7 +89,7 @@ abstract class Sound {
             sound.conditionType = soundBlock.conditionType
             sound.ifConditionSatisfied = soundBlock.ifConditionSatisfied
             sound.musicId = MusicBuilder.currentMusicId
-            sound.module = soundBlock.module
+            sound.playOnEachXLoops = soundBlock.playOnEachXLoops
             val volume = calculateVolumeByY(soundBlock)
             sound.volume = volume
             if (musicBuilder.isWiredHeadsetOn()) {
@@ -131,10 +131,10 @@ abstract class Sound {
 
 class SoundSoundPool(private val soundId: Int) : Sound() {
     override fun play() {
-        //musicId == MusicBuilder.currentMusicId &&
-        if (countLoops % module == 0 && ifConditionSatisfied) {
+        val considerJumps = playOnEachXLoops != (1).toByte()
+        val isInThisSoundJumpLoop = countEachLoop % playOnEachXLoops == 0
+        if (considerJumps && isInThisSoundJumpLoop || (!considerJumps && ifConditionSatisfied)) {
             SoundManager.instance.play(soundId, volumeLeft, volumeRight)
-            //ProgrammingVibrator.vibrate((volume * 5).toLong())
         }
     }
 }

@@ -9,7 +9,8 @@ import com.viana.soundprogramming.StateMachine
 import com.viana.soundprogramming.board.Board
 import java.util.*
 
-var countLoops: Int = 0
+var countEachPositionStreak: Int = 0
+var countEachLoop: Int = 0
 
 var scheduleLocked: Boolean = false
 
@@ -53,7 +54,7 @@ class Timeline(
         scheduleLocked = true
         Log.i("Timeline", "Timer scheduled")
         stopTimer()
-        countLoops = 0
+        countEachPositionStreak = 0
         timer = TimelineTimer()
         updateCycleInterval()
         if (this.cycleInterval > 0) {
@@ -61,9 +62,11 @@ class Timeline(
                 override fun run() {
                     if (speedFactor > 0) {
                         listeners.forEach {
-                            it.onHitStart(timer, countLoops % 8)
+                            it.onHitStart(timer, countEachPositionStreak % 8)
                         }
-                        countLoops++
+                        countEachPositionStreak++
+                        if (countEachPositionStreak % 8 == 0)
+                            countEachLoop++
                     }
                 }
             }, 0, cycleInterval / 8)

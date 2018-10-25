@@ -53,11 +53,11 @@ class MusicBuilderImpl : MusicBuilder {
     }
 
     private fun repeatRepeatableBlocks(blocks: List<Block>) {
-        val repeatableBlocks = blocks.filterIsInstance(ControllableBlock::class.java)
+        val repeatableBlocks = blocks.filterIsInstance(ControllableBlock::class.java).filter { it.playOnEachXLoops == 1.toByte() }
         val loopParamBlocks = blocks.filterIsInstance(LoopParamBlock::class.java)
         //val loopBlocks = blocks.filterIsInstance(LoopBlock::class.java)
         this.blocks.addAll(loopParamBlocks.flatMap {
-            val repeatedBlocks = it.repeatBlocks(repeatableBlocks)
+            val repeatedBlocks = it.repeatBlocks(repeatableBlocks.filter { it.playOnEachXLoops == (1).toByte() })
             //it.moveFollowingToRight(blocks, it, repeatedBlocks)
             repeatedBlocks
         })
