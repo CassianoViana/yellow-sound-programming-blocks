@@ -54,11 +54,11 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
         managePermissionVibrate(this)
         managePermissionDirectory(this)
         managePermissionCamera(this)
+        Speaker.instance.say(R.raw.msg_olaaa_vamos_programar_bateria)
     }
 
     override fun onResume() {
         super.onResume()
-        Speaker.instance.say(R.raw.msg_olaaa_vamos_programar_bateria)
         ScreenUtil.fullscreen(window)
         startAfterDelay(1000)
     }
@@ -167,22 +167,24 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
                 StateMachine.State.PAUSED -> {
                     Speaker.instance.say(R.raw.modo_parar)
                 }
-                StateMachine.State.RECORDING -> Speaker.instance.say(R.raw.modo_gravar)
+                StateMachine.State.RECORDING -> Speaker.instance.say(R.raw.modo_gravacao_vamos_gravar_seu_proprio_som)
             }
         }
     }
 
     override fun readyToStartRecord(code: Int) {
-        Speaker.instance.say(R.raw.gravando_em_321)
+        Speaker.instance.say(R.raw.a_gravacao_vai_durar_dois_segundos)
         Timer().schedule(object : TimerTask() {
             override fun run() {
                 blocksRecorder.record(object : BlocksRecorder.OnRecordCompletedListener {
                     override fun recordCompleted(soundBlock: SoundBlock) {
-                        blocksManager.updateBlockSoundSoundId(soundBlock.code, soundBlock.soundId)
-                        Speaker.instance.say(R.raw.gravacao_muito_bem)
+                        if(stateMachine.state == StateMachine.State.RECORDING) {
+                            blocksManager.updateBlockSoundSoundId(soundBlock.code, soundBlock.soundId)
+                            Speaker.instance.say(R.raw.gravacao_muito_bem)
+                        }
                     }
                 })
             }
-        }, 14700)
+        }, 7000)
     }
 }

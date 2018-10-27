@@ -80,6 +80,12 @@ class BlocksLibrary {
                 .setSoundId(R.raw.fx_17)
                 .setDrawable(R.drawable.button_stop, appInstance.resources)
                 .build()
+
+        blocks[59] = SoundBlock.Builder().setSoundId(R.raw.none).setDrawable(R.drawable.button_stop, appInstance.resources).build().setHelpMessage(R.raw.essa_e_uma_peca_curinga)
+        blocks[103] = SoundBlock.Builder().setSoundId(R.raw.none).setDrawable(R.drawable.button_stop, appInstance.resources).build().setHelpMessage(R.raw.essa_e_uma_peca_curinga)
+        blocks[115] = SoundBlock.Builder().setSoundId(R.raw.none).setDrawable(R.drawable.button_stop, appInstance.resources).build().setHelpMessage(R.raw.essa_e_uma_peca_curinga)
+        blocks[143] = SoundBlock.Builder().setSoundId(R.raw.none).setDrawable(R.drawable.button_stop, appInstance.resources).build().setHelpMessage(R.raw.essa_e_uma_peca_curinga)
+        blocks[151] = SoundBlock.Builder().setSoundId(R.raw.none).setDrawable(R.drawable.button_stop, appInstance.resources).build().setHelpMessage(R.raw.essa_e_uma_peca_curinga)
     }
 
     fun getTopCodeBlock(topCode: TopCode): Block? {

@@ -22,7 +22,7 @@ class BlocksRecorder : BlocksManager.Listener, StateMachine.Listener {
             it.diameter > 90
         }?.apply {
             if (this !is SoundBlock) {
-                Speaker.instance.say(R.raw.gravacao_ahh_a_peca_nao_pode_ser_gravada)
+                Speaker.instance.say(R.raw.aproxime_uma_peca_curinga)
             } else if (!recording) {
                 if (soundBlockEnteredToBeRecorded != null) {
                     if (soundBlockEnteredToBeRecorded?.code == this.code)
@@ -48,10 +48,10 @@ class BlocksRecorder : BlocksManager.Listener, StateMachine.Listener {
                         /*it.soundStream = BufferedInputStream(FileInputStream(recordedFilePath))
                         it.soundShortArray = readShorts(FileInputStream(recordedFilePath))*/
                         onRecordCompletedListener.recordCompleted(it)
-                        freeBlockToBeRecordedAgainAfter(10000)
+                        freeBlockToBeRecordedAgainAfter(2000)
                     }
                 }
-                recordSeconds(5, it.code)
+                recordSeconds(2, it.code)
             }
         }
     }

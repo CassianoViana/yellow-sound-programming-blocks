@@ -14,17 +14,18 @@ class Speaker {
     fun load() {
         add(R.raw.msg_olaaa_vamos_programar_bateria)
         add(R.raw.modo_solta_o_som, 5)
-        add(R.raw.modo_gravar, 5)
+        add(R.raw.modo_gravacao_vamos_gravar_seu_proprio_som, 5)
         add(R.raw.modo_parar, 5)
         add(R.raw.modo_ajuda, 5)
 
         add(R.raw.gravacao_muito_bem, 10)
-        add(R.raw.gravando_em_321, 10)
-        add(R.raw.gravacao_ahh_a_peca_nao_pode_ser_gravada, 10)
+        add(R.raw.a_gravacao_vai_durar_dois_segundos, 1)
+        add(R.raw.aproxime_uma_peca_curinga, 10)
 
         add(R.raw.alerta_falta_parametro_repita, 20)
         add(R.raw.alerta_falta_parametro_se, 20)
         add(R.raw.alerta_tabuleiro_nao_esta_centralizado, 20)
+        add(R.raw.essa_e_uma_peca_curinga)
 
         add(R.raw.ajuda_bumbo, 5)
         add(R.raw.ajuda_caixa, 5)
@@ -37,13 +38,13 @@ class Speaker {
         add(R.raw.ajuda_peca_repita, 5)
         add(R.raw.ajuda_se, 5)
 
-        add(R.raw.ajuda_numero_2, 4)
-        add(R.raw.ajuda_numero_3, 4)
-        add(R.raw.ajuda_numero_4, 4)
-        add(R.raw.ajuda_numero_5, 4)
+        add(R.raw.ajuda_numero_2, 5)
+        add(R.raw.ajuda_numero_3, 5)
+        add(R.raw.ajuda_numero_4, 5)
+        add(R.raw.ajuda_numero_5, 5)
 
-        add(R.raw.ajuda_circulo, 10)
-        add(R.raw.ajuda_estrela, 10)
+        add(R.raw.ajuda_circulo, 5)
+        add(R.raw.ajuda_estrela, 5)
     }
 
     companion object {
