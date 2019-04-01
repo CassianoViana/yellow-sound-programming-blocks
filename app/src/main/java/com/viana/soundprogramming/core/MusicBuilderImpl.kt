@@ -105,13 +105,19 @@ class MusicBuilderImpl : MusicBuilder {
                 .filter { it.positions.contains(CornerBlock.Type.RIGHT) }
                 .map { it.centerX - it.diameter / 1.5 }.average().toFloat()
 
-        minY = cornerBlocks
+        val minY = cornerBlocks
                 .filter { it.positions.contains(CornerBlock.Type.TOP) }
                 .map { it.centerY }.average().toInt()
 
-        maxY = cornerBlocks
+        val maxY = cornerBlocks
                 .filter { it.positions.contains(CornerBlock.Type.BOTTOM) }
                 .map { it.centerY - it.diameter * 3 }.average().toInt()
+
+        if (minY > 0)
+            this.minY = minY
+
+        if (maxY > 0)
+            this.maxY = maxY
     }
 
     private fun buildSounds() {

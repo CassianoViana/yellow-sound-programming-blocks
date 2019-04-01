@@ -12,28 +12,63 @@ class BlocksManager : TopCodesReader.Listener {
 
     override fun topCodesChanged(topCodes: List<TopCode>) {
         val blocks = topCodes.mapNotNull { blocksLibrary.getTopCodeBlock(it) }
-        updateBlocksList(removeOutsideBlocks(blocks))
+        val blocksInsideBoard = removeOutsideBlocks(blocks)
+        updateBlocksList(blocksInsideBoard)
     }
+
+    var minY = 0
+    var minX = 0
+    var maxY = 0
+    var maxX = 0
 
     private fun removeOutsideBlocks(blocks: List<Block>): List<Block> {
         val cornerBlocks = blocks.filterIsInstance(CornerBlock::class.java)
         if (cornerBlocks.isEmpty())
             return blocks
 
-        var maxX = Integer.MAX_VALUE
-        var minX = 0
-        var maxY = Integer.MAX_VALUE
-        var minY = 0
+        val minX = cornerBlocks
+                .filter { it.positions.contains(CornerBlock.Type.LEFT) }
+                .map { it.centerX + it.diameter / 1.5 }.average().toInt()
 
-        cornerBlocks.maxBy { it.centerX }.let { maxX = it?.centerX ?: 0 }
-        cornerBlocks.maxBy { it.centerY }.let { maxY = it?.centerY ?: 0 }
-        cornerBlocks.minBy { it.centerX }.let { minX = it?.centerX ?: 0 }
-        cornerBlocks.minBy { it.centerY }.let { minY = it?.centerY ?: 0 }
+        if (minX > 0) {
+            this.minX = minX
+        }
 
-        return blocks.toMutableList()
-                .apply {
-                    removeAll { it.centerX > maxX || it.centerX < minX || it.centerY < minY - 100 || it.centerY > maxY }
-                }.toList()
+        val maxX = cornerBlocks
+                .filter { it.positions.contains(CornerBlock.Type.RIGHT) }
+                .map { it.centerX - it.diameter / 1.5 }.average().toInt()
+
+        val minY = cornerBlocks
+                .filter { it.positions.contains(CornerBlock.Type.TOP) }
+                .map { it.centerY }.average().toInt()
+
+        val maxY = cornerBlocks
+                .filter { it.positions.contains(CornerBlock.Type.BOTTOM) }
+                .map { it.centerY - it.diameter * 3 }.average().toInt()
+
+        if (minX > 0) {
+            this.minX = minX
+        }
+        if (minY > 0) {
+            this.minY = minY
+        }
+        if (maxX > 0) {
+            this.maxX = maxX
+        }
+        if (maxY > 0) {
+            this.maxY = maxY
+        }
+
+        val insideBlocks = blocks.toMutableList()
+        insideBlocks.removeAll {
+            val marginX = 70
+            val marginY = 150
+            it.centerX > (this.maxX + marginX)
+                    || it.centerX < (this.minX - marginX)
+                    || it.centerY < (this.minY - marginY)
+                    || it.centerY > (this.maxY + marginY)
+        }
+        return insideBlocks
     }
 
     private fun updateBlocksList(blocks: List<Block>) {
