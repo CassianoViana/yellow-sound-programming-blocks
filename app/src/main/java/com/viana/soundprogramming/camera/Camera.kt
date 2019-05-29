@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
+import android.graphics.Matrix
 import android.hardware.camera2.*
 import android.media.ImageReader
 import android.os.Handler
@@ -47,8 +48,26 @@ class Camera(
         image?.let {
             val bitmap = bitmapReader.readImage(image)
             image.close()
+            /*val resizedBitmap = getResizedBitmap(bitmap, 1000, 700)*/
             onEachFrameListener?.onNewFrame(bitmap)
         }
+    }
+
+    fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
+        val width = bm.width
+        val height = bm.height
+        val scaleWidth = newWidth.toFloat() / width
+        val scaleHeight = newHeight.toFloat() / height
+        // CREATE A MATRIX FOR THE MANIPULATION
+        val matrix = Matrix()
+        // RESIZE THE BIT MAP
+        matrix.postScale(scaleWidth, scaleHeight)
+
+        // "RECREATE" THE NEW BITMAP
+        val resizedBitmap = Bitmap.createBitmap(
+                bm, 0, 0, width, height, matrix, false)
+        bm.recycle()
+        return resizedBitmap
     }
 
     @SuppressLint("MissingPermission")
