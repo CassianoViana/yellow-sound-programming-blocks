@@ -37,6 +37,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     private val blocksManager = BlocksManager()
     private val blocksRecorder = BlocksRecorder()
     private val stateMachine = StateMachine()
+    private val logsRecorder = LogsRecorder()
     private val helper = Helper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -117,6 +118,7 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
 
     private fun prepareBlocksManagerListeners() {
         blocksManager
+                .addListener(logsRecorder)
                 .addListener(board)
                 .addListener(stateMachine)
                 .addListener(blocksRecorder)

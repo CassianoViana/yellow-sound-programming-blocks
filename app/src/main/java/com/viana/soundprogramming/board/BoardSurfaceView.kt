@@ -79,8 +79,8 @@ class BoardSurfaceView
     override fun draw(canvas: Canvas) {
         try {
             super.draw(canvas)
-            //clear(canvas)
-            //drawBlocks(canvas, blocks)
+            clear(canvas)
+            drawBlocks(canvas, blocks)
             //drawTimelineRange(canvas)
             drawRaia(canvas, raiaIndex)
         } catch (e: Exception) {
