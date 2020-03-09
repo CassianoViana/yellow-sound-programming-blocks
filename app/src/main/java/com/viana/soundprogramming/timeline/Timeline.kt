@@ -49,7 +49,7 @@ class Timeline(
             }
         }
 
-    private fun scheduleTimer() {
+    fun scheduleTimer() {
         if (scheduleLocked) return
         scheduleLocked = true
         Log.i("Timeline", "Timer scheduled")
@@ -92,7 +92,7 @@ class Timeline(
     }
 
     interface Listener {
-        fun onHitStart(timelineTimer: TimelineTimer, i: Int)
+        fun onHitStart(timelineTimer: TimelineTimer, index: Int)
     }
 
     fun start() {

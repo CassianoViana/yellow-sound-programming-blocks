@@ -127,10 +127,9 @@ class SoundProgrammingActivity : AppCompatActivity(), StateMachine.Listener, Blo
     }
 
     private fun prepareTimelineListener() {
-        board
-                .timeline.addListener(object : Timeline.Listener {
+        board.timeline.addListener(object : Timeline.Listener {
             override fun onHitStart(timelineTimer: TimelineTimer, index: Int) {
-                ProgrammingVibrator.vibrate(5)
+                //ProgrammingVibrator.vibrate(5)
                 musicManager.music?.play(index)
             }
         })

@@ -81,53 +81,51 @@ class Camera(
                 registerAvailabilityCallback(object : CameraManager.AvailabilityCallback() {
                     override fun onCameraAvailable(cameraId: String?) {
                         Log.i("CameraAvailability", "available")
+                        if (cameraId.equals(facingBackCameraId)) {
+                            openCamera(facingBackCameraId)
+                        }
                     }
 
                     override fun onCameraUnavailable(cameraId: String?) {
                         Log.i("CameraAvailability", "unavailable")
                     }
                 }, backgroundHandler)
-                openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
-                    override fun onOpened(camera: CameraDevice) {
-                        cameraDevice = camera
-                        startCameraSession(camera)
-                        onOpenCameraListener?.cameraOpened()
-                        isCameraOpen = true
-                    }
 
-                    override fun onDisconnected(camera: CameraDevice) {
-                        Log.e(TAG, "onDisconnected")
-                        isCameraOpen = false
-                    }
-
-                    override fun onError(camera: CameraDevice, error: Int) {
-                        Log.e(TAG, "onError")
-                        isCameraOpen = false
-                    }
-
-                    private fun startCameraSession(camera: CameraDevice) = try {
-                        prepareImageReader()
-                        createTargetSurfaces()
-                        createCaptureRequest()
-                        camera.createCaptureSession(surfaces,
-                                object : CameraCaptureSession.StateCallback() {
-                                    override fun onConfigured(session: CameraCaptureSession) {
-                                        cameraSession = session
-                                        startRepeatingSessionRequestToCamera()
-                                    }
-
-                                    override fun onConfigureFailed(session: CameraCaptureSession) {
-                                        Log.e(TAG, "onConfigureFailed")
-                                    }
-                                }, backgroundHandler)
-                    } catch (e: CameraAccessException) {
-                        e.printStackTrace()
-                    }
-                }, backgroundHandler)
             }
         } catch (e: CameraAccessException) {
             e.printStackTrace()
         }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun CameraManager.openCamera(facingBackCameraId: String) {
+        openCamera(facingBackCameraId, object : CameraDevice.StateCallback() {
+            override fun onOpened(camera: CameraDevice) {
+                cameraDevice = camera
+                startCameraSession(camera)
+                onOpenCameraListener?.cameraOpened()
+                isCameraOpen = true
+            }
+
+            override fun onDisconnected(camera: CameraDevice) {
+                Log.e(TAG, "onDisconnected")
+                isCameraOpen = false
+            }
+
+            override fun onError(camera: CameraDevice, error: Int) {
+                Log.e(TAG, "onError")
+                isCameraOpen = false
+            }
+
+            private fun startCameraSession(camera: CameraDevice) = try {
+                prepareImageReader()
+                createTargetSurfaces()
+                createCaptureRequest()
+                createCaptureSession(camera)
+            } catch (e: CameraAccessException) {
+                e.printStackTrace()
+            }
+        }, backgroundHandler)
     }
 
     private fun createTargetSurfaces() {
@@ -140,13 +138,27 @@ class Camera(
 
     private fun createCaptureRequest() {
         cameraDevice.let {
-            val captureRequestBuilder = it.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE)
+            val captureRequestBuilder = it.createCaptureRequest(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
             if (flashLightOn) {
                 captureRequestBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH)
             }
             surfaces.forEach { captureRequestBuilder.addTarget(it) }
             captureRequest = captureRequestBuilder.build()
         }
+    }
+
+    private fun createCaptureSession(camera: CameraDevice) {
+        camera.createCaptureSession(surfaces,
+                object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigured(session: CameraCaptureSession) {
+                        cameraSession = session
+                        startRepeatingSessionRequestToCamera()
+                    }
+
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        Log.e(TAG, "onConfigureFailed")
+                    }
+                }, backgroundHandler)
     }
 
     private fun startRepeatingSessionRequestToCamera() {
@@ -164,7 +176,7 @@ class Camera(
                     e.printStackTrace()
                 }
             }
-        }, 0, 300)
+        }, 0, 500)
         /*cameraSession.setRepeatingRequest(captureRequest,
                 value, backgroundHandler)*/
     }
