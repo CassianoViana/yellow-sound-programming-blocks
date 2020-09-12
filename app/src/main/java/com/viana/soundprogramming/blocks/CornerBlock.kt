@@ -4,14 +4,14 @@ import android.graphics.Rect
 
 class CornerBlock : Block(), NotMovableBlock {
 
-    var positions = mutableListOf<Type>()
+    var positions = mutableListOf<Corner>()
 
-    fun setPositions(vararg positions: Type): CornerBlock {
+    fun setPositions(vararg positions: Corner): CornerBlock {
         this.positions = positions.toMutableList()
         return this
     }
 
-    enum class Type {
+    enum class Corner {
         TOP, BOTTOM, LEFT, RIGHT
     }
 

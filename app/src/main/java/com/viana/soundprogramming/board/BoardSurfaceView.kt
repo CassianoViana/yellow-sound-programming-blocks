@@ -28,6 +28,7 @@ class BoardSurfaceView
 
     init {
         setBackgroundColor(Color.TRANSPARENT)
+        setZOrderOnTop(true)
         holder.setFormat(PixelFormat.TRANSPARENT)
         holder.addCallback(this)
         heightFloat = height.toFloat()

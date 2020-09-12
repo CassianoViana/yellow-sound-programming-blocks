@@ -162,9 +162,9 @@ class Camera(
     }
 
     private fun startRepeatingSessionRequestToCamera() {
-        val value: CameraCaptureSession.CaptureCallback = object : CameraCaptureSession.CaptureCallback() {}
+        val captureCallback: CameraCaptureSession.CaptureCallback = object : CameraCaptureSession.CaptureCallback() {}
         val timer = Timer()
-        timer.scheduleAtFixedRate(object : TimerTask() {
+        /*timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 try {
                     if (isCameraOpen) {
@@ -176,9 +176,8 @@ class Camera(
                     e.printStackTrace()
                 }
             }
-        }, 0, 500)
-        /*cameraSession.setRepeatingRequest(captureRequest,
-                value, backgroundHandler)*/
+        }, 0, 500)*/
+        cameraSession.setRepeatingRequest(captureRequest, captureCallback, backgroundHandler)
     }
 
     private fun prepareImageReader() {

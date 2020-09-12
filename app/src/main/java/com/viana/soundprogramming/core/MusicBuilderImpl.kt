@@ -99,18 +99,18 @@ class MusicBuilderImpl : MusicBuilder {
     private fun defineMusicBeginEnd() {
         val cornerBlocks = blocks.filterIsInstance(CornerBlock::class.java)
         board.timeline.begin = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.LEFT) }
+                .filter { it.positions.contains(CornerBlock.Corner.LEFT) }
                 .map { it.centerX + it.diameter / 1.5 }.average().toFloat()
         board.timeline.end = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.RIGHT) }
+                .filter { it.positions.contains(CornerBlock.Corner.RIGHT) }
                 .map { it.centerX - it.diameter / 1.5 }.average().toFloat()
 
         val minY = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.TOP) }
+                .filter { it.positions.contains(CornerBlock.Corner.TOP) }
                 .map { it.centerY }.average().toInt()
 
         val maxY = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.BOTTOM) }
+                .filter { it.positions.contains(CornerBlock.Corner.BOTTOM) }
                 .map { it.centerY - it.diameter * 3 }.average().toInt()
 
         if (minY > 0)

@@ -3,7 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/SoundProgramming.iml" filepath="$PROJECT_DIR$/SoundProgramming.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" group="soundprogramming/app" />
+      <module fileurl="file://$PROJECT_DIR$/soundprogramming.iml" filepath="$PROJECT_DIR$/soundprogramming.iml" group="soundprogramming" />
     </modules>
   </component>
 </project>

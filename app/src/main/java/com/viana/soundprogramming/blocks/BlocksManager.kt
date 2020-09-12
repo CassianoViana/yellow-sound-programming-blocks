@@ -27,7 +27,7 @@ class BlocksManager : TopCodesReader.Listener {
             return blocks
 
         val minX = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.LEFT) }
+                .filter { it.positions.contains(CornerBlock.Corner.LEFT) }
                 .map { it.centerX + it.diameter / 1.5 }.average().toInt()
 
         if (minX > 0) {
@@ -35,16 +35,16 @@ class BlocksManager : TopCodesReader.Listener {
         }
 
         val maxX = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.RIGHT) }
+                .filter { it.positions.contains(CornerBlock.Corner.RIGHT) }
                 .map { it.centerX - it.diameter / 1.5 }.average().toInt()
 
         val minY = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.TOP) }
+                .filter { it.positions.contains(CornerBlock.Corner.TOP) }
                 .map { it.centerY }.average().toInt()
 
         val maxY = cornerBlocks
-                .filter { it.positions.contains(CornerBlock.Type.BOTTOM) }
-                .map { it.centerY - it.diameter * 3 }.average().toInt()
+                .filter { it.positions.contains(CornerBlock.Corner.BOTTOM) }
+                .map { it.centerY - it.diameter  }.average().toInt()
 
         if (minX > 0) {
             this.minX = minX

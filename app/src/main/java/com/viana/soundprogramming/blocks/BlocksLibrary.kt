@@ -11,10 +11,10 @@ class BlocksLibrary {
     init {
         blocks[87] = LockBlock()
 
-        blocks[713] = CornerBlock().setPositions(CornerBlock.Type.TOP, CornerBlock.Type.LEFT)
-        blocks[617] = CornerBlock().setPositions(CornerBlock.Type.TOP, CornerBlock.Type.RIGHT)
-        blocks[613] = CornerBlock().setPositions(CornerBlock.Type.BOTTOM, CornerBlock.Type.LEFT)
-        blocks[681] = CornerBlock().setPositions(CornerBlock.Type.BOTTOM, CornerBlock.Type.RIGHT)
+        blocks[713] = CornerBlock().setPositions(CornerBlock.Corner.TOP, CornerBlock.Corner.LEFT)
+        blocks[617] = CornerBlock().setPositions(CornerBlock.Corner.TOP, CornerBlock.Corner.RIGHT)
+        blocks[613] = CornerBlock().setPositions(CornerBlock.Corner.BOTTOM, CornerBlock.Corner.LEFT)
+        blocks[681] = CornerBlock().setPositions(CornerBlock.Corner.BOTTOM, CornerBlock.Corner.RIGHT)
 
         blocks[31] = PlayBlock()
         blocks[47] = PauseBlock()
