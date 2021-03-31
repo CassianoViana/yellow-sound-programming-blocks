@@ -119,7 +119,6 @@ public class TopCode {
         this.code = code;
     }
 
-
     /**
      * Returns the orientation of this code in radians and accurate
      * to about plus or minus one degree.  This value gets set
@@ -129,14 +128,12 @@ public class TopCode {
         return this.orientation;
     }
 
-
     /**
      * Sets the angular orientation of this code in radians.
      */
     public void setOrientation(float orientation) {
         this.orientation = orientation;
     }
-
 
     /**
      * Returns the diameter of this code in pixels.  This value

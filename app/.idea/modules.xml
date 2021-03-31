@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app.iml" group="soundprogramming/app" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/-276323259/soundprogramming.iml" filepath="$PROJECT_DIR$/.idea/modules/-276323259/soundprogramming.iml" group="soundprogramming" />
+    </modules>
+  </component>
+</project>
